@@ -2,30 +2,46 @@
 
 import Link from "next/link";
 import { Menu, X, User } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
-  { label: "HOME", href: "/" },
+  { label: "INICIO", href: "/home" },
   { label: "GRUPOS", href: "/groups" },
   { label: "PARTIDOS", href: "/matches" },
   { label: "CLASIFICACIÓN", href: "/leaderboard" },
   { label: "REGLAS", href: "/rules" },
 ];
 
-type HeaderProps = {
-  currentPath?: string;
-  onLogout?: () => void;
-};
-
-export default function Header({
-  currentPath = "/groups",
-  onLogout,
-}: HeaderProps) {
+export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signOut({
+      scope: "local",
+    });
+
+    if (error) {
+      console.error("Error al cerrar sesión:", error.message);
+      return;
+    }
+
     setIsOpen(false);
-    onLogout?.();
+    router.push("/");
+    router.refresh();
+  };
+
+  const isItemActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (
@@ -37,12 +53,12 @@ export default function Header({
               href="/"
               className="shrink-0 text-lg font-extrabold tracking-tight text-white sm:text-xl"
             >
-              WORLD CUP 2026
+              MUNDIAL 2026
             </Link>
 
             <nav className="hidden items-center gap-8 lg:flex">
               {navItems.map((item) => {
-                const isActive = currentPath === item.href;
+                const isActive = isItemActive(item.href);
 
                 return (
                   <Link
@@ -73,7 +89,7 @@ export default function Header({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#2A398D] transition hover:bg-white/90"
+                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#2A398D] transition hover:bg-red-500 hover:text-white"
               >
                 CERRAR SESIÓN
               </button>
@@ -98,7 +114,7 @@ export default function Header({
             <div className="border-t border-white/10 px-5 pb-5 pt-3 sm:px-6 lg:hidden">
               <div className="flex flex-col gap-2">
                 {navItems.map((item) => {
-                  const isActive = currentPath === item.href;
+                  const isActive = isItemActive(item.href);
 
                   return (
                     <Link
@@ -132,7 +148,7 @@ export default function Header({
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-2xl bg-white px-4 py-3 text-left text-sm font-semibold text-[#2A398D] transition hover:bg-white/90"
+                  className="rounded-2xl bg-red-500 text-white px-4 py-3 text-left text-sm font-semibold transition"
                 >
                   CERRAR SESIÓN
                 </button>
