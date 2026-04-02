@@ -16,6 +16,8 @@ type Props = {
 export default function PredictGroupsButton({ groups }: Props) {
   const router = useRouter();
 
+  const BUTTON_DISABLED = false;
+
   const handleOpenModal = async () => {
     await MySwal.fire({
       title: "Predicciones de grupos",
@@ -94,8 +96,9 @@ export default function PredictGroupsButton({ groups }: Props) {
   return (
     <button
       type="button"
-      className="rounded-tr-4xl rounded-bl-4xl bg-green-900 p-4 font-semibold text-white transition hover:bg-green-700"
+      className="h-18 rounded-tr-4xl rounded-bl-4xl bg-green-900 p-4 font-semibold text-white transition hover:bg-green-800 disabled:bg-gray-800"
       onClick={handleOpenModal}
+      disabled={BUTTON_DISABLED}
     >
       HAZ TUS PREDICCIONES
     </button>

@@ -1,20 +1,43 @@
--- CREA TABLA GRUPOS
-create table groups (
+-- ============================================
+-- Mundial 2026 - Esquema inicial
+-- ============================================
+
+-- --------------------------------------------
+-- 1) Tabla de grupos
+-- --------------------------------------------
+create table if not exists public.groups (
   id integer primary key,
   name text not null
 );
 
---  CREA TABLA EQUIPOS
-create table teams (
+-- --------------------------------------------
+-- 2) Tabla de equipos
+-- --------------------------------------------
+create table if not exists public.teams (
   id integer primary key,
   name text not null,
   code text not null,
   flag_code text not null,
-  group_id integer references groups(id) on delete cascade
+  group_id integer not null references public.groups(id) on delete cascade
 );
 
--- DATOS DE GRUPOS
-insert into groups (id, name) values
+-- Constraint para poder validar FK compuesta desde group_predictions
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'teams_id_group_id_unique'
+  ) then
+    alter table public.teams
+    add constraint teams_id_group_id_unique unique (id, group_id);
+  end if;
+end $$;
+
+-- --------------------------------------------
+-- 3) Datos de grupos
+-- --------------------------------------------
+insert into public.groups (id, name) values
 (1, 'A'),
 (2, 'B'),
 (3, 'C'),
@@ -26,10 +49,14 @@ insert into groups (id, name) values
 (9, 'I'),
 (10, 'J'),
 (11, 'K'),
-(12, 'L');
+(12, 'L')
+on conflict (id) do update set
+  name = excluded.name;
 
--- DATOS DE EQUIPOS
-insert into teams (id, name, code, flag_code, group_id) values
+-- --------------------------------------------
+-- 4) Datos de equipos
+-- --------------------------------------------
+insert into public.teams (id, name, code, flag_code, group_id) values
 (4, 'Czechia', 'CZE', 'cz', 1),
 (2, 'Korea Republic', 'KOR', 'kr', 1),
 (1, 'Mexico', 'MEX', 'mx', 1),
@@ -88,4 +115,98 @@ insert into teams (id, name, code, flag_code, group_id) values
 (48, 'Croatia', 'CRO', 'hr', 12),
 (47, 'England', 'ENG', 'gb-eng', 12),
 (45, 'Ghana', 'GHA', 'gh', 12),
-(46, 'Panama', 'PAN', 'pa', 12);
+(46, 'Panama', 'PAN', 'pa', 12)
+on conflict (id) do update set
+  name = excluded.name,
+  code = excluded.code,
+  flag_code = excluded.flag_code,
+  group_id = excluded.group_id;
+
+-- --------------------------------------------
+-- 5) Tabla de predicciones de grupos
+-- --------------------------------------------
+create table if not exists public.group_predictions (
+  id bigint generated always as identity primary key,
+
+  user_id uuid not null references auth.users(id) on delete cascade,
+  group_id integer not null references public.groups(id) on delete cascade,
+
+  first_team_id integer not null,
+  second_team_id integer not null,
+
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  constraint group_predictions_user_group_unique
+    unique (user_id, group_id),
+
+  constraint group_predictions_two_distinct_teams
+    check (first_team_id <> second_team_id),
+
+  constraint group_predictions_first_team_in_group_fk
+    foreign key (first_team_id, group_id)
+    references public.teams (id, group_id),
+
+  constraint group_predictions_second_team_in_group_fk
+    foreign key (second_team_id, group_id)
+    references public.teams (id, group_id)
+);
+
+-- --------------------------------------------
+-- 6) Función para updated_at
+-- --------------------------------------------
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+-- --------------------------------------------
+-- 7) Trigger para updated_at
+-- --------------------------------------------
+drop trigger if exists set_group_predictions_updated_at on public.group_predictions;
+
+create trigger set_group_predictions_updated_at
+before update on public.group_predictions
+for each row
+execute function public.set_updated_at();
+
+-- --------------------------------------------
+-- 8) Row Level Security
+-- --------------------------------------------
+alter table public.group_predictions enable row level security;
+
+-- Borrado previo por si vuelves a ejecutar el script
+drop policy if exists "Users can view their own group predictions" on public.group_predictions;
+drop policy if exists "Users can insert their own group predictions" on public.group_predictions;
+drop policy if exists "Users can update their own group predictions" on public.group_predictions;
+drop policy if exists "Users can delete their own group predictions" on public.group_predictions;
+
+create policy "Users can view their own group predictions"
+on public.group_predictions
+for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "Users can insert their own group predictions"
+on public.group_predictions
+for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can update their own group predictions"
+on public.group_predictions
+for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+create policy "Users can delete their own group predictions"
+on public.group_predictions
+for delete
+to authenticated
+using ((select auth.uid()) = user_id);
