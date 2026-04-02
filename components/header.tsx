@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X, User } from "lucide-react";
+import Image from "next/image";
+import { Menu, X, User as UserIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const navItems = [
   { label: "INICIO", href: "/home" },
@@ -14,10 +16,17 @@ const navItems = [
   { label: "REGLAS", href: "/rules" },
 ];
 
-export default function Header() {
+type HeaderProps = {
+  user?: User | null;
+};
+
+export default function Header({ user }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  const avatarUrl =
+    user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -47,7 +56,7 @@ export default function Header() {
   return (
     <header className="w-full px-4 pt-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="rounded-bl-4xl rounded-tr-4xl bg-[#2A398D] shadow-[0_12px_40px_rgba(0,0,0,0.28)] ring-1 ring-white/5">
+        <div className="rounded-tr-4xl rounded-bl-4xl bg-[#2A398D] shadow-[0_12px_40px_rgba(0,0,0,0.28)] ring-1 ring-white/5">
           <div className="flex min-h-20 items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
             <Link
               href="/"
@@ -80,16 +89,28 @@ export default function Header() {
             <div className="hidden items-center gap-6 lg:flex">
               <Link
                 href="/profile"
-                className="rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+                className="flex items-center justify-center"
                 aria-label="Profile"
               >
-                <User className="h-5 w-5" />
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={`Avatar de ${user?.email ?? "usuario"}`}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full border border-white/20 object-cover transition hover:scale-110 hover:transform"
+                  />
+                ) : (
+                  <div className="rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20">
+                    <UserIcon className="h-5 w-5" />
+                  </div>
+                )}
               </Link>
 
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#2A398D] transition hover:bg-red-500 hover:text-white"
+                className="cursor-pointer rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#2A398D] transition hover:bg-red-500 hover:text-white"
               >
                 CERRAR SESIÓN
               </button>
@@ -111,7 +132,7 @@ export default function Header() {
           </div>
 
           {isOpen && (
-            <div className="border-t border-white/10 px-5 pb-5 pt-3 sm:px-6 lg:hidden">
+            <div className="border-t border-white/10 px-5 pt-3 pb-5 sm:px-6 lg:hidden">
               <div className="flex flex-col gap-2">
                 {navItems.map((item) => {
                   const isActive = isItemActive(item.href);
@@ -141,14 +162,24 @@ export default function Header() {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold tracking-wide text-white/90 transition hover:bg-white/10 hover:text-white"
                 >
-                  <User className="h-5 w-5" />
+                  {avatarUrl ? (
+                    <Image
+                      src={avatarUrl}
+                      alt={`Avatar de ${user?.email ?? "usuario"}`}
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-full border border-white/20 object-cover"
+                    />
+                  ) : (
+                    <UserIcon className="h-5 w-5" />
+                  )}
                   PERFIL
                 </Link>
 
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-2xl bg-red-500 text-white px-4 py-3 text-left text-sm font-semibold transition"
+                  className="rounded-2xl bg-red-500 px-4 py-3 text-left text-sm font-semibold text-white transition"
                 >
                   CERRAR SESIÓN
                 </button>

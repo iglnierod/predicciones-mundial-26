@@ -21,7 +21,7 @@ export default async function MainLayout({
 
   return (
     <div className="bg-ball-blur flex min-h-dvh flex-col bg-neutral-950 text-white">
-      <Header />
+      <Header user={user} />
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
         {children}
       </main>

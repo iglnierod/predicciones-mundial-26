@@ -23,9 +23,9 @@ export default async function Home() {
         userName={user?.user_metadata?.full_name}
       /> */}
 
-      <main className="min-h-dvh w-full bg-ball flex items-center justify-center px-6">
-        <section className="w-full max-w-3xl rounded-3xl bg-black/45 backdrop-blur-md border border-white/10 shadow-2xl px-8 py-12 text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-white/70">
+      <main className="bg-ball flex min-h-dvh w-full items-center justify-center px-6">
+        <section className="w-full max-w-3xl rounded-3xl border border-white/10 bg-black/45 px-8 py-12 text-center shadow-2xl backdrop-blur-md">
+          <p className="text-sm tracking-[0.3em] text-white/70 uppercase">
             FIFA World Cup 2026
           </p>
 

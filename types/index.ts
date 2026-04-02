@@ -11,3 +11,5 @@ export interface Group {
   name: string;
   teams?: Team[];
 }
+
+export type GroupPredictionSelection = Record<string, number[]>;
