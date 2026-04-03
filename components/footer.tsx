@@ -52,7 +52,7 @@ export default function Footer() {
               </Link>
 
               <Link
-                href="mailto:iglnierod@correo.com"
+                href="mailto:iglnierod@gmail.com"
                 aria-label="Email"
                 className="rounded-full bg-white/10 p-3 transition hover:bg-white/20"
                 title="Mi e-mail"
