@@ -423,7 +423,7 @@ create table if not exists public.matches (
 
   constraint matches_status_allowed
     check (
-      status in ('scheduled', 'live', 'finished', 'cancelled')
+      status in ('scheduled', 'live', 'completed')
     )
 );
 
