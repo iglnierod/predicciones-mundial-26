@@ -13,9 +13,17 @@ export default async function GroupsPage() {
   const { data: groups, error: groupsError } = await supabase
     .from("groups")
     .select(
-      `id, name, teams (
-        id, name, code, flag_code, group_id
-      )`,
+      `
+    id,
+    name,
+    teams!teams_group_id_fkey (
+      id,
+      name,
+      code,
+      flag_code,
+      group_id
+    )
+  `,
     )
     .order("name");
 
@@ -28,7 +36,7 @@ export default async function GroupsPage() {
   if (user) {
     const { data: predictions, error: predictionsError } = await supabase
       .from("group_predictions")
-      .select("group_id, first_team_id, second_team_id")
+      .select("group_id, team_a_id, team_b_id")
       .eq("user_id", user.id);
 
     if (predictionsError) {
@@ -37,10 +45,7 @@ export default async function GroupsPage() {
 
     predictionSelection = (predictions ?? []).reduce<GroupPredictionSelection>(
       (acc, prediction) => {
-        acc[prediction.group_id] = [
-          prediction.first_team_id,
-          prediction.second_team_id,
-        ];
+        acc[prediction.group_id] = [prediction.team_a_id, prediction.team_b_id];
         return acc;
       },
       {},

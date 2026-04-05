@@ -46,8 +46,8 @@ export default function PredictGroupsButton({ groups }: Props) {
               ([groupId, teamIds]) => ({
                 user_id: user.id,
                 group_id: Number(groupId),
-                first_team_id: teamIds[0],
-                second_team_id: teamIds[1],
+                team_a_id: teamIds[0],
+                team_b_id: teamIds[1],
               }),
             );
 
