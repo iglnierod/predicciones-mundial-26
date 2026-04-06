@@ -86,7 +86,7 @@ export default function MatchRow({
               alt={`Bandera de ${match.home_team_name}`}
               width={72}
               height={48}
-              className="h-12 w-[72px] object-cover"
+              className="h-12 w-18 object-cover"
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function MatchRow({
           </span>
         </div>
 
-        <div className="flex min-w-[110px] flex-col items-center justify-center gap-2">
+        <div className="flex min-w-27.5 flex-col items-center justify-center gap-2">
           <div className="flex gap-2">
             <select
               className="w-14 rounded-md bg-blue-900 p-2 text-center font-semibold text-white disabled:bg-blue-900/50"
@@ -153,7 +153,7 @@ export default function MatchRow({
               alt={`Bandera de ${match.away_team_name}`}
               width={72}
               height={48}
-              className="h-12 w-[72px] object-cover"
+              className="h-12 w-18 object-cover"
             />
           </div>
 
