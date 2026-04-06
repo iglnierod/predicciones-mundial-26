@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "sync:matches": "tsx scripts/sync-matches.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",
@@ -21,6 +22,7 @@
     "sweetalert2-react-content": "^5.1.2"
   },
   "devDependencies": {
+    "@next/env": "^16.2.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -30,6 +32,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
