@@ -9,7 +9,7 @@ export default async function MatchesPage() {
     .from("matches_with_details")
     .select("*")
     .order("kickoff_at", { ascending: true })
-    .range(0, 1000); // Paginación de 10 en 10
+    .range(0, 8); // Paginación de 10 en 10
 
   if (matchesError) {
     throw new Error("No se pudieron cargar los partidos");
@@ -26,7 +26,7 @@ export default async function MatchesPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         {matches?.map((match: Match) => (
           <MatchRow key={match.id} match={match} />
         ))}
