@@ -1,12 +1,20 @@
 "use client";
 
-import { Match } from "@/types";
+import { MatchWithPrediction } from "@/types";
 import Image from "next/image";
+import { useState } from "react";
+import { LoaderCircle } from "lucide-react";
 
 type MatchRowProps = {
-  match: Match;
+  match: MatchWithPrediction;
   onViewPredictions?: (matchId: number) => void;
-  onMakePrediction?: (matchId: number) => void;
+  onMakePrediction?: (
+    matchId: number,
+    matchPredictedHomeScore: number | null,
+    matchPredictedAwayScore: number | null,
+    predictedHomeScore: number,
+    predictedAwayScore: number,
+  ) => Promise<{ saved: boolean; errorMessage: string | null }>;
 };
 
 function formatKickoffDateTime(dateString: string) {
@@ -47,9 +55,56 @@ export default function MatchRow({
   onViewPredictions,
   onMakePrediction,
 }: MatchRowProps) {
-  const kickoffDateTime = formatKickoffDateTime(match.kickoff_at);
+  const [predictedHomeScore, setPredictedHomeScore] = useState<number>(
+    match.predicted_home_score ?? 0,
+  );
+  const [predictedAwayScore, setPredictedAwayScore] = useState<number>(
+    match.predicted_away_score ?? 0,
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
+  const kickoffDateTime = formatKickoffDateTime(match.kickoff_at);
   const hasScore = match.home_score !== null && match.away_score !== null;
+  const hasPrediction =
+    match.predicted_home_score !== null && match.predicted_away_score !== null;
+
+  const selectClassName = `w-14 rounded-md p-2 text-center font-semibold text-white ${
+    hasPrediction
+      ? "bg-green-700 disabled:bg-green-700/50"
+      : "bg-blue-900 disabled:bg-blue-900/50"
+  }`;
+
+  const predictionButtonClassName = `w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70 ${
+    hasPrediction
+      ? "bg-green-700 hover:bg-green-800"
+      : "bg-[#2A398D] hover:bg-[#22307c]"
+  }`;
+
+  async function handleSubmitPrediction() {
+    if (!onMakePrediction || isSaving) return;
+
+    setIsSaving(true);
+    setSaveError(null);
+    setSaved(false);
+
+    const res = await onMakePrediction(
+      match.id,
+      match.predicted_home_score,
+      match.predicted_away_score,
+      predictedHomeScore,
+      predictedAwayScore,
+    );
+
+    setSaved(res.saved && !res.errorMessage);
+
+    if (res.errorMessage) {
+      setSaveError(res.errorMessage);
+    }
+
+    setIsSaving(false);
+  }
 
   return (
     <article className="rounded-3xl border border-black/5 bg-white/85 p-4 shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-white/30 backdrop-blur-sm transition hover:shadow-[0_14px_36px_rgba(0,0,0,0.18)]">
@@ -67,10 +122,6 @@ export default function MatchRow({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* TODO: mostrar puntos de la predicción si ya se jugó el partido */}
-          {/* <span className="rounded-full bg-green-800/70 px-3 py-1 text-[12px] font-bold tracking-wide text-white/70">
-            +8 pts
-          </span> */}
           <p className="text-sm font-bold text-black">{kickoffDateTime}</p>
         </div>
       </div>
@@ -92,11 +143,13 @@ export default function MatchRow({
           </span>
         </div>
 
-        <div className="flex min-w-27.5 flex-col items-center justify-center gap-2">
+        <div className="flex min-w-[110px] flex-col items-center justify-center gap-2">
           <div className="flex gap-2">
             <select
-              className="w-14 rounded-md bg-blue-900 p-2 text-center font-semibold text-white disabled:bg-blue-900/50"
-              disabled={match.status !== "scheduled"}
+              value={predictedHomeScore}
+              className={selectClassName}
+              disabled={match.status !== "scheduled" || isSaving}
+              onChange={(e) => setPredictedHomeScore(Number(e.target.value))}
             >
               {Array.from({ length: 11 }).map((_, index) => (
                 <option key={index} value={index}>
@@ -104,10 +157,14 @@ export default function MatchRow({
                 </option>
               ))}
             </select>
+
             <span className="text-4xl text-black/70">-</span>
+
             <select
-              className="w-14 rounded-md bg-blue-900 p-2 text-center font-semibold text-white disabled:bg-blue-900/50"
-              disabled={match.status !== "scheduled"}
+              value={predictedAwayScore}
+              className={selectClassName}
+              disabled={match.status !== "scheduled" || isSaving}
+              onChange={(e) => setPredictedAwayScore(Number(e.target.value))}
             >
               {Array.from({ length: 11 }).map((_, index) => (
                 <option key={index} value={index}>
@@ -116,6 +173,7 @@ export default function MatchRow({
               ))}
             </select>
           </div>
+
           {hasScore ? (
             <p className="mb-2 text-center text-[14px] leading-4 font-semibold text-black">
               FT: {match.home_score} - {match.away_score}
@@ -144,6 +202,14 @@ export default function MatchRow({
         </div>
       </div>
 
+      {saveError && (
+        <div className="mt-3">
+          {saveError && (
+            <p className="text-sm font-medium text-red-600">{saveError}</p>
+          )}
+        </div>
+      )}
+
       <div className="mt-4 flex justify-between gap-2">
         <button
           type="button"
@@ -156,11 +222,21 @@ export default function MatchRow({
 
         <button
           type="button"
-          onClick={() => onMakePrediction?.(match.id)}
-          className="w-full rounded-2xl bg-[#2A398D] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#22307c]"
+          onClick={handleSubmitPrediction}
+          disabled={isSaving}
+          className={predictionButtonClassName}
           hidden={match.status !== "scheduled"}
         >
-          HACER PREDICCIÓN
+          {isSaving ? (
+            <span className="inline-flex items-center gap-2">
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+              GUARDANDO...
+            </span>
+          ) : hasPrediction ? (
+            "EDITAR PREDICCIÓN"
+          ) : (
+            "HACER PREDICCIÓN"
+          )}
         </button>
       </div>
     </article>

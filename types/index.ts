@@ -50,7 +50,7 @@ export type ApiMatch = {
   status: "scheduled" | "live" | "completed";
 };
 
-export type Match = {
+export type MatchWithTeam = {
   id: number;
   round: string;
   kickoff_at: string;
@@ -67,4 +67,42 @@ export type Match = {
   away_team_name: string;
   away_team_code: string;
   away_team_flag_code: string;
+};
+
+export type MatchPrediction = {
+  user_id: string;
+  match_id: number;
+  predicted_home_score: number;
+  predicted_away_score: number;
+};
+
+export type MatchWithPrediction = {
+  id: number;
+  api_match_id: number | null;
+  match_number: number | null;
+  round: string;
+  kickoff_at: string;
+  status: string;
+  home_score: number | null;
+  away_score: number | null;
+  stadium: string | null;
+  stadium_city: string | null;
+  stadium_country: string | null;
+  group_id: number | null;
+  group_name: string | null;
+  home_team_id: number;
+  home_team_name: string;
+  home_team_code: string;
+  home_team_flag_code: string;
+  away_team_id: number;
+  away_team_name: string;
+  away_team_code: string;
+  away_team_flag_code: string;
+
+  prediction_id: number | null;
+  prediction_user_id: string | null;
+  predicted_home_score: number | null;
+  predicted_away_score: number | null;
+  prediction_created_at: string | null;
+  prediction_updated_at: string | null;
 };

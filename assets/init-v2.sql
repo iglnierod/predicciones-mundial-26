@@ -1008,3 +1008,56 @@ select
 from public.profiles p
 join public.user_points up
   on up.user_id = p.id;
+
+-- ============================================
+-- VISTA PARA PARTIDOS Y PREDICCIÓN DEL PROPIO USUARIO 
+-- ============================================
+
+create or replace view public.matches_with_user_prediction as
+select
+  m.id,
+  m.api_match_id,
+  m.match_number,
+  m.round,
+  m.kickoff_at,
+  m.status,
+  m.home_score,
+  m.away_score,
+  m.stadium,
+  m.stadium_city,
+  m.stadium_country,
+  m.last_processed_key,
+  m.points_calculated_at,
+  m.created_at,
+  m.updated_at,
+
+  g.id as group_id,
+  g.name as group_name,
+
+  ht.id as home_team_id,
+  ht.name as home_team_name,
+  ht.code as home_team_code,
+  ht.flag_code as home_team_flag_code,
+
+  at.id as away_team_id,
+  at.name as away_team_name,
+  at.code as away_team_code,
+  at.flag_code as away_team_flag_code,
+
+  mp.id as prediction_id,
+  mp.user_id as prediction_user_id,
+  mp.predicted_home_score,
+  mp.predicted_away_score,
+  mp.created_at as prediction_created_at,
+  mp.updated_at as prediction_updated_at
+
+from matches m
+left join groups g
+  on g.id = m.group_id
+left join teams ht
+  on ht.id = m.home_team_id
+left join teams at
+  on at.id = m.away_team_id
+left join match_predictions mp
+  on mp.match_id = m.id
+ and mp.user_id = auth.uid();

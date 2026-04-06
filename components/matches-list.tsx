@@ -1,21 +1,21 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { Match } from "@/types";
+import { MatchPrediction, MatchWithPrediction } from "@/types";
 import { useState } from "react";
 import MatchRow from "./match-row";
 import MatchesSkeleton from "@/app/(main)/matches/matches-skeleton";
-import { CalendarClock, CheckCheck } from "lucide-react";
+import { CalendarClock, CheckCheck, LoaderCircle } from "lucide-react";
 
 type Props = {
-  initialMatches: Match[];
+  initialMatches: MatchWithPrediction[];
   pageSize: number;
 };
 
 type MatchFilter = "scheduled" | "completed";
 
 export default function MatchesList({ initialMatches, pageSize }: Props) {
-  const [matches, setMatches] = useState<Match[]>(initialMatches);
+  const [matches, setMatches] = useState<MatchWithPrediction[]>(initialMatches);
   const [filter, setFilter] = useState<MatchFilter>("scheduled");
   const [loadingFilter, setLoadingFilter] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -31,7 +31,7 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
     const to = from + pageSize - 1;
 
     let query = supabase
-      .from("matches_with_details")
+      .from("matches_with_user_prediction")
       .select("*")
       .order("kickoff_at", { ascending: true });
 
@@ -47,7 +47,7 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
       throw new Error("No se pudieron cargar los partidos");
     }
 
-    const newMatches = (data ?? []) as Match[];
+    const newMatches = (data ?? []) as MatchWithPrediction[];
 
     if (reset) {
       setMatches(newMatches);
@@ -91,6 +91,74 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
     }
   }
 
+  async function handleMakePrediction(
+    matchId: number,
+    matchPredictedHomeScore: number | null,
+    matchPredictedAwayScore: number | null,
+    predictedHomeScore: number,
+    predictedAwayScore: number,
+  ): Promise<{ saved: boolean; errorMessage: string | null }> {
+    if (
+      predictedHomeScore < 0 ||
+      predictedHomeScore > 10 ||
+      predictedAwayScore < 0 ||
+      predictedAwayScore > 10
+    ) {
+      return { saved: false, errorMessage: "Resultado no válido" };
+    }
+
+    if (
+      matchPredictedHomeScore === predictedHomeScore &&
+      matchPredictedAwayScore === predictedAwayScore
+    ) {
+      return { saved: false, errorMessage: null };
+    }
+
+    const supabase = createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("Debes iniciar sesión para guardar tu predicción");
+    }
+
+    const matchPrediction: MatchPrediction = {
+      user_id: user.id,
+      match_id: matchId,
+      predicted_home_score: predictedHomeScore,
+      predicted_away_score: predictedAwayScore,
+    };
+
+    const { data, error } = await supabase
+      .from("match_predictions")
+      .upsert(matchPrediction, {
+        onConflict: "user_id,match_id",
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      throw new Error("No se pudo guardar la predicción");
+    }
+
+    setMatches((prev) =>
+      prev.map((match) =>
+        match.id === matchId
+          ? {
+              ...match,
+              predicted_home_score: data.predicted_home_score,
+              predicted_away_score: data.predicted_away_score,
+            }
+          : match,
+      ),
+    );
+
+    return { saved: true, errorMessage: null };
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-center gap-3 sm:justify-start">
@@ -127,9 +195,13 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
         <MatchesSkeleton />
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {matches.map((match) => (
-              <MatchRow key={match.id} match={match} />
+              <MatchRow
+                key={match.id}
+                match={match}
+                onMakePrediction={handleMakePrediction}
+              />
             ))}
           </div>
 
@@ -147,14 +219,19 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
                 type="button"
                 onClick={handleLoadMore}
                 disabled={loadingMore || loadingFilter}
-                className="w-3xs cursor-pointer rounded-2xl border border-[#2A398D]/15 bg-white/85 px-6 py-3 text-[16px] font-bold text-[#2A398D] transition hover:bg-white/75 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex cursor-pointer items-center gap-1 rounded-2xl border border-[#2A398D]/15 bg-white/85 px-5 py-3 text-[16px] font-bold text-[#2A398D] transition hover:bg-white/75 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {loadingMore ? "CARGANDO..." : "CARGAR MÁS"}
+                {loadingMore ? (
+                  <>
+                    <LoaderCircle className="h-5 w-5 animate-spin" />
+                    <span>CARGANDO...</span>
+                  </>
+                ) : (
+                  "CARGAR MÁS"
+                )}
               </button>
             </div>
           )}
-
-          {loadingMore && <MatchesSkeleton />}
         </>
       )}
     </div>
