@@ -4,6 +4,10 @@ import LeaderboardTable from "@/components/leaderboard-table";
 export default async function LeaderboardPage() {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data: leaderboard, error: leaderboardError } = await supabase
     .from("leaderboard")
     .select(
@@ -25,7 +29,7 @@ export default async function LeaderboardPage() {
         </p>
       </div>
 
-      <LeaderboardTable leaderboard={leaderboard} />
+      <LeaderboardTable leaderboard={leaderboard} userId={user?.id} />
     </section>
   );
 }

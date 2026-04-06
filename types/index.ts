@@ -49,3 +49,22 @@ export type ApiMatch = {
   away_score: number | null;
   status: "scheduled" | "live" | "completed";
 };
+
+export type Match = {
+  id: number;
+  round: string;
+  kickoff_at: string;
+  status: string;
+  home_score: number | null;
+  away_score: number | null;
+  stadium: string | null;
+  stadium_city: string | null;
+  stadium_country: string | null;
+  group_name: string | null;
+  home_team_name: string;
+  home_team_code: string;
+  home_team_flag_code: string;
+  away_team_name: string;
+  away_team_code: string;
+  away_team_flag_code: string;
+};

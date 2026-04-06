@@ -61,7 +61,7 @@ export async function syncMatchesFromApi(): Promise<{
 
   const round: Round = { name: "group" };
 
-  const apiResponse = await fetch(`${wcApiUrl}/matches?round=${round.name}`, {
+  const apiResponse = await fetch(`${wcApiUrl}/matches`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
