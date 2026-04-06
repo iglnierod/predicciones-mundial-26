@@ -67,9 +67,10 @@ export default function MatchRow({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-green-800/70 px-3 py-1 text-[12px] font-bold tracking-wide text-white/70">
+          {/* TODO: mostrar puntos de la predicción si ya se jugó el partido */}
+          {/* <span className="rounded-full bg-green-800/70 px-3 py-1 text-[12px] font-bold tracking-wide text-white/70">
             +8 pts
-          </span>
+          </span> */}
           <p className="text-sm font-bold text-black">{kickoffDateTime}</p>
         </div>
       </div>
@@ -78,11 +79,7 @@ export default function MatchRow({
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="overflow-hidden rounded-tr-xl rounded-bl-xl border border-black/5 bg-white shadow-sm">
             <Image
-              src={
-                match.home_team_flag_code
-                  ? `https://flagcdn.com/w160/${match.home_team_flag_code}.png`
-                  : "/unknown.png"
-              }
+              src={`https://flagcdn.com/w160/${match.home_team_flag_code}.png`}
               alt={`Bandera de ${match.home_team_name}`}
               width={72}
               height={48}
@@ -101,34 +98,22 @@ export default function MatchRow({
               className="w-14 rounded-md bg-blue-900 p-2 text-center font-semibold text-white disabled:bg-blue-900/50"
               disabled={match.status !== "scheduled"}
             >
-              <option className="rounded">0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-              <option>6</option>
-              <option>7</option>
-              <option>8</option>
-              <option>9</option>
-              <option>10</option>
+              {Array.from({ length: 11 }).map((_, index) => (
+                <option key={index} value={index}>
+                  {index}
+                </option>
+              ))}
             </select>
             <span className="text-4xl text-black/70">-</span>
             <select
               className="w-14 rounded-md bg-blue-900 p-2 text-center font-semibold text-white disabled:bg-blue-900/50"
               disabled={match.status !== "scheduled"}
             >
-              <option className="rounded">0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-              <option>6</option>
-              <option>7</option>
-              <option>8</option>
-              <option>9</option>
-              <option>10</option>
+              {Array.from({ length: 11 }).map((_, index) => (
+                <option key={index} value={index}>
+                  {index}
+                </option>
+              ))}
             </select>
           </div>
           {hasScore ? (
@@ -145,11 +130,7 @@ export default function MatchRow({
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="overflow-hidden rounded-tl-xl rounded-br-xl border border-black/5 bg-white shadow-sm">
             <Image
-              src={
-                match.away_team_flag_code
-                  ? `https://flagcdn.com/w160/${match.away_team_flag_code}.png`
-                  : "/unknown.png"
-              }
+              src={`https://flagcdn.com/w160/${match.away_team_flag_code}.png`}
               alt={`Bandera de ${match.away_team_name}`}
               width={72}
               height={48}

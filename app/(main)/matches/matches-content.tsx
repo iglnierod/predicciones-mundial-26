@@ -1,6 +1,8 @@
-import MatchRow from "@/components/match-card";
+import MatchesList from "@/components/matches-list";
 import { createClient } from "@/lib/supabase/server";
 import { Match } from "@/types";
+
+const PAGE_SIZE = 9;
 
 export default async function MatchesContent() {
   const supabase = await createClient();
@@ -8,18 +10,18 @@ export default async function MatchesContent() {
   const { data: matches, error: matchesError } = await supabase
     .from("matches_with_details")
     .select("*")
+    .in("status", ["scheduled", "live"])
     .order("kickoff_at", { ascending: true })
-    .range(0, 8);
+    .range(0, PAGE_SIZE - 1);
 
   if (matchesError) {
     throw new Error("No se pudieron cargar los partidos");
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {matches?.map((match: Match) => (
-        <MatchRow key={match.id} match={match} />
-      ))}
-    </div>
+    <MatchesList
+      initialMatches={(matches ?? []) as Match[]}
+      pageSize={PAGE_SIZE}
+    />
   );
 }
