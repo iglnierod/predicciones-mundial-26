@@ -76,7 +76,7 @@ export default function MatchRow({
       : "bg-blue-900 disabled:bg-blue-900/50"
   }`;
 
-  const predictionButtonClassName = `w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70 ${
+  const predictionButtonClassName = `cursor-pointer w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70 ${
     hasPrediction
       ? "bg-green-700 hover:bg-green-800"
       : "bg-[#2A398D] hover:bg-[#22307c]"
@@ -135,15 +135,19 @@ export default function MatchRow({
               width={72}
               height={48}
               className="h-12 w-18 object-cover"
+              title={match.home_team_name}
             />
           </div>
 
-          <span className="text-lg font-extrabold tracking-wide text-black">
+          <span
+            className="text-lg font-extrabold tracking-wide text-black"
+            title={match.home_team_name}
+          >
             {match.home_team_code}
           </span>
         </div>
 
-        <div className="flex min-w-[110px] flex-col items-center justify-center gap-2">
+        <div className="flex min-w-27.5 flex-col items-center justify-center gap-2">
           <div className="flex gap-2">
             <select
               value={predictedHomeScore}
@@ -193,10 +197,14 @@ export default function MatchRow({
               width={72}
               height={48}
               className="h-12 w-18 object-cover"
+              title={match.away_team_name}
             />
           </div>
 
-          <span className="text-lg font-extrabold tracking-wide text-black">
+          <span
+            className="text-lg font-extrabold tracking-wide text-black"
+            title={match.away_team_name}
+          >
             {match.away_team_code}
           </span>
         </div>

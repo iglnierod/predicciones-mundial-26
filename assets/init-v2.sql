@@ -11,6 +11,7 @@ create table if not exists public.profiles (
   email text,
   full_name text,
   avatar_url text,
+  is_admin boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -984,6 +985,69 @@ using ((select auth.uid()) = user_id);
 
 create index if not exists user_points_total_points_idx
   on public.user_points (total_points desc);
+
+-- ============================================
+-- SCORING RULES
+-- Valores de puntuación de grupos y partidos
+-- ============================================
+
+create table if not exists public.scoring_rules (
+  key text primary key,
+  points integer not null,
+
+  description text,
+
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  constraint scoring_rules_points_non_negative
+    check (points >= 0)
+);
+
+-- ============================================
+-- TRIGGER updated_at
+-- Reutiliza la función public.set_updated_at()
+-- ============================================
+
+drop trigger if exists set_scoring_rules_updated_at on public.scoring_rules;
+
+create trigger set_scoring_rules_updated_at
+before update on public.scoring_rules
+for each row
+execute function public.set_updated_at();
+
+-- ============================================
+-- RLS
+-- Lectura para usuarios autenticados.
+-- Escritura pensada para admin / service role.
+-- ============================================
+
+alter table public.scoring_rules enable row level security;
+
+drop policy if exists "Users can view scoring rules" on public.scoring_rules;
+
+create policy "Users can view scoring rules"
+on public.scoring_rules
+for select
+to authenticated
+using (true);
+
+-- ============================================
+-- DATOS INICIALES
+-- ============================================
+
+insert into public.scoring_rules (key, points, description) values
+('group_team_correct', 2, 'Puntos por cada equipo clasificado acertado en grupos'),
+('group_bonus_both', 1, 'Bonus por acertar ambos equipos clasificados del grupo'),
+
+('match_exact_score', 5, 'Puntos por acertar el resultado exacto'),
+('match_winner_and_difference', 3, 'Puntos por acertar ganador y diferencia de goles, o empate sin resultado exacto'),
+('match_winner_only', 2, 'Puntos por acertar solo el ganador'),
+('match_one_team_goals', 1, 'Puntos por acertar los goles exactos de uno de los dos equipos')
+
+on conflict (key) do update set
+  points = excluded.points,
+  description = excluded.description;
 
 -- ============================================
 -- LEADERBOARD VIEW
