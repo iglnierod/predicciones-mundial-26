@@ -59,7 +59,7 @@ export default function Header({ user }: HeaderProps) {
         <div className="rounded-tr-4xl rounded-bl-4xl bg-[#2A398D] shadow-[0_12px_40px_rgba(0,0,0,0.28)] ring-1 ring-white/5">
           <div className="flex min-h-20 items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
             <Link
-              href="/"
+              href="/home"
               className="shrink-0 text-lg font-extrabold tracking-tight text-white sm:text-xl"
             >
               MUNDIAL 2026

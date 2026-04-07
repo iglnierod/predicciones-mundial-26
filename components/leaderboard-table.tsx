@@ -55,7 +55,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
 
                 <td className="px-4 py-4 sm:px-6">
                   <div className="flex items-center gap-3">
-                    <div className="overflow-hidden rounded-full border border-black/5">
+                    <div className="hidden overflow-hidden rounded-full border border-black/5 md:block">
                       {user.avatar_url ? (
                         <Image
                           src={user.avatar_url}

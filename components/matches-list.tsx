@@ -14,6 +14,17 @@ type Props = {
 
 type MatchFilter = "scheduled" | "completed";
 
+function parseUtcDate(dateString: string) {
+  return new Date(dateString.replace(" ", "T"));
+}
+
+function isPredictionClosed(kickoffAt: string) {
+  const kickoffDate = parseUtcDate(kickoffAt);
+  const closeDate = new Date(kickoffDate.getTime() - 60 * 1000);
+
+  return new Date() >= closeDate;
+}
+
 export default function MatchesList({ initialMatches, pageSize }: Props) {
   const [matches, setMatches] = useState<MatchWithPrediction[]>(initialMatches);
   const [filter, setFilter] = useState<MatchFilter>("scheduled");
@@ -93,6 +104,7 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
 
   async function handleMakePrediction(
     matchId: number,
+    kickoffAt: string,
     matchPredictedHomeScore: number | null,
     matchPredictedAwayScore: number | null,
     predictedHomeScore: number,
@@ -112,6 +124,14 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
       matchPredictedAwayScore === predictedAwayScore
     ) {
       return { saved: false, errorMessage: null };
+    }
+
+    if (isPredictionClosed(kickoffAt)) {
+      return {
+        saved: false,
+        errorMessage:
+          "La predicción está cerrada. Se bloquea 1 minuto antes del inicio.",
+      };
     }
 
     const supabase = createClient();

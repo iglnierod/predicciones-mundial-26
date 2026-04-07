@@ -27,7 +27,7 @@ export default function AdminContent() {
     <>
       <button
         className="mt-4 cursor-pointer rounded-md bg-blue-800 px-4 py-3 text-white transition hover:scale-95 disabled:bg-blue-800/40"
-        onClick={() => handleCalculatePrediction(217)}
+        onClick={() => handleCalculatePrediction(218)}
         disabled={isCalculating}
       >
         {isCalculating ? "CALCULANDO..." : "CALCULAR PUNTOS KOR - CZA"}
