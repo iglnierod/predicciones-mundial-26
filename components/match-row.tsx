@@ -34,11 +34,13 @@ function formatKickoffDateTime(dateString: string) {
   }).format(date);
 }
 
-function isPredictionClosed(kickoffAt: string) {
+function getPredictionCloseDate(kickoffAt: string) {
   const kickoffDate = parseUtcDate(kickoffAt);
-  const closeDate = new Date(kickoffDate.getTime() - 60 * 1000);
+  return new Date(kickoffDate.getTime() - 60 * 1000);
+}
 
-  return new Date() >= closeDate;
+function isPredictionClosed(kickoffAt: string) {
+  return new Date() >= getPredictionCloseDate(kickoffAt);
 }
 
 function getRoundLabel(round: string) {
@@ -75,13 +77,18 @@ export default function MatchRow({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
 
   const kickoffDateTime = formatKickoffDateTime(match.kickoff_at);
   const predictionClosed = isPredictionClosed(match.kickoff_at);
   const hasScore = match.home_score !== null && match.away_score !== null;
   const hasPrediction =
     match.predicted_home_score !== null && match.predicted_away_score !== null;
+
+  const showClosedBadge =
+    predictionClosed && match.status !== "completed" && match.status !== "live";
+
+  const canMakePrediction = match.status === "scheduled" && !predictionClosed;
+  const canViewPredictions = match.status !== "scheduled" || predictionClosed;
 
   const selectClassName = `w-14 rounded-md p-2 text-center font-semibold text-white ${
     hasPrediction
@@ -100,7 +107,6 @@ export default function MatchRow({
 
     setIsSaving(true);
     setSaveError(null);
-    setSaved(false);
 
     const res = await onMakePrediction(
       match.id,
@@ -110,8 +116,6 @@ export default function MatchRow({
       predictedHomeScore,
       predictedAwayScore,
     );
-
-    setSaved(res.saved && !res.errorMessage);
 
     if (res.errorMessage) {
       setSaveError(res.errorMessage);
@@ -126,11 +130,14 @@ export default function MatchRow({
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-[#2A398D]/10 px-3 py-1 text-[11px] font-bold tracking-wide text-[#2A398D]">
             {getRoundLabel(match.round)}
+            {match.round === "group" &&
+              match.group_name &&
+              ` (${match.group_name})`}
           </span>
 
-          {match.round === "group" && match.group_name && (
-            <span className="rounded-full bg-black/5 px-3 py-1 text-[11px] font-bold tracking-wide text-black/70">
-              GRUPO {match.group_name}
+          {showClosedBadge && (
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold tracking-wide text-amber-700">
+              CERRADO
             </span>
           )}
         </div>
@@ -166,9 +173,7 @@ export default function MatchRow({
             <select
               value={predictedHomeScore}
               className={selectClassName}
-              disabled={
-                match.status !== "scheduled" || isSaving || predictionClosed
-              }
+              disabled={!canMakePrediction || isSaving}
               onChange={(e) => setPredictedHomeScore(Number(e.target.value))}
             >
               {Array.from({ length: 11 }).map((_, index) => (
@@ -183,9 +188,7 @@ export default function MatchRow({
             <select
               value={predictedAwayScore}
               className={selectClassName}
-              disabled={
-                match.status !== "scheduled" || isSaving || predictionClosed
-              }
+              disabled={!canMakePrediction || isSaving}
               onChange={(e) => setPredictedAwayScore(Number(e.target.value))}
             >
               {Array.from({ length: 11 }).map((_, index) => (
@@ -228,14 +231,6 @@ export default function MatchRow({
         </div>
       </div>
 
-      {predictionClosed && match.status === "scheduled" && (
-        <div className="mt-3">
-          <p className="text-sm font-medium text-amber-700">
-            La predicción se cerró 1 minuto antes del inicio del partido.
-          </p>
-        </div>
-      )}
-
       {saveError && (
         <div className="mt-3">
           <p className="text-sm font-medium text-red-600">{saveError}</p>
@@ -247,7 +242,7 @@ export default function MatchRow({
           type="button"
           onClick={() => onViewPredictions?.(match.id)}
           className="w-full rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#2A398D] transition hover:bg-[#2A398D]/5"
-          hidden={match.status === "scheduled"}
+          hidden={!canViewPredictions}
         >
           VER PREDICCIONES
         </button>
@@ -255,17 +250,15 @@ export default function MatchRow({
         <button
           type="button"
           onClick={handleSubmitPrediction}
-          disabled={isSaving || predictionClosed}
+          disabled={isSaving}
           className={predictionButtonClassName}
-          hidden={match.status !== "scheduled"}
+          hidden={!canMakePrediction}
         >
           {isSaving ? (
             <span className="inline-flex items-center gap-2">
               <LoaderCircle className="h-4 w-4 animate-spin" />
               GUARDANDO...
             </span>
-          ) : predictionClosed ? (
-            "PREDICCIÓN CERRADA"
           ) : hasPrediction ? (
             "EDITAR PREDICCIÓN"
           ) : (
