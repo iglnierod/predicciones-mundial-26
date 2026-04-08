@@ -4,6 +4,7 @@ import { MatchWithPrediction } from "@/types";
 import Image from "next/image";
 import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
+import Swal from "sweetalert2";
 
 type MatchRowProps = {
   match: MatchWithPrediction;
@@ -119,6 +120,17 @@ export default function MatchRow({
 
     if (res.errorMessage) {
       setSaveError(res.errorMessage);
+      void Swal.fire({
+        toast: true,
+        position: "bottom-end",
+        icon: "error",
+        title: `No se ha guardado la predicción: ${res.errorMessage}`,
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        showCloseButton: true,
+        width: 500,
+      });
     }
 
     setIsSaving(false);

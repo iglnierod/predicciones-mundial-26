@@ -129,8 +129,7 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
     if (isPredictionClosed(kickoffAt)) {
       return {
         saved: false,
-        errorMessage:
-          "La predicción está cerrada. Se bloquea 1 minuto antes del inicio.",
+        errorMessage: "La predicción está cerrada.",
       };
     }
 
