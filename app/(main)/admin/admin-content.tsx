@@ -14,7 +14,7 @@ export default function AdminContent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ force: false }),
+        body: JSON.stringify({ force: true }),
       },
     );
 
@@ -27,7 +27,7 @@ export default function AdminContent() {
     <>
       <button
         className="mt-4 cursor-pointer rounded-md bg-blue-800 px-4 py-3 text-white transition hover:scale-95 disabled:bg-blue-800/40"
-        onClick={() => handleCalculatePrediction(218)}
+        onClick={() => handleCalculatePrediction(217)}
         disabled={isCalculating}
       >
         {isCalculating ? "CALCULANDO..." : "CALCULAR PUNTOS KOR - CZA"}

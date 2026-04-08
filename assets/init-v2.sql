@@ -1125,3 +1125,28 @@ left join teams at
 left join match_predictions mp
   on mp.match_id = m.id
  and mp.user_id = auth.uid();
+
+-- ============================================
+-- VISTA PARA VER PREDICCIONES TODOS LOS USUARIOS DE UN PARTIDO
+-- ============================================
+
+create or replace view public.match_predictions_result_overview as
+select
+  mp.id,
+  mp.match_id,
+  mp.user_id,
+  mp.predicted_home_score,
+  mp.predicted_away_score,
+  pr.full_name,
+  pr.avatar_url,
+  pp.id as prediction_points_id,
+  pp.points,
+  pp.breakdown,
+  (pp.id is not null) as is_calculated,
+from public.match_predictions mp
+join public.profiles pr
+  on pr.id = mp.user_id
+left join public.prediction_points pp
+  on pp.match_id = mp.match_id
+ and pp.user_id = mp.user_id
+ and pp.prediction_type = 'match';

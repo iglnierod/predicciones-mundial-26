@@ -6,6 +6,9 @@ import { useState } from "react";
 import MatchRow from "./match-row";
 import MatchesSkeleton from "@/app/(main)/matches/matches-skeleton";
 import { CalendarClock, CheckCheck, LoaderCircle } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import ViewPredictionsModalContent from "./view-predictions-modal-content";
 
 type Props = {
   initialMatches: MatchWithPrediction[];
@@ -32,6 +35,8 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initialMatches.length === pageSize);
   const [error, setError] = useState<string | null>(null);
+
+  const MySwal = withReactContent(Swal);
 
   async function fetchMatches(
     selectedFilter: MatchFilter,
@@ -178,6 +183,31 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
     return { saved: true, errorMessage: null };
   }
 
+  async function handleViewPredictions(matchId: number) {
+    const match = matches.find((item) => item.id === matchId);
+
+    if (!match) {
+      await Swal.fire({
+        icon: "error",
+        title: "No se encontró el partido",
+        confirmButtonText: "Cerrar",
+      });
+      return;
+    }
+
+    await MySwal.fire({
+      html: <ViewPredictionsModalContent match={match} />,
+      showCloseButton: true,
+      showConfirmButton: false,
+      width: 700,
+      padding: "1rem",
+      customClass: {
+        popup: "!rounded-xl",
+        htmlContainer: "!m-0 !p-0 text-left",
+        closeButton: "!text-black/50 hover:!text-black",
+      },
+    });
+  }
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-center gap-3 sm:justify-start">
@@ -220,6 +250,7 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
                 key={match.id}
                 match={match}
                 onMakePrediction={handleMakePrediction}
+                onViewPredictions={handleViewPredictions}
               />
             ))}
           </div>

@@ -43,7 +43,7 @@ export function calculateStandardMatchPredictionPoints(params: {
 
   if (
     predictedHomeScore === realHomeScore &&
-    predictedAwayScore === predictedAwayScore
+    predictedAwayScore === realAwayScore
   ) {
     ruleKey = "match_exact_score";
     points = scoringRules[ruleKey] ?? 0;
