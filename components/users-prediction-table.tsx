@@ -1,18 +1,21 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type PredictionRow = {
   id: number;
+  user_id: string;
   full_name: string;
   predicted_home_score: number;
   predicted_away_score: number;
   points: number | null;
   breakdown: {
-    ruleKey: string;
-  };
+    ruleKey: string | null;
+  } | null;
+  is_calculated: boolean;
 };
 
 type Props = {
@@ -21,6 +24,7 @@ type Props = {
 
 export default function UsersPredictionTable({ matchId }: Props) {
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,12 +38,25 @@ export default function UsersPredictionTable({ matchId }: Props) {
 
   useEffect(() => {
     let ignore = false;
+    const supabase = createClient();
+
+    async function getUser() {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        setUser(null);
+        throw new Error("NO se pudo obtener el usuario autenticado");
+      }
+
+      setUser(user);
+    }
 
     async function loadPredictions() {
       setLoading(true);
       setError(null);
-
-      const supabase = createClient();
 
       const { data, error } = await supabase
         .from("match_predictions_result_overview")
@@ -60,6 +77,7 @@ export default function UsersPredictionTable({ matchId }: Props) {
       setLoading(false);
     }
 
+    void getUser();
     void loadPredictions();
 
     return () => {
@@ -111,21 +129,34 @@ export default function UsersPredictionTable({ matchId }: Props) {
         </thead>
 
         <tbody>
-          {predictions.map((prediction) => (
-            <tr key={prediction.id} className="border-t border-black/5">
-              <td className="px-4 py-3">{prediction.full_name}</td>
-              <td className="px-4 py-3 text-center">
-                {prediction.predicted_home_score} -{" "}
-                {prediction.predicted_away_score}
-              </td>
-              <td
-                className="cursor-help px-4 py-3 text-center font-semibold"
-                title={getRuleText(prediction.breakdown.ruleKey)}
+          {predictions.map((prediction) => {
+            const ruleText = prediction.breakdown?.ruleKey
+              ? getRuleText(prediction.breakdown.ruleKey)
+              : "";
+
+            return (
+              <tr
+                key={prediction.id}
+                className={`border-t border-black/5 ${
+                  user && user.id === prediction.user_id ? "bg-blue-900/15" : ""
+                }`}
               >
-                {prediction.points ?? 0} pts
-              </td>
-            </tr>
-          ))}
+                <td className="px-4 py-3">{prediction.full_name}</td>
+                <td className="px-4 py-3 text-center">
+                  {prediction.predicted_home_score} -{" "}
+                  {prediction.predicted_away_score}
+                </td>
+                <td
+                  className="cursor-help px-4 py-3 text-center font-extrabold"
+                  title={ruleText}
+                >
+                  {prediction.is_calculated
+                    ? `${prediction.points} pts`
+                    : "SIN CALCULAR"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

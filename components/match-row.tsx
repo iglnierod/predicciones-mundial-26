@@ -253,7 +253,7 @@ export default function MatchRow({
         <button
           type="button"
           onClick={() => onViewPredictions?.(match.id)}
-          className="w-full rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#2A398D] transition hover:bg-[#2A398D]/5"
+          className="w-full cursor-pointer rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#2A398D] transition hover:bg-[#2A398D]/15"
           hidden={!canViewPredictions}
         >
           VER PREDICCIONES
