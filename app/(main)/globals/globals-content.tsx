@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import GlobalsForm from "@/components/globals/globals-form";
+import { Team } from "@/types";
 
 export default async function GlobalsContent() {
   const supabase = await createClient();
@@ -34,7 +35,7 @@ export default async function GlobalsContent() {
       <GlobalsForm
         userId={user.id}
         initialPrediction={tournamentPrediction}
-        teams={teams ?? []}
+        teams={(teams as Team[]) ?? []}
       />
     </section>
   );
