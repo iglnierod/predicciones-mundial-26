@@ -10,6 +10,7 @@ import type { User } from "@supabase/supabase-js";
 
 const navItems = [
   { label: "INICIO", href: "/home" },
+  { label: "GLOBALES", href: "/globals" },
   { label: "GRUPOS", href: "/groups" },
   { label: "PARTIDOS", href: "/matches" },
   { label: "CLASIFICACIÓN", href: "/leaderboard" },

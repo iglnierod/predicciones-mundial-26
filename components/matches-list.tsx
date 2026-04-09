@@ -49,7 +49,7 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
     let query = supabase
       .from("matches_with_user_prediction")
       .select("*")
-      .order("kickoff_at", { ascending: true });
+      .order("kickoff_at", { ascending: selectedFilter === "scheduled" }); // asc: partidos por jugar, desc: partidos jugados
 
     if (selectedFilter === "scheduled") {
       query = query.in("status", ["scheduled", "live"]);

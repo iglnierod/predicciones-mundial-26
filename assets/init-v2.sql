@@ -786,17 +786,50 @@ create table if not exists public.tournament_predictions (
   top_scorer text,
   top_assist text,
   hat_trick_player text,
-  most_goal_difference_team_id integer references public.teams(id) on delete set null,
-  least_goal_difference_team_id integer references public.teams(id) on delete set null,
-  biggest_match_goal_difference_team_id integer references public.teams(id) on delete set null,
-  more_than_4_penalty_shootouts boolean,
+  most_goals_in_a_match_team_id integer references public.teams(id) on delete set null,
+  how_many_penalty_shootouts text,
   underdog_quarterfinal_team_id integer references public.teams(id) on delete set null,
+
+  spain_top_scorer text,
+  spain_top_assist text,
+  spain_red_card_player text,
+  spain_round text,
+  spain_total_goals text,
 
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
   constraint tournament_predictions_user_unique
     unique (user_id)
+);
+
+-- ============================================
+-- CHECK para spain_round en tournament_predictions
+-- ============================================
+
+alter table public.tournament_predictions
+drop constraint if exists tournament_predictions_spain_round_allowed;
+
+alter table public.tournament_predictions
+add constraint tournament_predictions_spain_round_allowed
+check (
+  spain_round is null
+  or spain_round in ('group', 'R32', 'R16', 'QF', 'SF', 'final')
+);
+
+-- ============================================
+-- CHECK para how_many_penalty_shootouts en tournament_predictions
+-- Rangos permitidos: 0-1, 2-3, 4-5, 6+
+-- ============================================
+
+alter table public.tournament_predictions
+drop constraint if exists tournament_predictions_penalty_shootouts_allowed;
+
+alter table public.tournament_predictions
+add constraint tournament_predictions_penalty_shootouts_allowed
+check (
+  how_many_penalty_shootouts is null
+  or how_many_penalty_shootouts in ('0-1', '2-3', '4-5', '6+')
 );
 
 -- ============================================
@@ -860,16 +893,49 @@ create table if not exists public.tournament_results (
   top_scorer text,
   top_assist text,
   hat_trick_player text,
-  most_goal_difference_team_id integer references public.teams(id) on delete set null,
-  least_goal_difference_team_id integer references public.teams(id) on delete set null,
-  biggest_match_goal_difference_team_id integer references public.teams(id) on delete set null,
-  more_than_4_penalty_shootouts boolean,
+  most_goals_in_a_match_team_id integer references public.teams(id) on delete set null,
+  how_many_penalty_shootouts text,
   underdog_quarterfinal_team_id integer references public.teams(id) on delete set null,
+
+  spain_top_scorer text,
+  spain_top_assist text,
+  spain_red_card_player text,
+  spain_round text,
+  spain_total_goals text,
 
   updated_at timestamptz not null default now(),
 
   constraint tournament_results_single_row_check
     check (id = 1)
+);
+
+-- ============================================
+-- CHECK para spain_round en tournament_results
+-- ============================================
+
+alter table public.tournament_results
+drop constraint if exists tournament_results_spain_round_allowed;
+
+alter table public.tournament_results
+add constraint tournament_results_spain_round_allowed
+check (
+  spain_round is null
+  or spain_round in ('group', 'R32', 'R16', 'QF', 'SF', 'final')
+);
+
+-- ============================================
+-- CHECK para how_many_penalty_shootouts en tournament_results
+-- Rangos permitidos: 0-1, 2-3, 4-5, 6+
+-- ============================================
+
+alter table public.tournament_results
+drop constraint if exists tournament_results_penalty_shootouts_allowed;
+
+alter table public.tournament_results
+add constraint tournament_results_penalty_shootouts_allowed
+check (
+  how_many_penalty_shootouts is null
+  or how_many_penalty_shootouts in ('0-1', '2-3', '4-5', '6+')
 );
 
 -- ============================================

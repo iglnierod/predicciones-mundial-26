@@ -106,3 +106,31 @@ export type MatchWithPrediction = {
   prediction_created_at: string | null;
   prediction_updated_at: string | null;
 };
+
+export type TournamentPredictionFormValues = {
+  world_cup_winner_team_id: number | null;
+  top_scorer: string;
+  top_assist: string;
+  hat_trick_player: string;
+  most_goals_in_a_match_team_id: number | null;
+  how_many_penalty_shootouts: string;
+  underdog_quarterfinal_team_id: number | null;
+
+  spain_top_scorer: string;
+  spain_top_assist: string;
+  spain_red_card_player: string;
+  spain_round: string;
+  spain_total_goals: string;
+};
+
+export type FieldType = "team-select" | "text" | "select";
+
+export type PredictionFieldConfig = {
+  name: keyof TournamentPredictionFormValues;
+  label: string;
+  type: FieldType;
+  placeholder?: string;
+  options?: { value: string; label: string }[];
+  section: "general" | "spain";
+  description?: string;
+};
