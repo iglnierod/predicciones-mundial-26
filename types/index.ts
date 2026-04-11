@@ -107,6 +107,23 @@ export type MatchWithPrediction = {
   prediction_updated_at: string | null;
 };
 
+export type TournamentPrediction = {
+  id: number;
+  user_id: string;
+  world_cup_winner_team_id: number | null;
+  top_scorer: string | null;
+  top_assist: string | null;
+  hat_trick_player: string | null;
+  most_goals_in_a_match_team_id: number | null;
+  how_many_penalty_shootouts: string | null;
+  underdog_quarterfinal_team_id: number | null;
+  spain_top_scorer: string | null;
+  spain_top_assist: string | null;
+  spain_red_card_player: string | null;
+  spain_round: string | null;
+  spain_total_goals: string | null;
+};
+
 export type TournamentPredictionFormValues = {
   world_cup_winner_team_id: number | null;
   top_scorer: string;
@@ -115,7 +132,6 @@ export type TournamentPredictionFormValues = {
   most_goals_in_a_match_team_id: number | null;
   how_many_penalty_shootouts: string;
   underdog_quarterfinal_team_id: number | null;
-
   spain_top_scorer: string;
   spain_top_assist: string;
   spain_red_card_player: string;

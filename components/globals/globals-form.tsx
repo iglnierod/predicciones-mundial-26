@@ -6,58 +6,30 @@ import TextField from "./text-field";
 import TeamSelectField from "./team-select-field";
 import OptionSelectField from "./option-select-field";
 import { saveTournamentPredictions } from "@/app/(main)/globals/actions";
-import { Team } from "@/types";
+import {
+  Team,
+  TournamentPrediction,
+  TournamentPredictionFormValues,
+} from "@/types";
 import Swal from "sweetalert2";
-
-type TournamentPrediction = {
-  id: number;
-  user_id: string;
-  world_cup_winner_team_id: number | null;
-  top_scorer: string | null;
-  top_assist: string | null;
-  hat_trick_player: string | null;
-  most_goals_in_a_match_team_id: number | null;
-  how_many_penalty_shootouts: string | null;
-  underdog_quarterfinal_team_id: number | null;
-  spain_top_scorer: string | null;
-  spain_top_assist: string | null;
-  spain_red_card_player: string | null;
-  spain_round: string | null;
-  spain_total_goals: string | null;
-};
-
-type FormValues = {
-  world_cup_winner_team_id: number | null;
-  top_scorer: string;
-  top_assist: string;
-  hat_trick_player: string;
-  most_goals_in_a_match_team_id: number | null;
-  how_many_penalty_shootouts: string;
-  underdog_quarterfinal_team_id: number | null;
-  spain_top_scorer: string;
-  spain_top_assist: string;
-  spain_red_card_player: string;
-  spain_round: string;
-  spain_total_goals: string;
-};
 
 type FieldConfig =
   | {
-      name: keyof FormValues;
+      name: keyof TournamentPredictionFormValues;
       label: string;
       type: "text";
       placeholder?: string;
       section: "general" | "spain";
     }
   | {
-      name: keyof FormValues;
+      name: keyof TournamentPredictionFormValues;
       label: string;
       type: "team-select";
       placeholder?: string;
       section: "general" | "spain";
     }
   | {
-      name: keyof FormValues;
+      name: keyof TournamentPredictionFormValues;
       label: string;
       type: "select";
       placeholder?: string;
@@ -178,7 +150,9 @@ const FIELD_CONFIG: FieldConfig[] = [
   },
 ];
 
-function getInitialValues(prediction: TournamentPrediction | null): FormValues {
+function getInitialValues(
+  prediction: TournamentPrediction | null,
+): TournamentPredictionFormValues {
   return {
     world_cup_winner_team_id: prediction?.world_cup_winner_team_id ?? null,
     top_scorer: prediction?.top_scorer ?? "",
@@ -202,7 +176,7 @@ export default function GlobalsForm({
   initialPrediction,
   teams,
 }: Props) {
-  const [formValues, setFormValues] = useState<FormValues>(
+  const [formValues, setFormValues] = useState<TournamentPredictionFormValues>(
     getInitialValues(initialPrediction),
   );
   const [feedback, setFeedback] = useState<{
@@ -221,9 +195,9 @@ export default function GlobalsForm({
     [],
   );
 
-  function updateField<K extends keyof FormValues>(
+  function updateField<K extends keyof TournamentPredictionFormValues>(
     name: K,
-    value: FormValues[K],
+    value: TournamentPredictionFormValues[K],
   ) {
     setFormValues((prev) => ({
       ...prev,
@@ -242,7 +216,10 @@ export default function GlobalsForm({
           value={typeof value === "string" ? value : ""}
           placeholder={field.placeholder}
           onChange={(newValue) =>
-            updateField(field.name, newValue as FormValues[typeof field.name])
+            updateField(
+              field.name,
+              newValue as TournamentPredictionFormValues[typeof field.name],
+            )
           }
         />
       );
@@ -257,7 +234,10 @@ export default function GlobalsForm({
           teams={teams}
           placeholder={field.placeholder}
           onChange={(newValue) =>
-            updateField(field.name, newValue as FormValues[typeof field.name])
+            updateField(
+              field.name,
+              newValue as TournamentPredictionFormValues[typeof field.name],
+            )
           }
         />
       );
@@ -271,7 +251,10 @@ export default function GlobalsForm({
         options={field.options}
         placeholder={field.placeholder}
         onChange={(newValue) =>
-          updateField(field.name, newValue as FormValues[typeof field.name])
+          updateField(
+            field.name,
+            newValue as TournamentPredictionFormValues[typeof field.name],
+          )
         }
       />
     );
@@ -365,7 +348,7 @@ export default function GlobalsForm({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isPending}
+          disabled={true}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#2A398D] px-6 py-4 text-sm font-bold text-white transition hover:bg-white/80 hover:text-[#2A398D] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isPending ? (
