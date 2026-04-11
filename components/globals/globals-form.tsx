@@ -25,6 +25,7 @@ type FieldConfig =
       name: keyof TournamentPredictionFormValues;
       label: string;
       type: "team-select";
+      top10?: boolean;
       placeholder?: string;
       section: "general" | "spain";
     }
@@ -56,14 +57,14 @@ const FIELD_CONFIG: FieldConfig[] = [
     label: "Máximo goleador del Mundial",
     type: "text",
     section: "general",
-    placeholder: "Ej. Mbappé",
+    placeholder: "Ej. Kylian Mbappé",
   },
   {
     name: "top_assist",
     label: "Máximo asistente del Mundial",
     type: "text",
     section: "general",
-    placeholder: "Ej. Bellingham",
+    placeholder: "Ej. Jude Bellingham",
   },
   {
     name: "hat_trick_player",
@@ -94,8 +95,9 @@ const FIELD_CONFIG: FieldConfig[] = [
   },
   {
     name: "underdog_quarterfinal_team_id",
-    label: "Selección sorpresa en cuartos",
+    label: "Selección sorpresa en cuartos (fuera del top 10 de la FIFA)",
     type: "team-select",
+    top10: true,
     section: "general",
     placeholder: "Selecciona un equipo",
   },
@@ -104,7 +106,7 @@ const FIELD_CONFIG: FieldConfig[] = [
     label: "Máximo goleador de España",
     type: "text",
     section: "spain",
-    placeholder: "Ej. Morata",
+    placeholder: "Ej. Ferrán Torres",
   },
   {
     name: "spain_top_assist",
@@ -115,10 +117,10 @@ const FIELD_CONFIG: FieldConfig[] = [
   },
   {
     name: "spain_red_card_player",
-    label: "Jugador de España expulsado",
+    label: "Jugador de España expulsado en algún partido",
     type: "text",
     section: "spain",
-    placeholder: "Ej. Carvajal",
+    placeholder: "Ej. Dani Carvajal",
   },
   {
     name: "spain_round",
@@ -137,7 +139,7 @@ const FIELD_CONFIG: FieldConfig[] = [
   },
   {
     name: "spain_total_goals",
-    label: "¿Cuántos goles marcará España?",
+    label: "¿Cuántos goles marcará España en todo el mundial?",
     type: "select",
     section: "spain",
     placeholder: "Selecciona un rango",
@@ -195,6 +197,10 @@ export default function GlobalsForm({
     [],
   );
 
+  function getTeamsWithoutTop10(teams: Team[]): Team[] {
+    return teams.filter((team) => team.is_top10_ranking_fifa === false);
+  }
+
   function updateField<K extends keyof TournamentPredictionFormValues>(
     name: K,
     value: TournamentPredictionFormValues[K],
@@ -231,7 +237,7 @@ export default function GlobalsForm({
           key={field.name}
           label={field.label}
           value={typeof value === "number" ? value : null}
-          teams={teams}
+          teams={field.top10 ? getTeamsWithoutTop10(teams) : teams}
           placeholder={field.placeholder}
           onChange={(newValue) =>
             updateField(
@@ -348,7 +354,7 @@ export default function GlobalsForm({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={true}
+          disabled={isPending}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#2A398D] px-6 py-4 text-sm font-bold text-white transition hover:bg-white/80 hover:text-[#2A398D] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isPending ? (

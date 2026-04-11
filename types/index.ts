@@ -4,6 +4,7 @@ export interface Team {
   code: string;
   flag_code: string;
   group_id: number;
+  is_top10_ranking_fifa?: boolean;
 }
 
 export interface Group {

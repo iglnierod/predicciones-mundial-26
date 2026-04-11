@@ -15,7 +15,10 @@ export default async function GlobalsContent() {
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase.from("tournament_predictions").select("*").maybeSingle(),
-    supabase.from("teams").select("id, name, code, flag_code").order("name"),
+    supabase
+      .from("teams")
+      .select("id, name, code, flag_code, is_top10_ranking_fifa")
+      .order("name"),
   ]);
 
   if (userError || !user) {

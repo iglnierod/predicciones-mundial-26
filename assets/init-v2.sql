@@ -135,6 +135,7 @@ create table if not exists public.teams (
   name text not null,
   code text not null unique,
   flag_code text not null,
+  is_top10_ranking_fifa boolean default false,
   group_id integer not null references public.groups(id) on delete cascade
 );
 
