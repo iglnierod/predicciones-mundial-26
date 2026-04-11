@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import GlobalsGridSkeleton from "./globals-grid-skeleton";
+import GlobalsGridSkeleton from "./globals-form-skeleton";
 import GlobalsContent from "./globals-content";
 
 export default function GlobalsPage() {
