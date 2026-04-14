@@ -1180,7 +1180,9 @@ select
   mp.predicted_home_score,
   mp.predicted_away_score,
   mp.created_at as prediction_created_at,
-  mp.updated_at as prediction_updated_at
+  mp.updated_at as prediction_updated_at,
+
+  pp.points as prediction_points
 
 from matches m
 left join groups g
@@ -1191,7 +1193,11 @@ left join teams at
   on at.id = m.away_team_id
 left join match_predictions mp
   on mp.match_id = m.id
- and mp.user_id = auth.uid();
+  and mp.user_id = auth.uid()
+left join prediction_points pp
+  on m.id = pp.match_id
+  and mp.id = pp.prediction_id
+  and pp.prediction_type = 'match'
 
 -- ============================================
 -- VISTA PARA VER PREDICCIONES TODOS LOS USUARIOS DE UN PARTIDO

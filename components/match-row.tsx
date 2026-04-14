@@ -3,7 +3,7 @@
 import { MatchWithPrediction } from "@/types";
 import Image from "next/image";
 import { useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { Clock, LoaderCircle } from "lucide-react";
 import Swal from "sweetalert2";
 
 type MatchRowProps = {
@@ -155,6 +155,21 @@ export default function MatchRow({
         </div>
 
         <div className="flex items-center gap-2">
+          {match.prediction_points ? (
+            <p className="rounded-full bg-green-800/70 px-3 py-1 text-center text-[11px] tracking-wide">
+              +{match.prediction_points} pts
+            </p>
+          ) : match.status === "completed" || match.status === "live" ? (
+            <p
+              title="Los puntos para este partido todavía no se han calculado"
+              className="inline-flex cursor-help items-center gap-1 rounded-full bg-yellow-600/80 px-3 py-1 text-center text-[11px] tracking-wide"
+            >
+              <Clock className="h-3 w-3" />
+              NO CALC.
+            </p>
+          ) : (
+            <></>
+          )}
           <p className="text-sm font-bold text-black">{kickoffDateTime}</p>
         </div>
       </div>

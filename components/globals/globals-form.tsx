@@ -310,7 +310,6 @@ export default function GlobalsForm({
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#2A398D]/10 px-3 py-1 text-[11px] font-bold tracking-wide text-[#2A398D]">
-              <Globe2 className="h-3.5 w-3.5" />
               MUNDIAL
             </div>
 
@@ -332,7 +331,6 @@ export default function GlobalsForm({
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#2A398D]/10 px-3 py-1 text-[11px] font-bold tracking-wide text-[#2A398D]">
-              <Shield className="h-3.5 w-3.5" />
               ESPAÑA
             </div>
 

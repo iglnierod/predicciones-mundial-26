@@ -106,6 +106,8 @@ export type MatchWithPrediction = {
   predicted_away_score: number | null;
   prediction_created_at: string | null;
   prediction_updated_at: string | null;
+
+  prediction_points: number | null;
 };
 
 export type TournamentPrediction = {
