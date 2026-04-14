@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import LeaderboardTable from "@/components/leaderboard-table";
+import LeaderboardTable from "@/components/leaderboard/leaderboard-table";
 
 export default async function LeaderboardContent() {
   const supabase = await createClient();

@@ -15,7 +15,7 @@ export interface Group {
 
 export type GroupPredictionSelection = Record<string, number[]>;
 
-export interface Leaderboard {
+export interface LeaderboardProfile {
   user_id: string;
   full_name: string;
   avatar_url: string;

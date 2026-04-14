@@ -1,8 +1,11 @@
-import { Leaderboard } from "@/types";
+"use client";
+
+import { LeaderboardProfile } from "@/types";
 import Image from "next/image";
+import { UserBreakdownModal } from "./user-breakdown-modal";
 
 type Props = {
-  leaderboard: Leaderboard[];
+  leaderboard: LeaderboardProfile[];
   userId?: string;
 };
 
@@ -33,16 +36,23 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
 
         <tbody>
           {leaderboard?.map((user) => {
-            let trClass;
-            if (userId === user.user_id) {
-              trClass =
-                "bg-blue-900/15 border-b border-black/5 transition last:border-b-0 hover:bg-blue-900/20";
-            } else {
-              trClass =
-                "border-b border-black/5 transition last:border-b-0 hover:bg-black/5";
-            }
+            const isCurrentUser = userId === user.user_id;
+
+            const trClass = isCurrentUser
+              ? "cursor-pointer border-b border-black/5 bg-blue-900/15 transition last:border-b-0 hover:bg-blue-900/20"
+              : "cursor-pointer border-b border-black/5 transition last:border-b-0 hover:bg-black/5";
+
             return (
-              <tr key={user.user_id} className={trClass}>
+              <tr
+                key={user.user_id}
+                className={trClass}
+                onClick={() =>
+                  UserBreakdownModal({
+                    profile: user,
+                    viewerUserId: userId,
+                  })
+                }
+              >
                 <td className="px-4 py-4 sm:px-6">
                   <span
                     className={`inline-flex min-w-10 items-center justify-center rounded-full px-3 py-1 font-bold ${getRankStyle(

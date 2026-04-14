@@ -1,4 +1,4 @@
-import MatchesList from "@/components/matches-list";
+import MatchesList from "@/components/matches/matches-list";
 import { createClient } from "@/lib/supabase/server";
 import { MatchWithPrediction } from "@/types";
 
