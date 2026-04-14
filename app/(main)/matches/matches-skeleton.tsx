@@ -15,11 +15,11 @@ function MatchCardSkeleton() {
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="h-12 w-[72px] animate-pulse rounded-tr-xl rounded-bl-xl border border-white/10 bg-white/10" />
+          <div className="h-12 w-18 animate-pulse rounded-tr-xl rounded-bl-xl border border-white/10 bg-white/10" />
           <div className="h-5 w-12 animate-pulse rounded bg-white/10" />
         </div>
 
-        <div className="flex min-w-[110px] flex-col items-center justify-center gap-2">
+        <div className="flex min-w-27.5 flex-col items-center justify-center gap-2">
           <div className="flex gap-2">
             <div className="h-10 w-14 animate-pulse rounded-md bg-white/10" />
             <div className="h-10 w-4 animate-pulse rounded bg-white/10" />
@@ -30,7 +30,7 @@ function MatchCardSkeleton() {
         </div>
 
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="h-12 w-[72px] animate-pulse rounded-tl-xl rounded-br-xl border border-white/10 bg-white/10" />
+          <div className="h-12 w-18 animate-pulse rounded-tl-xl rounded-br-xl border border-white/10 bg-white/10" />
           <div className="h-5 w-12 animate-pulse rounded bg-white/10" />
         </div>
       </div>

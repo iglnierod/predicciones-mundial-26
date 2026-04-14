@@ -1,5 +1,5 @@
-import GroupComponent from "@/components/group";
-import PredictGroupsButton from "@/components/predict-groups-button";
+import GroupComponent from "@/components/groups/group";
+import PredictGroupsButton from "@/components/groups/predict-groups-button";
 import { createClient } from "@/lib/supabase/server";
 import { GroupPredictionSelection } from "@/types";
 

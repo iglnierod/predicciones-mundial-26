@@ -91,7 +91,7 @@ export default function UserBreakdownTabs({
             <button
               type="button"
               onClick={onClose}
-              className="cursor-pointer rounded-2xl border border-black/5 bg-white p-2 text-black/60 shadow-sm transition hover:bg-black/[0.03] hover:text-black"
+              className="cursor-pointer rounded-2xl border border-black/5 bg-white p-2 text-black/60 shadow-sm transition hover:bg-black/3 hover:text-black"
               aria-label="Cerrar"
             >
               <X className="h-5 w-5" />

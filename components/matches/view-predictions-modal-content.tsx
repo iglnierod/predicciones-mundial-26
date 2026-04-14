@@ -115,7 +115,7 @@ export default function ViewPredictionsModalContent({ match }: Props) {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-dashed border-black/10 bg-black/[0.03] p-4">
+      <div className="rounded-3xl border border-dashed border-black/10 bg-black/3 p-4">
         <UsersPredictionTable matchId={match.id} />
       </div>
     </div>

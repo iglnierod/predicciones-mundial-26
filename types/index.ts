@@ -10,6 +10,8 @@ export interface Team {
 export interface Group {
   id: number;
   name: string;
+  qualified_team_a_id?: number | null;
+  qualified_team_b_id?: number | null;
   teams?: Team[];
 }
 
