@@ -79,6 +79,13 @@ export type MatchPrediction = {
   predicted_away_score: number;
 };
 
+export type MatchPredictionOverview = MatchPrediction & {
+  full_name: string;
+  points: number | null;
+  is_calculated: boolean;
+  breakdown: MatchPredictionBreakdown | null;
+};
+
 export type MatchWithPrediction = {
   id: number;
   api_match_id: number | null;
@@ -110,6 +117,19 @@ export type MatchWithPrediction = {
   prediction_updated_at: string | null;
 
   prediction_points: number | null;
+};
+
+export type MatchPredictionBreakdown = {
+  points: number;
+  ruleKey: string | null;
+  realResult?: string | null;
+  realAwayScore?: number | null;
+  realHomeScore?: number | null;
+  realDifference?: number | null;
+  predictedResult?: string | null;
+  predictedAwayScore?: number | null;
+  predictedHomeScore?: number | null;
+  predictedDifference?: number | null;
 };
 
 export type TournamentPrediction = {

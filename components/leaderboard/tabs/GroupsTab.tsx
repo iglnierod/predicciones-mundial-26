@@ -174,7 +174,7 @@ export default function GroupsTab({ profile }: Props) {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {groups.map((group) => (
             <GroupPredictionCard
               key={group.id}
@@ -219,7 +219,7 @@ function GroupPredictionCard({
               className={
                 isSelected
                   ? "flex items-center gap-3 rounded-2xl border border-[#2A398D]/15 bg-[#2A398D]/10 px-3 py-2.5 shadow-sm"
-                  : "flex items-center gap-3 rounded-2xl border border-black/5 bg-black/[0.03] px-3 py-2.5"
+                  : "flex items-center gap-3 rounded-2xl border border-black/5 bg-black/3 px-3 py-2.5"
               }
             >
               <div

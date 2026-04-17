@@ -115,7 +115,9 @@ export default function UserBreakdownTabs({
         <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5">
           {activeTab === "global" && <GlobalTab profile={profile} />}
           {activeTab === "groups" && <GroupsTab profile={profile} />}
-          {activeTab === "matches" && <MatchesTab profile={profile} />}
+          {activeTab === "matches" && (
+            <MatchesTab profile={profile} viewerUserId={viewerUserId} />
+          )}
           {activeTab === "compare" && (
             <CompareTab
               profile={profile}
