@@ -1,37 +1,66 @@
 "use client";
 
+import AdminGlobalPredictionsPanel from "@/components/admin/admin-global-predictions-panel";
+import AdminGroupsPanel from "@/components/admin/admin-groups-panel";
+import AdminMatchesPanel from "@/components/admin/admin-matches-panel";
+import { Trophy, UsersRound, CalendarClock } from "lucide-react";
 import { useState } from "react";
 
-export default function AdminContent() {
-  const [isCalculating, setIsCalculating] = useState<boolean>(false);
-  async function handleCalculatePrediction(matchId: number) {
-    setIsCalculating(true);
-    const response = await fetch(
-      `/api/admin/matches/${matchId}/calculate-points`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ force: true }),
-      },
-    );
+type AdminTab = "matches" | "groups" | "globals";
 
-    const data = await response.json();
-    console.log(data);
-    setIsCalculating(false);
-  }
+const tabs: {
+  id: AdminTab;
+  label: string;
+  icon: React.ElementType;
+}[] = [
+  {
+    id: "matches",
+    label: "PARTIDOS",
+    icon: CalendarClock,
+  },
+  {
+    id: "groups",
+    label: "GRUPOS",
+    icon: UsersRound,
+  },
+  {
+    id: "globals",
+    label: "GLOBALES",
+    icon: Trophy,
+  },
+];
+
+export default function AdminContent() {
+  const [activeTab, setActiveTab] = useState<AdminTab>("matches");
 
   return (
-    <>
-      <button
-        className="mt-4 cursor-pointer rounded-md bg-blue-800 px-4 py-3 text-white transition hover:scale-95 disabled:bg-blue-800/40"
-        onClick={() => handleCalculatePrediction(218)}
-        disabled={isCalculating}
-      >
-        {isCalculating ? "CALCULANDO..." : "CALCULAR PUNTOS KOR - CZA"}
-      </button>
-    </>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex cursor-pointer items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition hover:scale-95 ${
+                isActive
+                  ? "bg-[#2A398D] text-white"
+                  : "border border-white/10 bg-black/40 text-white/80 hover:bg-black/50"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeTab === "matches" && <AdminMatchesPanel />}
+      {activeTab === "groups" && <AdminGroupsPanel />}
+      {activeTab === "globals" && <AdminGlobalPredictionsPanel />}
+    </div>
   );
 }

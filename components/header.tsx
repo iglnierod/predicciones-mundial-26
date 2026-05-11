@@ -9,22 +9,29 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 const navItems = [
-  { label: "INICIO", href: "/home" },
-  { label: "GLOBALES", href: "/globals" },
-  { label: "GRUPOS", href: "/groups" },
-  { label: "PARTIDOS", href: "/matches" },
-  { label: "CLASIFICACIÓN", href: "/leaderboard" },
-  { label: "REGLAS", href: "/rules" },
+  { label: "INICIO", href: "/home", private: false },
+  { label: "GLOBALES", href: "/globals", private: false },
+  { label: "GRUPOS", href: "/groups", private: false },
+  { label: "PARTIDOS", href: "/matches", private: false },
+  { label: "CLASIFICACIÓN", href: "/leaderboard", private: false },
+  { label: "REGLAS", href: "/rules", private: false },
+  { label: "ADMIN", href: "/admin", private: true },
 ];
 
 type HeaderProps = {
   user?: User | null;
+  isAdmin?: boolean;
 };
 
-export default function Header({ user }: HeaderProps) {
+export default function Header({ user, isAdmin = false }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (!item.private) return true;
+    return isAdmin;
+  });
 
   const avatarUrl =
     user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
@@ -67,7 +74,7 @@ export default function Header({ user }: HeaderProps) {
             </Link>
 
             <nav className="hidden items-center gap-8 lg:flex">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const isActive = isItemActive(item.href);
 
                 return (
@@ -135,7 +142,7 @@ export default function Header({ user }: HeaderProps) {
           {isOpen && (
             <div className="border-t border-white/10 px-5 pt-3 pb-5 sm:px-6 lg:hidden">
               <div className="flex flex-col gap-2">
-                {navItems.map((item) => {
+                {visibleNavItems.map((item) => {
                   const isActive = isItemActive(item.href);
 
                   return (

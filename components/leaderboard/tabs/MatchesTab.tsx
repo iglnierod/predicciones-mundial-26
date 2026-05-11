@@ -367,7 +367,7 @@ function MatchComparisonCard({
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
           <div className="flex items-center justify-end gap-2 text-right">
             <span className="truncate text-base font-extrabold text-black">
-              {match.home_team_name}
+              {match.home_team_code}
             </span>
 
             <div className="overflow-hidden rounded-tr-xl rounded-bl-xl border border-black/5 bg-white shadow-sm">
@@ -397,7 +397,7 @@ function MatchComparisonCard({
             </div>
 
             <span className="truncate text-base font-extrabold text-black">
-              {match.away_team_name}
+              {match.away_team_code}
             </span>
           </div>
         </div>
