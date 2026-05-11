@@ -3,6 +3,7 @@
 import AdminGlobalPredictionsPanel from "@/components/admin/admin-global-predictions-panel";
 import AdminGroupsPanel from "@/components/admin/admin-groups-panel";
 import AdminMatchesPanel from "@/components/admin/admin-matches-panel";
+import { GroupWithQualifiedTeams } from "@/types";
 import { Trophy, UsersRound, CalendarClock } from "lucide-react";
 import { useState } from "react";
 
@@ -30,7 +31,11 @@ const tabs: {
   },
 ];
 
-export default function AdminContent() {
+type Props = {
+  initialGroups: GroupWithQualifiedTeams[];
+};
+
+export default function AdminContent({ initialGroups }: Props) {
   const [activeTab, setActiveTab] = useState<AdminTab>("matches");
 
   return (
@@ -59,7 +64,9 @@ export default function AdminContent() {
       </div>
 
       {activeTab === "matches" && <AdminMatchesPanel />}
-      {activeTab === "groups" && <AdminGroupsPanel />}
+      {activeTab === "groups" && (
+        <AdminGroupsPanel initialGroups={initialGroups} />
+      )}
       {activeTab === "globals" && <AdminGlobalPredictionsPanel />}
     </div>
   );

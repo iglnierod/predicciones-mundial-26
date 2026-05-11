@@ -1,6 +1,18 @@
+import { createClient } from "@/lib/supabase/server";
 import AdminContent from "./admin-content";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const supabase = await createClient();
+
+  const { data: groups, error: groupsError } = await supabase
+    .from("groups_with_qualified_teams")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (groupsError) {
+    throw new Error(`No se pudieron cargar los grupos: ${groupsError.message}`);
+  }
+
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -11,7 +23,7 @@ export default function AdminPage() {
         </p>
       </div>
 
-      <AdminContent />
+      <AdminContent initialGroups={groups} />
     </section>
   );
 }

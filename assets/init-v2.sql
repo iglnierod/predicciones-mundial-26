@@ -1230,3 +1230,24 @@ left join public.prediction_points pp
   on pp.match_id = mp.match_id
  and pp.user_id = mp.user_id
  and pp.prediction_type = 'match';
+
+-- ============================================
+-- VISTA PARA VER GRUPOS Y INFORMACION DE EQUIPOS CLASIFICADOS
+-- ============================================
+
+create or replace view public.groups_with_qualified_teams as
+select
+  g.id,
+  g.name,
+
+  t1.name as qualified_team_a_name,
+  t1.code as qualified_team_a_code,
+  t1.flag_code as qualified_team_a_flag_code,
+
+  t2.name as qualified_team_b_name,
+  t2.code as qualified_team_b_code,
+  t2.flag_code as qualified_team_b_flag_code
+
+from public.groups g
+left join public.teams t1 on t1.id = g.qualified_team_a_id
+left join public.teams t2 on t2.id = g.qualified_team_b_id;

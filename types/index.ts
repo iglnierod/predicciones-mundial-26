@@ -15,6 +15,17 @@ export interface Group {
   teams?: Team[];
 }
 
+export interface GroupWithQualifiedTeams {
+  id: number;
+  name: string;
+  qualified_team_a_code: string | null;
+  qualified_team_a_flag_code: string | null;
+  qualified_team_a_name: string | null;
+  qualified_team_b_code: string | null;
+  qualified_team_b_flag_code: string | null;
+  qualified_team_b_name: string | null;
+}
+
 export type GroupPredictionSelection = Record<string, number[]>;
 
 export interface LeaderboardProfile {
