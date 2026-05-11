@@ -17,22 +17,6 @@ export async function getGroupsWithQualifiedTeams() {
   return data ?? [];
 }
 
-export async function resetGroupQualifieldTeams() {
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("groups")
-    .update({
-      qualified_team_a_id: null,
-      qualified_team_b_id: null,
-    })
-    .not("id", "is", null);
-
-  if (error) {
-    throw new Error(`No se pudieron resetear los grupos: ${error.message}`);
-  }
-}
-
 export async function updateGroupsQualifiedTeams(
   supabase: SupabaseClient,
   qualifiedGroups: QualifiedGroupFromApi[],
@@ -77,4 +61,75 @@ export async function updateGroupsQualifiedTeams(
   return {
     updatedGroups,
   };
+}
+
+export async function resetGroupQualifiedTeams(supabase: SupabaseClient) {
+  const { data, error } = await supabase
+    .from("groups")
+    .update({
+      qualified_team_a_id: null,
+      qualified_team_b_id: null,
+    })
+    .not("id", "is", null)
+    .select("id, name, qualified_team_a_id, qualified_team_b_id");
+
+  if (error) {
+    throw new Error(`No se pudieron resetear los grupos: ${error.message}`);
+  }
+
+  return {
+    resetGroups: data?.length ?? 0,
+  };
+}
+
+export async function resetSingleGroupQualifiedTeams(
+  supabase: SupabaseClient,
+  groupId: number,
+) {
+  const { data, error } = await supabase
+    .from("groups")
+    .update({
+      qualified_team_a_id: null,
+      qualified_team_b_id: null,
+    })
+    .eq("id", groupId)
+    .select("id, name, qualified_team_a_id, qualified_team_b_id")
+    .single();
+
+  if (error) {
+    throw new Error(`No se pudo resetear el grupo: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error(`No se encontró ningún grupo con id ${groupId}`);
+  }
+
+  return data;
+}
+
+export async function updateSingleGroupQualifiedTeams(
+  supabase: SupabaseClient,
+  group: QualifiedGroupFromApi,
+) {
+  const { data, error } = await supabase
+    .from("groups")
+    .update({
+      qualified_team_a_id: group.qualifiedTeamAApiId,
+      qualified_team_b_id: group.qualifiedTeamBApiId,
+    })
+    .eq("id", group.groupId)
+    .select("id, name, qualified_team_a_id, qualified_team_b_id")
+    .single();
+
+  if (error) {
+    throw new Error(
+      `Error actualizando grupo ${group.groupName}: ${error.message}`,
+    );
+  }
+
+  if (!data) {
+    throw new Error(`No se encontró ningún grupo con id ${group.groupId}`);
+  }
+
+  return data;
 }

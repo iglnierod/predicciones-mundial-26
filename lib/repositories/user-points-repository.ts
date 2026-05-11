@@ -52,3 +52,41 @@ export async function recalculateUserPoints(
     );
   }
 }
+
+export async function deleteSingleGroupPredictionPoints(
+  supabase: SupabaseClient,
+  groupId: number,
+) {
+  const { data: affectedRows, error: selectError } = await supabase
+    .from("prediction_points")
+    .select("user_id")
+    .eq("prediction_type", "group")
+    .eq("group_id", groupId);
+
+  if (selectError) {
+    throw new Error(
+      `No se pudieron cargar los puntos afectados del grupo ${groupId}: ${selectError.message}`,
+    );
+  }
+
+  const affectedUserIds = [
+    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
+  ];
+
+  const { error: deleteError } = await supabase
+    .from("prediction_points")
+    .delete()
+    .eq("prediction_type", "group")
+    .eq("group_id", groupId);
+
+  if (deleteError) {
+    throw new Error(
+      `No se pudieron eliminar los puntos del grupo ${groupId}: ${deleteError.message}`,
+    );
+  }
+
+  return {
+    deletedPoints: affectedRows?.length ?? 0,
+    affectedUserIds,
+  };
+}

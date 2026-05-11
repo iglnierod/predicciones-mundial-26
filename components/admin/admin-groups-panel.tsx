@@ -4,6 +4,8 @@ import { GroupWithQualifiedTeams } from "@/types";
 import Image from "next/image";
 import { DownloadCloud, RotateCcw, Trophy } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 type Props = {
   initialGroups: GroupWithQualifiedTeams[];
@@ -13,24 +15,65 @@ const tableColumns = [
   {
     key: "group",
     name: "GRUPO",
+    className: "text-left",
   },
   {
     key: "qualified_team_a",
     name: "CLASIFICADO A",
+    className: "text-center",
   },
   {
     key: "qualified_team_b",
     name: "CLASIFICADO B",
+    className: "text-center",
+  },
+  {
+    key: "actions",
+    name: "ACCIONES",
+    className: "text-right",
   },
 ];
 
+async function showToast(
+  icon: "success" | "error",
+  title: string,
+  text?: string,
+) {
+  await Swal.fire({
+    toast: true,
+    position: "bottom-end",
+    icon,
+    title,
+    text: text || undefined,
+    showConfirmButton: false,
+    timer: 2200,
+    timerProgressBar: true,
+    showCloseButton: true,
+    width: 420,
+  });
+}
+
 export default function AdminGroupsPanel({ initialGroups }: Props) {
+  const router = useRouter();
+
   const [isFetching, setIsFetching] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
+  const [fetchingGroupId, setFetchingGroupId] = useState<number | null>(null);
+  const [scoringGroupId, setScoringGroupId] = useState<number | null>(null);
+  const [resettingGroupId, setResettingGroupId] = useState<number | null>(null);
+
+  const isBusy =
+    isFetching ||
+    isScoring ||
+    isResetting ||
+    fetchingGroupId !== null ||
+    scoringGroupId !== null ||
+    resettingGroupId !== null;
+
   async function handleFetchGroups() {
-    if (isFetching) return;
+    if (isBusy) return;
 
     setIsFetching(true);
 
@@ -46,16 +89,66 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudieron actualizar los grupos");
       }
 
-      console.log(data);
+      await showToast(
+        "success",
+        "Grupos actualizados",
+        `${data.result.updatedGroups} grupos actualizados`,
+      );
+
+      router.refresh();
     } catch (error) {
       console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al actualizar los grupos",
+      );
     } finally {
       setIsFetching(false);
     }
   }
 
+  async function handleFetchSingleGroup(groupId: number) {
+    if (isBusy) return;
+
+    setFetchingGroupId(groupId);
+
+    try {
+      const response = await fetch(`/api/admin/groups/${groupId}/fetch`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "No se pudo actualizar el grupo");
+      }
+
+      await showToast(
+        "success",
+        `Grupo ${data.result.groupName} actualizado`,
+        "Clasificados actualizados correctamente",
+      );
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al actualizar el grupo",
+      );
+    } finally {
+      setFetchingGroupId(null);
+    }
+  }
+
   async function handleCalculateGroupPoints() {
-    if (isScoring) return;
+    if (isBusy) return;
 
     setIsScoring(true);
 
@@ -71,16 +164,86 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudieron calcular los puntos");
       }
 
-      console.log(data);
+      await showToast(
+        "success",
+        "Puntos calculados",
+        `${data.result.calculatedPredictions ?? 0} predicciones calculadas`,
+      );
+
+      router.refresh();
     } catch (error) {
       console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al calcular los puntos",
+      );
     } finally {
       setIsScoring(false);
     }
   }
 
+  async function handleCalculateSingleGroupPoints(groupId: number) {
+    if (isBusy) return;
+
+    setScoringGroupId(groupId);
+
+    try {
+      const response = await fetch(
+        `/api/admin/groups/${groupId}/calculate-points`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ?? "No se pudieron calcular los puntos del grupo",
+        );
+      }
+
+      await showToast(
+        "success",
+        `Grupo ${data.result.groupName ?? groupId} puntuado`,
+        `${data.result.calculatedPredictions ?? 0} predicciones calculadas`,
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al puntuar el grupo",
+      );
+    } finally {
+      setScoringGroupId(null);
+    }
+  }
+
   async function handleResetGroups() {
-    if (isResetting) return;
+    if (isBusy) return;
+
+    const confirmation = await Swal.fire({
+      icon: "warning",
+      title: "¿Resetear clasificados de grupos?",
+      text: "Se eliminarán los equipos clasificados de todos los grupos. Esta acción no se puede deshacer.",
+      showCancelButton: true,
+      confirmButtonText: "Sí, resetear",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#2a398d",
+      reverseButtons: true,
+    });
+
+    if (!confirmation.isConfirmed) return;
 
     setIsResetting(true);
 
@@ -96,11 +259,76 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudieron resetear los grupos");
       }
 
-      console.log(data);
+      await showToast(
+        "success",
+        "Grupos reseteados",
+        `${data.result.resetGroups} grupos actualizados`,
+      );
+
+      router.refresh();
     } catch (error) {
       console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al resetear los grupos",
+      );
     } finally {
       setIsResetting(false);
+    }
+  }
+
+  async function handleResetSingleGroup(group: GroupWithQualifiedTeams) {
+    if (isBusy) return;
+
+    const confirmation = await Swal.fire({
+      icon: "warning",
+      title: `¿Resetear grupo ${group.name}?`,
+      text: "Se eliminarán los clasificados y las puntuaciones de este grupo.",
+      showCancelButton: true,
+      confirmButtonText: "Sí, resetear",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#2a398d",
+      reverseButtons: true,
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    setResettingGroupId(group.id);
+
+    try {
+      const response = await fetch(`/api/admin/groups/${group.id}/reset`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "No se pudo resetear el grupo");
+      }
+
+      await showToast(
+        "success",
+        `Grupo ${group.name} reseteado`,
+        `${data.result.deletedPoints ?? 0} puntuaciones eliminadas`,
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al resetear el grupo",
+      );
+    } finally {
+      setResettingGroupId(null);
     }
   }
 
@@ -120,9 +348,9 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         <div className="flex flex-wrap gap-2 sm:justify-end">
           <button
             type="button"
-            className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#2A398D] transition hover:scale-95"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#2A398D] transition hover:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={handleFetchGroups}
-            disabled={isFetching || isScoring || isResetting}
+            disabled={isBusy}
           >
             <DownloadCloud className="h-4 w-4" />
             {isFetching ? "FETCHING..." : "FETCH"}
@@ -132,7 +360,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
             type="button"
             className="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-[#2A398D] px-4 py-2.5 text-sm font-bold text-white transition hover:scale-95 disabled:cursor-not-allowed disabled:bg-[#2A398D]/40"
             onClick={handleCalculateGroupPoints}
-            disabled={isFetching || isScoring || isResetting}
+            disabled={isBusy}
           >
             <Trophy className="h-4 w-4" />
             {isScoring ? "PUNTUANDO..." : "PUNTUAR"}
@@ -142,7 +370,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
             type="button"
             className="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-red-500 px-4 py-2.5 text-sm font-bold text-white transition hover:scale-95 disabled:cursor-not-allowed disabled:bg-red-500/40"
             onClick={handleResetGroups}
-            disabled={isFetching || isScoring || isResetting}
+            disabled={isBusy}
           >
             <RotateCcw className="h-4 w-4" />
             {isResetting ? "RESETEANDO..." : "RESETEAR"}
@@ -152,13 +380,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       <div className="overflow-hidden rounded-2xl border border-[#2A398D]/10 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-160 border-collapse">
+          <table className="w-full min-w-xl table-fixed border-collapse">
             <thead className="bg-[#2A398D]/10">
               <tr>
                 {tableColumns.map((column) => (
                   <th
                     key={column.key}
-                    className="px-5 py-4 text-left text-xs font-extrabold tracking-[0.14em] text-[#2A398D] uppercase"
+                    className={`px-5 py-4 text-xs font-extrabold tracking-[0.14em] text-[#2A398D] uppercase ${column.className}`}
                   >
                     {column.name}
                   </th>
@@ -169,7 +397,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
             <tbody className="divide-y divide-black/5">
               {initialGroups.map((group) => (
                 <tr key={group.id} className="transition hover:bg-[#2A398D]/5">
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 text-left">
                     <div>
                       <p className="text-sm font-extrabold text-black">
                         Grupo {group.name}
@@ -182,17 +410,57 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
                   </td>
 
                   <td className="px-5 py-4">
-                    <QualifiedTeamCell
-                      code={group.qualified_team_a_code}
-                      flagCode={group.qualified_team_a_flag_code}
-                    />
+                    <div className="flex justify-center">
+                      <QualifiedTeamCell
+                        code={group.qualified_team_a_code}
+                        flagCode={group.qualified_team_a_flag_code}
+                      />
+                    </div>
                   </td>
 
                   <td className="px-5 py-4">
-                    <QualifiedTeamCell
-                      code={group.qualified_team_b_code}
-                      flagCode={group.qualified_team_b_flag_code}
-                    />
+                    <div className="flex justify-center">
+                      <QualifiedTeamCell
+                        code={group.qualified_team_b_code}
+                        flagCode={group.qualified_team_b_flag_code}
+                      />
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleFetchSingleGroup(group.id)}
+                        disabled={isBusy}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#2A398D]/15 bg-white px-3 py-2 text-xs font-bold text-[#2A398D] transition hover:bg-[#2A398D]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <DownloadCloud className="h-3.5 w-3.5" />
+                        {fetchingGroupId === group.id ? "..." : ""}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCalculateSingleGroupPoints(group.id)
+                        }
+                        disabled={isBusy}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#2A398D] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#22307c] disabled:cursor-not-allowed disabled:bg-[#2A398D]/40"
+                      >
+                        <Trophy className="h-3.5 w-3.5" />
+                        {scoringGroupId === group.id ? "..." : ""}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleResetSingleGroup(group)}
+                        disabled={isBusy}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-red-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-red-500/40"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        {resettingGroupId === group.id ? "..." : ""}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -236,7 +504,7 @@ function QualifiedTeamCell({ code, flagCode }: QualifiedTeamCellProps) {
             alt={`Bandera de ${code}`}
             width={32}
             height={20}
-            className="h-5 w-8 object-cover"
+            className="h-auto w-8 object-cover"
           />
         </div>
       )}
