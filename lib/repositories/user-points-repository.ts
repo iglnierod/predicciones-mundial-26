@@ -99,7 +99,7 @@ type UpsertGroupPredictionPointInput = {
   breakdown: Record<string, unknown>;
 };
 
-export async function upsertGroupPreidctionPoint(
+export async function upsertGroupPredictionPoint(
   supabase: SupabaseClient,
   input: UpsertGroupPredictionPointInput,
 ) {

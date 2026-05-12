@@ -1,25 +1,27 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { getGroupWithQualifiedTeamsById } from "../repositories/groups-repository";
+import { getGroupWithQualifiedTeamsById } from "@/lib/repositories/groups-repository";
+import { getGroupPredictionsByGroupId } from "@/lib/repositories/group-predictions-repository";
 import {
   deleteSingleGroupPredictionPoints,
   recalculateUserPoints,
-  upsertGroupPreidctionPoint,
-} from "../repositories/user-points-repository";
-import { getGruopPredictionsByGroupId } from "../repositories/group-predictions-repository";
-import { calculateSingleGroupPredictionPoints } from "./group-points";
+  upsertGroupPredictionPoint,
+} from "@/lib/repositories/user-points-repository";
+import { calculateSingleGroupPredictionPoints } from "@/lib/scoring/group-points";
+import { getScoringRulesMap } from "@/lib/scoring/rules";
 
 export async function calculateSingleGroupPoints(
   supabase: SupabaseClient,
   groupId: number,
 ) {
   const group = await getGroupWithQualifiedTeamsById(supabase, groupId);
+  const rulesMap = await getScoringRulesMap(supabase);
 
   const previousPoints = await deleteSingleGroupPredictionPoints(
     supabase,
     groupId,
   );
 
-  const predictions = await getGruopPredictionsByGroupId(supabase, groupId);
+  const predictions = await getGroupPredictionsByGroupId(supabase, groupId);
 
   const affectedUserIds = new Set<string>(previousPoints.affectedUserIds);
 
@@ -34,9 +36,10 @@ export async function calculateSingleGroupPoints(
         qualifiedTeamBId: group.qualified_team_b_id,
       },
       prediction,
+      rulesMap,
     );
 
-    await upsertGroupPreidctionPoint(supabase, {
+    await upsertGroupPredictionPoint(supabase, {
       userId: prediction.user_id,
       predictionId: prediction.id,
       groupId: prediction.group_id,
@@ -59,6 +62,6 @@ export async function calculateSingleGroupPoints(
     deletedPreviousPoints: previousPoints.deletedPoints,
     calculatedPredictions,
     totalAwardedPoints,
-    recalculateUsers: affectedUserIds.size,
+    recalculatedUsers: affectedUserIds.size,
   };
 }

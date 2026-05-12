@@ -1,4 +1,5 @@
 import { GroupPredictionRow } from "../repositories/group-predictions-repository";
+import { ScoringRulesMap } from "./types";
 
 export type GroupResultForScoring = {
   groupId: number;
@@ -12,18 +13,45 @@ export type GroupPredictionScoringResult = {
     matchedTeams: number;
     matchedTeamIds: number[];
     bonusBothTeams: boolean;
+    pointsPerCorrectTeam: number;
+    bonusBothTeamsPoints: number;
     maxPoints: number;
   };
 };
 
-const POINTS_PER_CORRECT_TEAM = 2;
-const BONUS_BOTH_TEAMS = 1;
-const MAX_GROUP_POINTS = 5;
+const GROUP_CORRECT_TEAM_RULE_KEY = "group_team_correct";
+const GROUP_BOTH_TEAMS_BONUS_RULE_KEY = "group_bonus_both";
+
+function getRequiredRulePoints(
+  rulesMap: ScoringRulesMap,
+  ruleKey: string,
+): number {
+  const points = rulesMap[ruleKey];
+
+  if (typeof points !== "number") {
+    throw new Error(`No se encontró la regla de puntuación: ${ruleKey}`);
+  }
+
+  return points;
+}
 
 export function calculateSingleGroupPredictionPoints(
   result: GroupResultForScoring,
   prediction: GroupPredictionRow,
+  rulesMap: ScoringRulesMap,
 ): GroupPredictionScoringResult {
+  const pointsPerCorrectTeam = getRequiredRulePoints(
+    rulesMap,
+    GROUP_CORRECT_TEAM_RULE_KEY,
+  );
+
+  const bonusBothTeamsPoints = getRequiredRulePoints(
+    rulesMap,
+    GROUP_BOTH_TEAMS_BONUS_RULE_KEY,
+  );
+
+  const maxPoints = pointsPerCorrectTeam * 2 + bonusBothTeamsPoints;
+
   const predictedTeamIds = [prediction.team_a_id, prediction.team_b_id].filter(
     (teamId): teamId is number => typeof teamId === "number",
   );
@@ -40,7 +68,9 @@ export function calculateSingleGroupPredictionPoints(
         matchedTeams: 0,
         matchedTeamIds: [],
         bonusBothTeams: false,
-        maxPoints: MAX_GROUP_POINTS,
+        pointsPerCorrectTeam,
+        bonusBothTeamsPoints,
+        maxPoints,
       },
     };
   }
@@ -55,16 +85,18 @@ export function calculateSingleGroupPredictionPoints(
   const bonusBothTeams = matchedTeams === 2;
 
   const points =
-    matchedTeams * POINTS_PER_CORRECT_TEAM +
-    (bonusBothTeams ? BONUS_BOTH_TEAMS : 0);
+    matchedTeams * pointsPerCorrectTeam +
+    (bonusBothTeams ? bonusBothTeamsPoints : 0);
 
   return {
-    points: points,
+    points,
     breakdown: {
       matchedTeams,
       matchedTeamIds,
       bonusBothTeams,
-      maxPoints: MAX_GROUP_POINTS,
+      pointsPerCorrectTeam,
+      bonusBothTeamsPoints,
+      maxPoints,
     },
   };
 }

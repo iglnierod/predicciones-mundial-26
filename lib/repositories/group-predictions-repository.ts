@@ -23,7 +23,7 @@ export type GroupPredictionRow = {
   team_b_id: number;
 };
 
-export async function getGruopPredictionsByGroupId(
+export async function getGroupPredictionsByGroupId(
   supabase: SupabaseClient,
   groupId: number,
 ) {
