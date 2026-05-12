@@ -84,11 +84,7 @@ export async function calculateMatchPoints(
     await recalculateUserPoints(supabaseAdmin, userId);
   }
 
-  await markMatchPointsCalculated({
-    supabase: supabaseAdmin,
-    matchId,
-    processedKey,
-  });
+  await markMatchPointsCalculated(supabaseAdmin, matchId, processedKey);
 
   return {
     ok: true,

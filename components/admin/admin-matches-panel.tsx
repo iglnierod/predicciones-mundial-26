@@ -6,7 +6,6 @@ import {
   ArrowDownUp,
   Calculator,
   DownloadCloud,
-  RotateCcw,
   RefreshCw,
   Trophy,
 } from "lucide-react";
@@ -232,17 +231,23 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
     setIsUpdatingAllMatches(true);
 
     try {
-      // Placeholder: aquí irá el endpoint que traerá todos los partidos desde la API externa.
-      // Ejemplo futuro:
-      // const response = await fetch("/api/admin/matches/fetch", {
-      //   method: "POST",
-      //   credentials: "include",
-      // });
+      const response = await fetch("/api/admin/matches/fetch", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data?.ok === false) {
+        throw new Error(
+          data?.error ?? "No se pudieron actualizar los partidos",
+        );
+      }
 
       await showToast(
         "success",
-        "Placeholder",
-        "Aquí se actualizarán todos los partidos desde la API",
+        "Partidos actualizados",
+        `${data.result.insertedOrUpdated} partidos insertados o actualizados`,
       );
 
       router.refresh();
@@ -304,19 +309,21 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
     setFetchingMatchId(match.id);
 
     try {
-      // Placeholder: aquí irá el endpoint para actualizar un partido concreto.
-      // Ejemplo futuro:
-      // const response = await fetch(`/api/admin/matches/${match.id}/fetch`, {
-      //   method: "POST",
-      //   credentials: "include",
-      // });
+      const response = await fetch(`/api/admin/matches/${match.id}/fetch`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data?.ok === false) {
+        throw new Error(data?.error ?? "No se pudo actualizar el partido");
+      }
 
       await showToast(
         "success",
-        "Placeholder",
-        `${match.home_team_code ?? "-"} - ${
-          match.away_team_code ?? "-"
-        } se actualizará desde la API`,
+        "Partido actualizado",
+        `${match.home_team_code ?? "-"} - ${match.away_team_code ?? "-"}`,
       );
 
       router.refresh();

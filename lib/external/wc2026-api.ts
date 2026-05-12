@@ -1,3 +1,5 @@
+import { ApiMatch } from "@/types";
+
 export type Wc2026Standing = {
   group_name: string;
   team_id: number;
@@ -167,4 +169,58 @@ export async function fetchWorldCupQualifiedGroup(
   }
 
   return getQualifiedTeamsFromGroup(group);
+}
+
+export async function fetchWc2026Matches(): Promise<ApiMatch[]> {
+  const wcApiUrl = process.env.WC26_API_URL;
+  const wcApiKey = process.env.WC26_API_KEY;
+
+  if (!wcApiUrl || !wcApiKey) {
+    throw new Error("Faltan la url y key de la WC26 API");
+  }
+
+  const response = await fetch(`${wcApiUrl}/matches`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${wcApiKey}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `No se pudieron obtener los partidos de la API: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return (await response.json()) as ApiMatch[];
+}
+
+export async function fetchWc2026MatchByApiId(
+  apiMatchId: number,
+): Promise<ApiMatch> {
+  const wcApiUrl = process.env.WC26_API_URL;
+  const wcApiKey = process.env.WC26_API_KEY;
+
+  if (!wcApiUrl || !wcApiKey) {
+    throw new Error("Faltan la url y key de la WC26 API");
+  }
+
+  const response = await fetch(`${wcApiUrl}/matches/${apiMatchId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${wcApiKey}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `No se pudo obtener el partido de la API: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  return (await response.json()) as ApiMatch;
 }
