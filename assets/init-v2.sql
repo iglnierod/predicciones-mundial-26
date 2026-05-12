@@ -1232,7 +1232,7 @@ left join public.prediction_points pp
  and pp.prediction_type = 'match';
 
 -- ============================================
--- VISTA PARA VER GRUPOS Y INFORMACION DE EQUIPOS CLASIFICADOS
+-- VISTA PARA VER GRUPOS Y INFORMACION DE EQUIPOS CLASIFICADOS Y SI ESTÁ PUNTUADO EL GRUPO
 -- ============================================
 
 create or replace view public.groups_with_qualified_teams as
@@ -1240,14 +1240,32 @@ select
   g.id,
   g.name,
 
+  g.qualified_team_a_id,
   t1.name as qualified_team_a_name,
   t1.code as qualified_team_a_code,
   t1.flag_code as qualified_team_a_flag_code,
 
+  g.qualified_team_b_id,
   t2.name as qualified_team_b_name,
   t2.code as qualified_team_b_code,
-  t2.flag_code as qualified_team_b_flag_code
+  t2.flag_code as qualified_team_b_flag_code,
+
+  exists (
+    select 1
+    from public.prediction_points pp
+    where pp.prediction_type = 'group'
+      and pp.group_id = g.id
+  ) as is_scored,
+
+  (
+    select count(*)
+    from public.prediction_points pp
+    where pp.prediction_type = 'group'
+      and pp.group_id = g.id
+  ) as scored_predictions_count
 
 from public.groups g
-left join public.teams t1 on t1.id = g.qualified_team_a_id
-left join public.teams t2 on t2.id = g.qualified_team_b_id;
+left join public.teams t1
+  on t1.id = g.qualified_team_a_id
+left join public.teams t2
+  on t2.id = g.qualified_team_b_id;

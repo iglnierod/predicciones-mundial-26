@@ -90,3 +90,37 @@ export async function deleteSingleGroupPredictionPoints(
     affectedUserIds,
   };
 }
+
+type UpsertGroupPredictionPointInput = {
+  userId: string;
+  predictionId: number;
+  groupId: number;
+  points: number;
+  breakdown: Record<string, unknown>;
+};
+
+export async function upsertGroupPreidctionPoint(
+  supabase: SupabaseClient,
+  input: UpsertGroupPredictionPointInput,
+) {
+  const { error } = await supabase.from("prediction_points").upsert(
+    {
+      user_id: input.userId,
+      prediction_type: "group",
+      prediction_id: input.predictionId,
+      match_id: null,
+      group_id: input.groupId,
+      points: input.points,
+      breakdown: input.breakdown,
+    },
+    {
+      onConflict: "prediction_type,prediction_id",
+    },
+  );
+
+  if (error) {
+    throw new Error(
+      `No se pudieron guardar los puntos de grupo: ${error.message}`,
+    );
+  }
+}

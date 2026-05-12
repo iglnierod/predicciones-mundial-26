@@ -133,3 +133,28 @@ export async function updateSingleGroupQualifiedTeams(
 
   return data;
 }
+
+export async function getGroupWithQualifiedTeamsById(
+  supabase: SupabaseClient,
+  groupId: number,
+) {
+  const { data, error } = await supabase
+    .from("groups")
+    .select("id, name, qualified_team_a_id, qualified_team_b_id")
+    .eq("id", groupId)
+    .single();
+
+  if (error) {
+    throw new Error(`No se pudo cargar el grupo ${groupId}: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error(`No existe ningún grupo con id ${groupId}`);
+  }
+
+  if (!data.qualified_team_a_id || !data.qualified_team_b_id) {
+    throw new Error(`El grupo ${data.name} todavía no tiene clasificados`);
+  }
+
+  return data;
+}

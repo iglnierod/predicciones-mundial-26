@@ -28,6 +28,11 @@ const tableColumns = [
     className: "text-center",
   },
   {
+    key: "status",
+    name: "ESTADO",
+    className: "text-center",
+  },
+  {
     key: "actions",
     name: "ACCIONES",
     className: "text-right",
@@ -89,13 +94,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudieron actualizar los grupos");
       }
 
+      router.refresh();
+
       await showToast(
         "success",
         "Grupos actualizados",
         `${data.result.updatedGroups} grupos actualizados`,
       );
-
-      router.refresh();
     } catch (error) {
       console.error(error);
 
@@ -127,12 +132,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudo actualizar el grupo");
       }
 
+      router.refresh();
+
       await showToast(
         "success",
         `Grupo ${data.result.groupName} actualizado`,
         "Clasificados actualizados correctamente",
       );
-      router.refresh();
     } catch (error) {
       console.error(error);
 
@@ -164,13 +170,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudieron calcular los puntos");
       }
 
+      router.refresh();
+
       await showToast(
         "success",
         "Puntos calculados",
         `${data.result.calculatedPredictions ?? 0} predicciones calculadas`,
       );
-
-      router.refresh();
     } catch (error) {
       console.error(error);
 
@@ -207,13 +213,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         );
       }
 
+      router.refresh();
+
       await showToast(
         "success",
         `Grupo ${data.result.groupName ?? groupId} puntuado`,
         `${data.result.calculatedPredictions ?? 0} predicciones calculadas`,
       );
-
-      router.refresh();
     } catch (error) {
       console.error(error);
 
@@ -259,13 +265,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudieron resetear los grupos");
       }
 
+      router.refresh();
+
       await showToast(
         "success",
         "Grupos reseteados",
         `${data.result.resetGroups} grupos actualizados`,
       );
-
-      router.refresh();
     } catch (error) {
       console.error(error);
 
@@ -311,13 +317,13 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
         throw new Error(data?.error ?? "No se pudo resetear el grupo");
       }
 
+      router.refresh();
+
       await showToast(
         "success",
         `Grupo ${group.name} reseteado`,
         `${data.result.deletedPoints ?? 0} puntuaciones eliminadas`,
       );
-
-      router.refresh();
     } catch (error) {
       console.error(error);
 
@@ -428,6 +434,15 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
                   </td>
 
                   <td className="px-5 py-4">
+                    <div className="flex justify-center">
+                      <GroupScoringStatus
+                        isScored={group.is_scored}
+                        scoredPredictionsCount={group.scored_predictions_count}
+                      />
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
@@ -512,6 +527,36 @@ function QualifiedTeamCell({ code, flagCode }: QualifiedTeamCellProps) {
       <span className="text-sm font-extrabold tracking-wide text-black">
         {code}
       </span>
+    </div>
+  );
+}
+
+type GroupScoringStatusProps = {
+  isScored: boolean;
+  scoredPredictionsCount: number;
+};
+
+function GroupScoringStatus({
+  isScored,
+  scoredPredictionsCount,
+}: GroupScoringStatusProps) {
+  if (!isScored) {
+    return (
+      <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-bold text-black/45">
+        SIN PUNTUAR
+      </span>
+    );
+  }
+
+  return (
+    <div className="text-center">
+      <span className="rounded-full bg-[#2A398D]/10 px-3 py-1 text-xs font-bold text-[#2A398D]">
+        PUNTUADO
+      </span>
+
+      <p className="mt-1 text-[11px] font-medium text-black/40">
+        {scoredPredictionsCount} predicciones
+      </p>
     </div>
   );
 }
