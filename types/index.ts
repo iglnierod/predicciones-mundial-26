@@ -191,3 +191,38 @@ export type PredictionFieldConfig = {
   section: "general" | "spain";
   description?: string;
 };
+
+export type MatchWithDetails = {
+  id: number;
+  api_match_id: number | null;
+  match_number: number | null;
+  round: string;
+  kickoff_at: string;
+  status: string;
+
+  home_score: number | null;
+  away_score: number | null;
+
+  stadium: string | null;
+  stadium_city: string | null;
+  stadium_country: string | null;
+
+  last_processed_key: string | null;
+  points_calculated_at: string | null;
+
+  created_at: string;
+  updated_at: string;
+
+  group_id: number | null;
+  group_name: string | null;
+
+  home_team_id: number | null;
+  home_team_name: string | null;
+  home_team_code: string | null;
+  home_team_flag_code: string | null;
+
+  away_team_id: number | null;
+  away_team_name: string | null;
+  away_team_code: string | null;
+  away_team_flag_code: string | null;
+};

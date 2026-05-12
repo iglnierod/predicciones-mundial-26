@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import AdminContent from "./admin-content";
+import { GroupWithQualifiedTeams, MatchWithDetails } from "@/types";
 
 export default async function AdminPage() {
   const supabase = await createClient();
 
+  // Consulta grupos
   const { data: groups, error: groupsError } = await supabase
     .from("groups_with_qualified_teams")
     .select("*")
@@ -11,6 +13,18 @@ export default async function AdminPage() {
 
   if (groupsError) {
     throw new Error(`No se pudieron cargar los grupos: ${groupsError.message}`);
+  }
+
+  // Consulta partidos
+  const { data: matches, error: matchesError } = await supabase
+    .from("matches_with_details")
+    .select("*")
+    .order("kickoff_at", { ascending: true });
+
+  if (matchesError) {
+    throw new Error(
+      `No se pudieron cargar los partidos: ${matchesError.message}`,
+    );
   }
 
   return (
@@ -23,7 +37,10 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <AdminContent initialGroups={groups} />
+      <AdminContent
+        initialGroups={groups as GroupWithQualifiedTeams[]}
+        initialMatches={matches as MatchWithDetails[]}
+      />
     </section>
   );
 }

@@ -1,13 +1,18 @@
 "use client";
 
-import AdminGlobalPredictionsPanel from "@/components/admin/admin-global-predictions-panel";
-import AdminGroupsPanel from "@/components/admin/admin-groups-panel";
-import AdminMatchesPanel from "@/components/admin/admin-matches-panel";
-import { GroupWithQualifiedTeams } from "@/types";
-import { Trophy, UsersRound, CalendarClock } from "lucide-react";
+import { CalendarClock, Trophy, UsersRound } from "lucide-react";
 import { useState } from "react";
+import { GroupWithQualifiedTeams, MatchWithDetails } from "@/types";
+import AdminMatchesPanel from "@/components/admin/admin-matches-panel";
+import AdminGroupsPanel from "@/components/admin/admin-groups-panel";
+import AdminGlobalPredictionsPanel from "@/components/admin/admin-global-predictions-panel";
 
 type AdminTab = "matches" | "groups" | "globals";
+
+type Props = {
+  initialGroups: GroupWithQualifiedTeams[];
+  initialMatches: MatchWithDetails[];
+};
 
 const tabs: {
   id: AdminTab;
@@ -31,11 +36,7 @@ const tabs: {
   },
 ];
 
-type Props = {
-  initialGroups: GroupWithQualifiedTeams[];
-};
-
-export default function AdminContent({ initialGroups }: Props) {
+export default function AdminContent({ initialGroups, initialMatches }: Props) {
   const [activeTab, setActiveTab] = useState<AdminTab>("matches");
 
   return (
@@ -63,10 +64,14 @@ export default function AdminContent({ initialGroups }: Props) {
         })}
       </div>
 
-      {activeTab === "matches" && <AdminMatchesPanel />}
+      {activeTab === "matches" && (
+        <AdminMatchesPanel initialMatches={initialMatches} />
+      )}
+
       {activeTab === "groups" && (
         <AdminGroupsPanel initialGroups={initialGroups} />
       )}
+
       {activeTab === "globals" && <AdminGlobalPredictionsPanel />}
     </div>
   );

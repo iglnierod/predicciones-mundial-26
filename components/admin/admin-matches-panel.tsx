@@ -1,142 +1,782 @@
 "use client";
 
-import { LoaderCircle, Calculator, AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { MatchWithDetails } from "@/types";
+import Image from "next/image";
+import {
+  ArrowDownUp,
+  Calculator,
+  DownloadCloud,
+  RotateCcw,
+  RefreshCw,
+  Trophy,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-export default function AdminMatchesPanel() {
-  const [isCalculating, setIsCalculating] = useState(false);
+type Props = {
+  initialMatches: MatchWithDetails[];
+};
 
-  async function handleCalculatePrediction(matchId: number) {
-    if (isCalculating) return;
+type SortKey =
+  | "kickoff_at"
+  | "status"
+  | "points_calculated_at"
+  | "match_number";
 
-    setIsCalculating(true);
+const PAGE_SIZE = 5;
+
+const tableColumns = [
+  {
+    key: "match",
+    name: "PARTIDO",
+    className: "w-[28%] text-left",
+  },
+  {
+    key: "date",
+    name: "FECHA",
+    className: "w-[15%] text-center",
+  },
+  {
+    key: "status",
+    name: "ESTADO",
+    className: "w-[13%] text-center",
+  },
+  {
+    key: "score",
+    name: "RESULTADO",
+    className: "w-[12%] text-center",
+  },
+  {
+    key: "points",
+    name: "PUNTOS",
+    className: "w-[14%] text-center",
+  },
+  {
+    key: "actions",
+    name: "ACCIONES",
+    className: "w-[18%] text-right",
+  },
+];
+
+async function showToast(
+  icon: "success" | "error",
+  title: string,
+  text?: string,
+) {
+  await Swal.fire({
+    toast: true,
+    position: "bottom-end",
+    icon,
+    title,
+    text: text || undefined,
+    showConfirmButton: false,
+    timer: 2200,
+    timerProgressBar: true,
+    showCloseButton: true,
+    width: 420,
+  });
+}
+
+function parseUtcDate(dateString: string) {
+  return new Date(dateString.replace(" ", "T"));
+}
+
+function formatKickoffDateTime(dateString: string) {
+  const date = parseUtcDate(dateString);
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+function getRoundLabel(round: string) {
+  switch (round) {
+    case "group":
+      return "GRUPOS";
+    case "R32":
+      return "DIECISEISAVOS";
+    case "R16":
+      return "OCTAVOS";
+    case "QF":
+      return "CUARTOS";
+    case "SF":
+      return "SEMIFINAL";
+    case "3r":
+      return "3/4 PUESTO";
+    case "final":
+      return "FINAL";
+    default:
+      return round.toUpperCase();
+  }
+}
+
+function getStatusLabel(status: string) {
+  switch (status) {
+    case "scheduled":
+      return "PROGRAMADO";
+    case "live":
+      return "EN DIRECTO";
+    case "completed":
+      return "JUGADO";
+    default:
+      return status.toUpperCase();
+  }
+}
+
+function isPlayedAndCalculated(match: MatchWithDetails) {
+  return match.status === "completed" && Boolean(match.points_calculated_at);
+}
+
+export default function AdminMatchesPanel({ initialMatches }: Props) {
+  const router = useRouter();
+
+  const [sortKey, setSortKey] = useState<SortKey>("kickoff_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const [hidePlayedAndCalculated, setHidePlayedAndCalculated] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [isUpdatingAllMatches, setIsUpdatingAllMatches] = useState(false);
+  const [isCalculatingPlayedMatches, setIsCalculatingPlayedMatches] =
+    useState(false);
+
+  const [fetchingMatchId, setFetchingMatchId] = useState<number | null>(null);
+  const [scoringMatchId, setScoringMatchId] = useState<number | null>(null);
+
+  const isBusy =
+    isUpdatingAllMatches ||
+    isCalculatingPlayedMatches ||
+    fetchingMatchId !== null ||
+    scoringMatchId !== null;
+
+  const filteredAndSortedMatches = useMemo(() => {
+    const filteredMatches = initialMatches.filter((match) => {
+      if (!hidePlayedAndCalculated) return true;
+
+      return !isPlayedAndCalculated(match);
+    });
+
+    return filteredMatches.sort((a, b) => {
+      let aValue: string | number = "";
+      let bValue: string | number = "";
+
+      if (sortKey === "kickoff_at") {
+        aValue = parseUtcDate(a.kickoff_at).getTime();
+        bValue = parseUtcDate(b.kickoff_at).getTime();
+      }
+
+      if (sortKey === "status") {
+        aValue = a.status;
+        bValue = b.status;
+      }
+
+      if (sortKey === "match_number") {
+        aValue = a.match_number ?? 0;
+        bValue = b.match_number ?? 0;
+      }
+
+      if (sortKey === "points_calculated_at") {
+        aValue = a.points_calculated_at ? 1 : 0;
+        bValue = b.points_calculated_at ? 1 : 0;
+      }
+
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      return sortDirection === "asc"
+        ? String(aValue).localeCompare(String(bValue))
+        : String(bValue).localeCompare(String(aValue));
+    });
+  }, [hidePlayedAndCalculated, initialMatches, sortDirection, sortKey]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredAndSortedMatches.length / PAGE_SIZE),
+  );
+
+  const paginatedMatches = useMemo(() => {
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+    const start = (safeCurrentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+
+    return filteredAndSortedMatches.slice(start, end);
+  }, [currentPage, filteredAndSortedMatches, totalPages]);
+
+  function handleSortChange(nextSortKey: SortKey) {
+    setCurrentPage(1);
+
+    if (nextSortKey === sortKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortKey(nextSortKey);
+    setSortDirection("asc");
+  }
+
+  function handleHidePlayedAndCalculatedChange(checked: boolean) {
+    setHidePlayedAndCalculated(checked);
+    setCurrentPage(1);
+  }
+
+  async function handleUpdateAllMatches() {
+    if (isBusy) return;
+
+    setIsUpdatingAllMatches(true);
+
+    try {
+      // Placeholder: aquí irá el endpoint que traerá todos los partidos desde la API externa.
+      // Ejemplo futuro:
+      // const response = await fetch("/api/admin/matches/fetch", {
+      //   method: "POST",
+      //   credentials: "include",
+      // });
+
+      await showToast(
+        "success",
+        "Placeholder",
+        "Aquí se actualizarán todos los partidos desde la API",
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al actualizar partidos",
+      );
+    } finally {
+      setIsUpdatingAllMatches(false);
+    }
+  }
+
+  async function handleCalculatePlayedMatches() {
+    if (isBusy) return;
+
+    setIsCalculatingPlayedMatches(true);
+
+    try {
+      // Placeholder: aquí irá el endpoint para calcular todos los partidos jugados sin puntuar.
+      // Ejemplo futuro:
+      // const response = await fetch("/api/admin/matches/calculate-played", {
+      //   method: "POST",
+      //   credentials: "include",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({ force: false }),
+      // });
+
+      await showToast(
+        "success",
+        "Placeholder",
+        "Aquí se calcularán los puntos de los partidos jugados",
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al calcular partidos jugados",
+      );
+    } finally {
+      setIsCalculatingPlayedMatches(false);
+    }
+  }
+
+  async function handleFetchMatch(match: MatchWithDetails) {
+    if (isBusy) return;
+
+    setFetchingMatchId(match.id);
+
+    try {
+      // Placeholder: aquí irá el endpoint para actualizar un partido concreto.
+      // Ejemplo futuro:
+      // const response = await fetch(`/api/admin/matches/${match.id}/fetch`, {
+      //   method: "POST",
+      //   credentials: "include",
+      // });
+
+      await showToast(
+        "success",
+        "Placeholder",
+        `${match.home_team_code ?? "-"} - ${
+          match.away_team_code ?? "-"
+        } se actualizará desde la API`,
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al actualizar el partido",
+      );
+    } finally {
+      setFetchingMatchId(null);
+    }
+  }
+
+  async function handleCalculateMatchPoints(match: MatchWithDetails) {
+    if (isBusy) return;
+
+    setScoringMatchId(match.id);
 
     try {
       const response = await fetch(
-        `/api/admin/matches/${matchId}/calculate-points`,
+        `/api/admin/matches/${match.id}/calculate-points`,
         {
           method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ force: true }),
+          body: JSON.stringify({ force: false }),
         },
       );
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.ok === false) {
         throw new Error(data?.error ?? "No se pudieron calcular los puntos");
       }
 
-      console.log(data);
+      await showToast(
+        "success",
+        "Partido puntuado",
+        `${match.home_team_code ?? "-"} - ${match.away_team_code ?? "-"}`,
+      );
 
-      await Swal.fire({
-        toast: true,
-        position: "bottom-end",
-        icon: "success",
-        title: "Puntos calculados correctamente",
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        showCloseButton: true,
-        width: 420,
-      });
+      router.refresh();
     } catch (error) {
       console.error(error);
 
-      await Swal.fire({
-        toast: true,
-        position: "bottom-end",
-        icon: "error",
-        title:
-          error instanceof Error
-            ? error.message
-            : "Error inesperado al calcular los puntos",
-        showConfirmButton: false,
-        timer: 4000,
-        timerProgressBar: true,
-        showCloseButton: true,
-        width: 500,
-      });
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al calcular puntos",
+      );
     } finally {
-      setIsCalculating(false);
+      setScoringMatchId(null);
     }
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      <article className="rounded-3xl border border-black/5 bg-white/85 p-5 shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-white/30 backdrop-blur-sm transition hover:shadow-[0_14px_36px_rgba(0,0,0,0.18)] lg:col-span-2">
-        <div className="mb-5 flex items-start justify-between gap-4">
-          <div>
-            <span className="rounded-full bg-[#2A398D]/10 px-3 py-1 text-[11px] font-bold tracking-wide text-[#2A398D]">
-              PARTIDOS
-            </span>
+    <article className="rounded-3xl border border-black/5 bg-white/85 p-5 shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-white/30 backdrop-blur-sm">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <span className="rounded-full bg-[#2A398D]/10 px-3 py-1 text-[11px] font-bold tracking-wide text-[#2A398D]">
+            PARTIDOS
+          </span>
 
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-black">
-              Gestión de partidos
-            </h2>
+          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-black">
+            Gestión de partidos
+          </h2>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-black/55">
-              Desde aquí podrás actualizar resultados, cambiar estados de
-              partidos y recalcular los puntos de las predicciones.
-            </p>
-          </div>
-
-          <div className="hidden rounded-2xl bg-[#2A398D]/10 p-3 text-[#2A398D] sm:block">
-            <Calculator className="h-6 w-6" />
-          </div>
+          <p className="mt-2 text-sm font-medium text-black/45">
+            {filteredAndSortedMatches.length} de {initialMatches.length}{" "}
+            partidos visibles
+          </p>
         </div>
 
-        <div className="rounded-2xl border border-[#2A398D]/10 bg-white p-4 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-base font-extrabold text-black">
-                Recalcular puntos de partido
-              </h3>
+        <div className="flex flex-wrap gap-2 sm:justify-end">
+          <button
+            type="button"
+            onClick={handleUpdateAllMatches}
+            disabled={isBusy}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#2A398D] transition hover:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${
+                isUpdatingAllMatches ? "animate-spin" : ""
+              }`}
+            />
+            {isUpdatingAllMatches ? "ACTUALIZANDO..." : "ACTUALIZAR DATOS"}
+          </button>
 
-              <p className="mt-1 text-sm leading-5 text-black/50">
-                Acción temporal para probar el cálculo de puntos de un partido
-                concreto.
-              </p>
-            </div>
+          <button
+            type="button"
+            onClick={handleCalculatePlayedMatches}
+            disabled={isBusy}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-[#2A398D] px-4 py-2.5 text-sm font-bold text-white transition hover:scale-95 disabled:cursor-not-allowed disabled:bg-[#2A398D]/40"
+          >
+            <Trophy
+              className={`h-4 w-4 ${
+                isCalculatingPlayedMatches ? "animate-pulse" : ""
+              }`}
+            />
+            {isCalculatingPlayedMatches ? "CALCULANDO..." : "CALCULAR JUGADOS"}
+          </button>
+        </div>
+      </div>
 
-            <button
-              type="button"
-              onClick={() => handleCalculatePrediction(218)}
-              disabled={isCalculating}
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#2A398D] px-5 py-3 text-sm font-bold text-white transition hover:scale-95 disabled:cursor-not-allowed disabled:bg-[#2A398D]/45"
-            >
-              {isCalculating ? (
-                <>
-                  <LoaderCircle className="h-5 w-5 animate-spin" />
-                  CALCULANDO...
-                </>
-              ) : (
-                <>
-                  <Calculator className="h-5 w-5" />
-                  CALCULAR KOR - CZA
-                </>
+      <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#2A398D]/10 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <label className="flex cursor-pointer items-center gap-3 text-sm font-bold text-black/70">
+          <input
+            type="checkbox"
+            checked={hidePlayedAndCalculated}
+            onChange={(event) =>
+              handleHidePlayedAndCalculatedChange(event.target.checked)
+            }
+            className="h-4 w-4 accent-[#2A398D]"
+          />
+          Ocultar partidos jugados y ya puntuados
+        </label>
+
+        <div className="flex flex-wrap gap-2">
+          <SortButton
+            label="FECHA"
+            active={sortKey === "kickoff_at"}
+            direction={sortDirection}
+            onClick={() => handleSortChange("kickoff_at")}
+          />
+
+          <SortButton
+            label="ESTADO"
+            active={sortKey === "status"}
+            direction={sortDirection}
+            onClick={() => handleSortChange("status")}
+          />
+
+          <SortButton
+            label="Nº PARTIDO"
+            active={sortKey === "match_number"}
+            direction={sortDirection}
+            onClick={() => handleSortChange("match_number")}
+          />
+
+          <SortButton
+            label="PUNTOS"
+            active={sortKey === "points_calculated_at"}
+            direction={sortDirection}
+            onClick={() => handleSortChange("points_calculated_at")}
+          />
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-[#2A398D]/10 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-280 table-fixed border-collapse">
+            <thead className="bg-[#2A398D]/10">
+              <tr>
+                {tableColumns.map((column) => (
+                  <th
+                    key={column.key}
+                    className={`px-5 py-4 text-xs font-extrabold tracking-[0.14em] text-[#2A398D] uppercase ${column.className}`}
+                  >
+                    {column.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-black/5">
+              {paginatedMatches.map((match) => (
+                <tr key={match.id} className="transition hover:bg-[#2A398D]/5">
+                  <td className="px-5 py-4">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="w-fit rounded-full bg-[#2A398D]/10 px-3 py-1 text-[11px] font-bold tracking-wide text-[#2A398D]">
+                          {getRoundLabel(match.round)}
+                        </span>
+
+                        {match.group_name && (
+                          <span className="w-fit rounded-full bg-black/5 px-3 py-1 text-[11px] font-bold tracking-wide text-black/45">
+                            GRUPO {match.group_name}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <TeamMini
+                          code={match.home_team_code}
+                          flagCode={match.home_team_flag_code}
+                          align="right"
+                        />
+
+                        <span className="text-xs font-bold text-black/35">
+                          VS
+                        </span>
+
+                        <TeamMini
+                          code={match.away_team_code}
+                          flagCode={match.away_team_flag_code}
+                        />
+                      </div>
+
+                      <p className="text-xs font-medium text-black/40">
+                        ID: {match.id}
+                        {match.api_match_id
+                          ? ` · API: ${match.api_match_id}`
+                          : ""}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4 text-center text-sm font-bold text-black">
+                    {formatKickoffDateTime(match.kickoff_at)}
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <div className="flex justify-center">
+                      <MatchStatusBadge status={match.status} />
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4 text-center">
+                    {match.home_score !== null && match.away_score !== null ? (
+                      <span className="text-lg font-extrabold text-black">
+                        {match.home_score} - {match.away_score}
+                      </span>
+                    ) : (
+                      <span className="text-sm font-semibold text-black/35">
+                        Sin resultado
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <div className="flex justify-center">
+                      <MatchPointsStatus
+                        pointsCalculatedAt={match.points_calculated_at}
+                      />
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleFetchMatch(match)}
+                        disabled={isBusy}
+                        title="Actualizar datos del partido"
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#2A398D]/15 bg-white px-3 py-2 text-xs font-bold text-[#2A398D] transition hover:bg-[#2A398D]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <DownloadCloud
+                          className={`h-3.5 w-3.5 ${
+                            fetchingMatchId === match.id ? "animate-bounce" : ""
+                          }`}
+                        />
+                        {fetchingMatchId === match.id ? "..." : ""}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleCalculateMatchPoints(match)}
+                        disabled={isBusy}
+                        title="Calcular puntos del partido"
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#2A398D] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#22307c] disabled:cursor-not-allowed disabled:bg-[#2A398D]/40"
+                      >
+                        <Calculator className="h-3.5 w-3.5" />
+                        {scoringMatchId === match.id ? "..." : ""}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {paginatedMatches.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={tableColumns.length}
+                    className="px-5 py-10 text-center text-sm font-semibold text-black/45"
+                  >
+                    No hay partidos para este filtro.
+                  </td>
+                </tr>
               )}
-            </button>
-          </div>
-        </div>
-      </article>
-
-      <article className="rounded-3xl border border-black/5 bg-white/85 p-5 shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-white/30 backdrop-blur-sm">
-        <div className="mb-4 flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
-
-          <h3 className="text-base font-extrabold text-black">Pendiente</h3>
+            </tbody>
+          </table>
         </div>
 
-        <p className="text-sm leading-6 text-black/55">
-          Este panel debería evolucionar hacia una tabla de partidos con filtros
-          por estado, ronda y botón individual para calcular puntos.
-        </p>
-      </article>
+        <Pagination
+          currentPage={Math.min(currentPage, totalPages)}
+          totalPages={totalPages}
+          totalItems={filteredAndSortedMatches.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+    </article>
+  );
+}
+
+type SortButtonProps = {
+  label: string;
+  active: boolean;
+  direction: "asc" | "desc";
+  onClick: () => void;
+};
+
+function SortButton({ label, active, direction, onClick }: SortButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex cursor-pointer items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-bold transition hover:scale-95 ${
+        active
+          ? "border-[#2A398D] bg-[#2A398D] text-white"
+          : "border-[#2A398D]/15 bg-white text-[#2A398D] hover:bg-[#2A398D]/10"
+      }`}
+    >
+      <ArrowDownUp className="h-4 w-4" />
+      {label}
+      {active && (
+        <span className="text-xs opacity-80">
+          {direction === "asc" ? "ASC" : "DESC"}
+        </span>
+      )}
+    </button>
+  );
+}
+
+type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+};
+
+function Pagination({
+  currentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+  onPageChange,
+}: PaginationProps) {
+  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalItems);
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-black/5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm font-medium text-black/45">
+        Mostrando {startItem}-{endItem} de {totalItems} partidos
+      </p>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage <= 1}
+          className="rounded-xl border border-[#2A398D]/15 bg-white px-3 py-2 text-xs font-bold text-[#2A398D] transition hover:bg-[#2A398D]/10 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          ANTERIOR
+        </button>
+
+        <span className="rounded-xl bg-[#2A398D]/10 px-3 py-2 text-xs font-bold text-[#2A398D]">
+          {currentPage} / {totalPages}
+        </span>
+
+        <button
+          type="button"
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage >= totalPages}
+          className="rounded-xl border border-[#2A398D]/15 bg-white px-3 py-2 text-xs font-bold text-[#2A398D] transition hover:bg-[#2A398D]/10 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          SIGUIENTE
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type TeamMiniProps = {
+  code: string | null;
+  flagCode: string | null;
+  align?: "left" | "right";
+};
+
+function TeamMini({ code, flagCode, align = "left" }: TeamMiniProps) {
+  if (!code) {
+    return <span className="text-sm font-semibold text-black/35">-</span>;
+  }
+
+  return (
+    <div
+      className={`flex items-center gap-2 ${
+        align === "right" ? "flex-row-reverse" : ""
+      }`}
+    >
+      {flagCode && (
+        <div className="overflow-hidden rounded-tr-lg rounded-bl-lg border border-black/5 bg-white shadow-sm">
+          <Image
+            src={`https://flagcdn.com/w80/${flagCode}.png`}
+            alt={`Bandera de ${code}`}
+            width={32}
+            height={20}
+            className="h-auto w-8 object-cover"
+          />
+        </div>
+      )}
+
+      <span className="text-sm font-extrabold tracking-wide text-black">
+        {code}
+      </span>
+    </div>
+  );
+}
+
+function MatchStatusBadge({ status }: { status: string }) {
+  if (status === "completed") {
+    return (
+      <span className="rounded-full bg-green-700/10 px-3 py-1 text-xs font-bold text-green-800">
+        {getStatusLabel(status)}
+      </span>
+    );
+  }
+
+  if (status === "live") {
+    return (
+      <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold text-red-600">
+        {getStatusLabel(status)}
+      </span>
+    );
+  }
+
+  return (
+    <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-bold text-black/45">
+      {getStatusLabel(status)}
+    </span>
+  );
+}
+
+function MatchPointsStatus({
+  pointsCalculatedAt,
+}: {
+  pointsCalculatedAt: string | null;
+}) {
+  if (!pointsCalculatedAt) {
+    return (
+      <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-bold text-black/45">
+        SIN PUNTUAR
+      </span>
+    );
+  }
+
+  return (
+    <div className="text-center">
+      <span className="rounded-full bg-[#2A398D]/10 px-3 py-1 text-xs font-bold text-[#2A398D]">
+        PUNTUADO
+      </span>
     </div>
   );
 }
