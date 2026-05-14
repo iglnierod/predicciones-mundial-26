@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth/admin";
-import { resetGroupQualifiedTeams } from "@/lib/repositories/groups-repository";
+import { resetAllGroups } from "@/lib/scoring/reset-all-groups";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
@@ -7,21 +7,41 @@ export async function POST() {
   try {
     await requireAdmin();
 
-    const adminSupabase = createSupabaseAdminClient();
+    const supabaseAdmin = createSupabaseAdminClient();
 
-    const result = await resetGroupQualifiedTeams(adminSupabase);
+    const result = await resetAllGroups(supabaseAdmin);
 
     return NextResponse.json({
-      success: true,
+      ok: true,
       result,
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    if (message === "Unauthorized") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "No autenticado",
+        },
+        { status: 401 },
+      );
+    }
+
+    if (message === "Forbidden") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "No autorizado",
+        },
+        { status: 403 },
+      );
+    }
+
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Error inesperado al resetear los grupos",
+        ok: false,
+        error: message,
       },
       { status: 500 },
     );

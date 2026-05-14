@@ -65,7 +65,7 @@ export async function deleteSingleGroupPredictionPoints(
 
   if (selectError) {
     throw new Error(
-      `No se pudieron cargar los puntos afectados del grupo ${groupId}: ${selectError.message}`,
+      `Error loading affected users for group ${groupId}: ${selectError.message}`,
     );
   }
 
@@ -81,7 +81,7 @@ export async function deleteSingleGroupPredictionPoints(
 
   if (deleteError) {
     throw new Error(
-      `No se pudieron eliminar los puntos del grupo ${groupId}: ${deleteError.message}`,
+      `Error deleting prediction points for group ${groupId}: ${deleteError.message}`,
     );
   }
 
@@ -123,4 +123,37 @@ export async function upsertGroupPredictionPoint(
       `No se pudieron guardar los puntos de grupo: ${error.message}`,
     );
   }
+}
+
+export async function deleteAllGroupPredictionPoints(supabase: SupabaseClient) {
+  const { data: affectedRows, error: selectError } = await supabase
+    .from("prediction_points")
+    .select("user_id")
+    .eq("prediction_type", "group");
+
+  if (selectError) {
+    throw new Error(
+      `Error loading affected users for group points: ${selectError.message}`,
+    );
+  }
+
+  const affectedUserIds = [
+    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
+  ];
+
+  const { error: deleteError } = await supabase
+    .from("prediction_points")
+    .delete()
+    .eq("prediction_type", "group");
+
+  if (deleteError) {
+    throw new Error(
+      `Error deleting group prediction points: ${deleteError.message}`,
+    );
+  }
+
+  return {
+    deletedPoints: affectedRows?.length ?? 0,
+    affectedUserIds,
+  };
 }

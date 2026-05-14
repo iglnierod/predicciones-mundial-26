@@ -270,7 +270,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
       await showToast(
         "success",
         "Grupos reseteados",
-        `${data.result.resetGroups} grupos actualizados`,
+        `${data.result.resetGroups} grupos · ${data.result.deletedPoints} puntos eliminados · ${data.result.recalculatedUsers} usuarios recalculados`,
       );
     } catch (error) {
       console.error(error);
@@ -292,7 +292,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
     const confirmation = await Swal.fire({
       icon: "warning",
       title: `¿Resetear grupo ${group.name}?`,
-      text: "Se eliminarán los clasificados y las puntuaciones de este grupo.",
+      text: "Se eliminarán los clasificados, las puntuaciones de este grupo y se recalcularán los usuarios afectados.",
       showCancelButton: true,
       confirmButtonText: "Sí, resetear",
       cancelButtonText: "Cancelar",
@@ -313,17 +313,17 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.ok === false) {
         throw new Error(data?.error ?? "No se pudo resetear el grupo");
       }
-
-      router.refresh();
 
       await showToast(
         "success",
         `Grupo ${group.name} reseteado`,
-        `${data.result.deletedPoints ?? 0} puntuaciones eliminadas`,
+        `${data.result.deletedPoints} puntos eliminados · ${data.result.recalculatedUsers} usuarios recalculados`,
       );
+
+      router.refresh();
     } catch (error) {
       console.error(error);
 

@@ -9,10 +9,10 @@ export async function resetSingleGroup(
   supabase: SupabaseClient,
   groupId: number,
 ) {
-  const resetGroup = await resetSingleGroupQualifiedTeams(supabase, groupId);
-
   const { deletedPoints, affectedUserIds } =
     await deleteSingleGroupPredictionPoints(supabase, groupId);
+
+  const resetGroup = await resetSingleGroupQualifiedTeams(supabase, groupId);
 
   for (const userId of affectedUserIds) {
     await recalculateUserPoints(supabase, userId);
