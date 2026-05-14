@@ -196,3 +196,32 @@ export async function markMatchPointsCalculated(
     );
   }
 }
+
+export async function clearMatchPointsCalculated(
+  supabase: SupabaseClient,
+  matchId: number,
+) {
+  const { data, error } = await supabase
+    .from("matches")
+    .update({
+      last_processed_key: null,
+      points_calculated_at: null,
+    })
+    .eq("id", matchId)
+    .select(
+      "id, api_match_id, match_number, last_processed_key, points_calculated_at",
+    )
+    .single();
+
+  if (error) {
+    throw new Error(
+      `Error clearing calculated points fields for match ${matchId}: ${error.message}`,
+    );
+  }
+
+  if (!data) {
+    throw new Error(`Match ${matchId} not found`);
+  }
+
+  return data;
+}

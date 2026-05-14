@@ -25,17 +25,38 @@ export async function deleteMatchPredictionPoints(
   supabase: SupabaseClient,
   matchId: number,
 ) {
-  const { error } = await supabase
+  const { data: affectedRows, error: selectError } = await supabase
+    .from("prediction_points")
+    .select("user_id")
+    .eq("prediction_type", "match")
+    .eq("match_id", matchId);
+
+  if (selectError) {
+    throw new Error(
+      `Error loading affected users for match ${matchId}: ${selectError.message}`,
+    );
+  }
+
+  const affectedUserIds = [
+    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
+  ];
+
+  const { error: deleteError } = await supabase
     .from("prediction_points")
     .delete()
     .eq("prediction_type", "match")
     .eq("match_id", matchId);
 
-  if (error) {
+  if (deleteError) {
     throw new Error(
-      `Error deleting prediction points for match ${matchId}: ${error.message}`,
+      `Error deleting prediction points for match ${matchId}: ${deleteError.message}`,
     );
   }
+
+  return {
+    deletedPoints: affectedRows?.length ?? 0,
+    affectedUserIds,
+  };
 }
 
 export async function insertPredictionPointsRow(

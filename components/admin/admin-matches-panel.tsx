@@ -7,6 +7,7 @@ import {
   Calculator,
   DownloadCloud,
   RefreshCw,
+  RotateCcw,
   Trophy,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -148,11 +149,14 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
   const [fetchingMatchId, setFetchingMatchId] = useState<number | null>(null);
   const [scoringMatchId, setScoringMatchId] = useState<number | null>(null);
 
+  const [resettingMatchId, setResettingMatchId] = useState<number | null>(null);
+
   const isBusy =
     isUpdatingAllMatches ||
     isCalculatingPlayedMatches ||
     fetchingMatchId !== null ||
-    scoringMatchId !== null;
+    scoringMatchId !== null ||
+    resettingMatchId !== null;
 
   const filteredAndSortedMatches = useMemo(() => {
     const filteredMatches = initialMatches.filter((match) => {
@@ -386,6 +390,65 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
     }
   }
 
+  async function handleResetMatchPoints(match: MatchWithDetails) {
+    if (isBusy) return;
+
+    const confirmation = await Swal.fire({
+      icon: "warning",
+      title: "¿Eliminar puntuaciones del partido?",
+      text: `Se eliminarán los puntos calculados de ${
+        match.home_team_code ?? "-"
+      } - ${match.away_team_code ?? "-"} y se recalcularán los usuarios afectados.`,
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#2a398d",
+      reverseButtons: true,
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    setResettingMatchId(match.id);
+
+    try {
+      const response = await fetch(
+        `/api/admin/matches/${match.id}/reset-points`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || data?.ok === false) {
+        throw new Error(
+          data?.error ?? "No se pudieron eliminar las puntuaciones",
+        );
+      }
+
+      await showToast(
+        "success",
+        "Puntuaciones eliminadas",
+        `${data.result.deletedPoints} puntos eliminados · ${data.result.recalculatedUsers} usuarios recalculados`,
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+
+      await showToast(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al eliminar puntuaciones",
+      );
+    } finally {
+      setResettingMatchId(null);
+    }
+  }
+
   return (
     <article className="rounded-3xl border border-black/5 bg-white/85 p-5 shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-white/30 backdrop-blur-sm">
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -594,6 +657,21 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
                       >
                         <Calculator className="h-3.5 w-3.5" />
                         {scoringMatchId === match.id ? "..." : ""}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleResetMatchPoints(match)}
+                        disabled={isBusy}
+                        title="Eliminar puntuaciones del partido"
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-red-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-red-500/40"
+                      >
+                        <RotateCcw
+                          className={`h-3.5 w-3.5 ${
+                            resettingMatchId === match.id ? "animate-spin" : ""
+                          }`}
+                        />
+                        {resettingMatchId === match.id ? "..." : ""}
                       </button>
                     </div>
                   </td>
