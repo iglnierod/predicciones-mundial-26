@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(
   request: Request,
-  context: { params: Promise<{ matchId: number }> },
+  context: { params: Promise<{ matchId: string }> },
 ) {
   try {
     await requireAdmin();
