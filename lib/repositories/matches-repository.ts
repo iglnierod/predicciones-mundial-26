@@ -225,3 +225,24 @@ export async function clearMatchPointsCalculated(
 
   return data;
 }
+
+export async function getCompletedUncalculatedMatches(
+  supabase: SupabaseClient,
+) {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(
+      "id, api_match_id, match_number, home_score, away_score, status, points_calculated_at",
+    )
+    .eq("status", "completed")
+    .is("points_calculated_at", null)
+    .order("kickoff_at", { ascending: true });
+
+  if (error) {
+    throw new Error(
+      `Error loading completed uncalculated matches: ${error.message}`,
+    );
+  }
+
+  return data ?? [];
+}

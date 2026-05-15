@@ -275,21 +275,23 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
     setIsCalculatingPlayedMatches(true);
 
     try {
-      // Placeholder: aquí irá el endpoint para calcular todos los partidos jugados sin puntuar.
-      // Ejemplo futuro:
-      // const response = await fetch("/api/admin/matches/calculate-played", {
-      //   method: "POST",
-      //   credentials: "include",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ force: false }),
-      // });
+      const response = await fetch("/api/admin/matches/calculate-played", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data?.ok === false) {
+        throw new Error(
+          data?.error ?? "No se pudieron calcular los partidos jugados",
+        );
+      }
 
       await showToast(
         "success",
-        "Placeholder",
-        "Aquí se calcularán los puntos de los partidos jugados",
+        "Partidos jugados calculados",
+        `${data.result.calculatedMatches} calculados · ${data.result.failedMatches} errores`,
       );
 
       router.refresh();
