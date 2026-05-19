@@ -3,7 +3,7 @@
 import { GroupWithQualifiedTeams } from "@/types";
 import Image from "next/image";
 import { DownloadCloud, RotateCcw, Trophy } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
@@ -60,6 +60,7 @@ async function showToast(
 
 export default function AdminGroupsPanel({ initialGroups }: Props) {
   const router = useRouter();
+  const [groups, setGroups] = useState(initialGroups);
 
   const [isFetching, setIsFetching] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
@@ -76,6 +77,10 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
     fetchingGroupId !== null ||
     scoringGroupId !== null ||
     resettingGroupId !== null;
+
+  useEffect(() => {
+    setGroups(initialGroups);
+  }, [initialGroups]);
 
   async function handleFetchGroups() {
     if (isBusy) return;
@@ -401,7 +406,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
             </thead>
 
             <tbody className="divide-y divide-black/5">
-              {initialGroups.map((group) => (
+              {groups.map((group) => (
                 <tr key={group.id} className="transition hover:bg-[#2A398D]/5">
                   <td className="px-5 py-4 text-left">
                     <div>
@@ -480,7 +485,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
                 </tr>
               ))}
 
-              {initialGroups.length === 0 && (
+              {groups.length === 0 && (
                 <tr>
                   <td
                     colSpan={tableColumns.length}

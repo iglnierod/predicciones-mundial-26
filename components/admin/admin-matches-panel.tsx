@@ -10,7 +10,7 @@ import {
   RotateCcw,
   Trophy,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
@@ -135,6 +135,7 @@ function isPlayedAndCalculated(match: MatchWithDetails) {
 
 export default function AdminMatchesPanel({ initialMatches }: Props) {
   const router = useRouter();
+  const [matches, setMatches] = useState(initialMatches);
 
   const [sortKey, setSortKey] = useState<SortKey>("kickoff_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -158,8 +159,12 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
     scoringMatchId !== null ||
     resettingMatchId !== null;
 
+  useEffect(() => {
+    setMatches(initialMatches);
+  }, [initialMatches]);
+
   const filteredAndSortedMatches = useMemo(() => {
-    const filteredMatches = initialMatches.filter((match) => {
+    const filteredMatches = matches.filter((match) => {
       if (!hidePlayedAndCalculated) return true;
 
       return !isPlayedAndCalculated(match);
@@ -197,7 +202,7 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
         ? String(aValue).localeCompare(String(bValue))
         : String(bValue).localeCompare(String(aValue));
     });
-  }, [hidePlayedAndCalculated, initialMatches, sortDirection, sortKey]);
+  }, [hidePlayedAndCalculated, matches, sortDirection, sortKey]);
 
   const totalPages = Math.max(
     1,
