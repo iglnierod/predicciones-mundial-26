@@ -224,6 +224,10 @@ export default function MatchesTab({ profile, viewerUserId }: Props) {
             predictionMap.get(`${match.id}-${profile.user_id}`) ?? null,
         }));
 
+        if (mode === "replace") {
+          setPage(0);
+        }
+
         setHasMore(parsedMatches.length === PAGE_SIZE);
 
         if (mode === "replace") {
@@ -246,8 +250,11 @@ export default function MatchesTab({ profile, viewerUserId }: Props) {
   );
 
   useEffect(() => {
-    setPage(0);
-    void loadPage(0, "replace");
+    const timeoutId = window.setTimeout(() => {
+      void loadPage(0, "replace");
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadPage]);
 
   async function handleLoadMore() {
@@ -445,7 +452,7 @@ function PredictionAccordionRow({
         onClick={() => {
           if (hasBreakdown) setOpen((prev) => !prev);
         }}
-        className={`grid w-full grid-cols-[1fr_auto_1fr] items-center border-t border-black/10 px-3 py-2 text-left transition ${hasBreakdown ? "cursor-pointer hover:bg-black/2.5" : "cursor-default"}`}
+        className={`grid w-full grid-cols-[1fr_auto_1fr] items-center border-t border-black/10 px-3 py-2 text-left transition ${highlighted ? "bg-[#2A398D]/5" : ""} ${hasBreakdown ? "cursor-pointer hover:bg-black/2.5" : "cursor-default"}`}
       >
         <div className="text-sm text-black/80">{label}</div>
 

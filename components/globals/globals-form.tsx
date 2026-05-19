@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { LoaderCircle, Globe2, Shield } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import TextField from "./text-field";
 import TeamSelectField from "./team-select-field";
 import OptionSelectField from "./option-select-field";
@@ -181,10 +181,6 @@ export default function GlobalsForm({
   const [formValues, setFormValues] = useState<TournamentPredictionFormValues>(
     getInitialValues(initialPrediction),
   );
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const generalFields = useMemo(
@@ -267,8 +263,6 @@ export default function GlobalsForm({
   }
 
   function handleSubmit() {
-    setFeedback(null);
-
     startTransition(async () => {
       const result = await saveTournamentPredictions({
         userId,

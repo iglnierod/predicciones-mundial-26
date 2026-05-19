@@ -49,9 +49,7 @@ export default function ViewPredictionsModalContent({ match }: Props) {
               />
             </div>
 
-            <p className="text-sm font-extrabold text-black">
-              {homeTeamName}
-            </p>
+            <p className="text-sm font-extrabold text-black">{homeTeamName}</p>
 
             <p className="text-xs text-black/60">{homeTeamCode}</p>
           </div>
@@ -77,9 +75,7 @@ export default function ViewPredictionsModalContent({ match }: Props) {
               />
             </div>
 
-            <p className="text-sm font-extrabold text-black">
-              {awayTeamName}
-            </p>
+            <p className="text-sm font-extrabold text-black">{awayTeamName}</p>
 
             <p className="text-xs text-black/60">{awayTeamCode}</p>
           </div>
