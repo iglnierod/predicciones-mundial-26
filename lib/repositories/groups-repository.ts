@@ -1,10 +1,7 @@
-import { createClient } from "../supabase/server";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { QualifiedGroupFromApi } from "@/lib/external/wc2026-api";
 
-export async function getGroupsWithQualifiedTeams() {
-  const supabase = await createClient();
-
+export async function getGroupsWithQualifiedTeams(supabase: SupabaseClient) {
   const { data, error } = await supabase
     .from("groups_with_qualified_teams")
     .select("*")

@@ -1,9 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "../supabase/server";
 
-export async function getGroupPredictions() {
-  const supabase = await createClient();
-
+export async function getGroupPredictions(supabase: SupabaseClient) {
   const { data, error } = await supabase.from("group_predictions").select("*");
 
   if (error) {
