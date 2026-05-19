@@ -9,6 +9,7 @@ import { CalendarClock, CheckCheck, LoaderCircle } from "lucide-react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import ViewPredictionsModalContent from "./view-predictions-modal-content";
+import { isPredictionClosed } from "@/lib/format/match";
 
 type Props = {
   initialMatches: MatchWithPrediction[];
@@ -16,17 +17,6 @@ type Props = {
 };
 
 type MatchFilter = "scheduled" | "completed";
-
-function parseUtcDate(dateString: string) {
-  return new Date(dateString.replace(" ", "T"));
-}
-
-function isPredictionClosed(kickoffAt: string) {
-  const kickoffDate = parseUtcDate(kickoffAt);
-  const closeDate = new Date(kickoffDate.getTime() - 60 * 1000);
-
-  return new Date() >= closeDate;
-}
 
 export default function MatchesList({ initialMatches, pageSize }: Props) {
   const [matches, setMatches] = useState<MatchWithPrediction[]>(initialMatches);

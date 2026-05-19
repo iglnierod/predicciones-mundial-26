@@ -13,6 +13,12 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import {
+  formatKickoffDateTime,
+  getMatchStatusLabel,
+  getRoundLabel,
+  parseUtcDate,
+} from "@/lib/format/match";
 
 type Props = {
   initialMatches: MatchWithDetails[];
@@ -76,57 +82,6 @@ async function showToast(
     showCloseButton: true,
     width: 420,
   });
-}
-
-function parseUtcDate(dateString: string) {
-  return new Date(dateString.replace(" ", "T"));
-}
-
-function formatKickoffDateTime(dateString: string) {
-  const date = parseUtcDate(dateString);
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
-}
-
-function getRoundLabel(round: string) {
-  switch (round) {
-    case "group":
-      return "GRUPOS";
-    case "R32":
-      return "DIECISEISAVOS";
-    case "R16":
-      return "OCTAVOS";
-    case "QF":
-      return "CUARTOS";
-    case "SF":
-      return "SEMIFINAL";
-    case "3r":
-      return "3/4 PUESTO";
-    case "final":
-      return "FINAL";
-    default:
-      return round.toUpperCase();
-  }
-}
-
-function getStatusLabel(status: string) {
-  switch (status) {
-    case "scheduled":
-      return "PROGRAMADO";
-    case "live":
-      return "EN DIRECTO";
-    case "completed":
-      return "JUGADO";
-    default:
-      return status.toUpperCase();
-  }
 }
 
 function isPlayedAndCalculated(match: MatchWithDetails) {
@@ -609,7 +564,9 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
                   </td>
 
                   <td className="px-5 py-4 text-center text-sm font-bold text-black">
-                    {formatKickoffDateTime(match.kickoff_at)}
+                    {formatKickoffDateTime(match.kickoff_at, {
+                      year: "numeric",
+                    })}
                   </td>
 
                   <td className="px-5 py-4">
@@ -831,7 +788,7 @@ function MatchStatusBadge({ status }: { status: string }) {
   if (status === "completed") {
     return (
       <span className="rounded-full bg-green-700/10 px-3 py-1 text-xs font-bold text-green-800">
-        {getStatusLabel(status)}
+        {getMatchStatusLabel(status)}
       </span>
     );
   }
@@ -839,14 +796,14 @@ function MatchStatusBadge({ status }: { status: string }) {
   if (status === "live") {
     return (
       <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold text-red-600">
-        {getStatusLabel(status)}
+        {getMatchStatusLabel(status)}
       </span>
     );
   }
 
   return (
     <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-bold text-black/45">
-      {getStatusLabel(status)}
+      {getMatchStatusLabel(status)}
     </span>
   );
 }

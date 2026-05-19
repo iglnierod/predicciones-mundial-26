@@ -5,6 +5,11 @@ import Image from "next/image";
 import { useState } from "react";
 import { Clock, LoaderCircle } from "lucide-react";
 import Swal from "sweetalert2";
+import {
+  formatKickoffDateTime,
+  getRoundLabel,
+  isPredictionClosed,
+} from "@/lib/format/match";
 
 type MatchRowProps = {
   match: MatchWithPrediction;
@@ -18,52 +23,6 @@ type MatchRowProps = {
     predictedAwayScore: number,
   ) => Promise<{ saved: boolean; errorMessage: string | null }>;
 };
-
-function parseUtcDate(dateString: string) {
-  return new Date(dateString.replace(" ", "T"));
-}
-
-function formatKickoffDateTime(dateString: string) {
-  const date = parseUtcDate(dateString);
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
-}
-
-function getPredictionCloseDate(kickoffAt: string) {
-  const kickoffDate = parseUtcDate(kickoffAt);
-  return new Date(kickoffDate.getTime() - 60 * 1000);
-}
-
-function isPredictionClosed(kickoffAt: string) {
-  return new Date() >= getPredictionCloseDate(kickoffAt);
-}
-
-function getRoundLabel(round: string) {
-  switch (round) {
-    case "group":
-      return "GRUPOS";
-    case "R32":
-      return "DIECISEISAVOS";
-    case "R16":
-      return "OCTAVOS";
-    case "QF":
-      return "CUARTOS DE FINAL";
-    case "SF":
-      return "SEMIFINALES";
-    case "3r":
-      return "3/4 PUESTO";
-    case "final":
-      return "FINAL";
-    default:
-      return round.toUpperCase();
-  }
-}
 
 export default function MatchRow({
   match,

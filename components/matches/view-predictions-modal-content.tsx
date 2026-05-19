@@ -3,51 +3,16 @@
 import Image from "next/image";
 import { MatchWithPrediction } from "@/types";
 import UsersPredictionTable from "./users-prediction-table";
+import { formatKickoffDateTime, getRoundLabel } from "@/lib/format/match";
 
 type Props = {
   match: MatchWithPrediction;
 };
 
-function parseUtcDate(dateString: string) {
-  return new Date(dateString.replace(" ", "T"));
-}
-
-function formatKickoffDateTime(dateString: string) {
-  const date = parseUtcDate(dateString);
-
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
-}
-
-function getRoundLabel(round: string) {
-  switch (round) {
-    case "group":
-      return "GRUPOS";
-    case "R32":
-      return "DIECISEISAVOS";
-    case "R16":
-      return "OCTAVOS";
-    case "QF":
-      return "CUARTOS DE FINAL";
-    case "SF":
-      return "SEMIFINALES";
-    case "3r":
-      return "3/4 PUESTO";
-    case "final":
-      return "FINAL";
-    default:
-      return round.toUpperCase();
-  }
-}
-
 export default function ViewPredictionsModalContent({ match }: Props) {
-  const kickoffDateTime = formatKickoffDateTime(match.kickoff_at);
+  const kickoffDateTime = formatKickoffDateTime(match.kickoff_at, {
+    year: "numeric",
+  });
   const hasScore = match.home_score !== null && match.away_score !== null;
   const homeTeamName = match.home_team_name ?? "Equipo local";
   const homeTeamCode = match.home_team_code ?? "LOC";
