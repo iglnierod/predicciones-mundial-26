@@ -242,7 +242,7 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok || data?.ok === false) {
+      if (!response.ok || data?.success === false) {
         throw new Error(
           data?.error ?? "No se pudieron actualizar los partidos",
         );
@@ -282,7 +282,7 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok || data?.ok === false) {
+      if (!response.ok || data?.success === false) {
         throw new Error(
           data?.error ?? "No se pudieron calcular los partidos jugados",
         );
@@ -322,7 +322,7 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok || data?.ok === false) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudo actualizar el partido");
       }
 
@@ -367,7 +367,7 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok || data?.ok === false) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudieron calcular los puntos");
       }
 
@@ -424,7 +424,7 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok || data?.ok === false) {
+      if (!response.ok || data?.success === false) {
         throw new Error(
           data?.error ?? "No se pudieron eliminar las puntuaciones",
         );

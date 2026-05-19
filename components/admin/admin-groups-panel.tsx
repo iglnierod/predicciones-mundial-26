@@ -90,7 +90,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudieron actualizar los grupos");
       }
 
@@ -128,7 +128,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudo actualizar el grupo");
       }
 
@@ -166,7 +166,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudieron calcular los puntos");
       }
 
@@ -207,7 +207,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(
           data?.error ?? "No se pudieron calcular los puntos del grupo",
         );
@@ -261,7 +261,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudieron resetear los grupos");
       }
 
@@ -313,7 +313,7 @@ export default function AdminGroupsPanel({ initialGroups }: Props) {
 
       const data = await response.json();
 
-      if (!response.ok || data?.ok === false) {
+      if (!response.ok || data?.success === false) {
         throw new Error(data?.error ?? "No se pudo resetear el grupo");
       }
 

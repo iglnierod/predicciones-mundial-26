@@ -16,6 +16,7 @@ export async function POST(
     if (!Number.isInteger(groupId) || groupId <= 0) {
       return NextResponse.json(
         {
+          success: false,
           error: "ID de grupo no válido",
         },
         { status: 400 },
@@ -33,6 +34,7 @@ export async function POST(
   } catch (error) {
     return NextResponse.json(
       {
+        success: false,
         error:
           error instanceof Error
             ? error.message

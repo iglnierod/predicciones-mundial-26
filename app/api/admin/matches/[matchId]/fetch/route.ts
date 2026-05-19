@@ -16,7 +16,7 @@ export async function POST(
     if (!Number.isInteger(matchId) || matchId <= 0) {
       return NextResponse.json(
         {
-          ok: false,
+          success: false,
           error: "matchId inválido",
         },
         { status: 400 },
@@ -28,7 +28,7 @@ export async function POST(
     const result = await syncSingleMatchFromApi(supabaseAdmin, matchId);
 
     return NextResponse.json({
-      ok: true,
+      success: true,
       result,
     });
   } catch (error) {
@@ -37,7 +37,7 @@ export async function POST(
     if (message === "Unauthorized") {
       return NextResponse.json(
         {
-          ok: false,
+          success: false,
           error: "No autenticado",
         },
         { status: 401 },
@@ -47,7 +47,7 @@ export async function POST(
     if (message === "Forbidden") {
       return NextResponse.json(
         {
-          ok: false,
+          success: false,
           error: "No autorizado",
         },
         { status: 403 },
@@ -56,7 +56,7 @@ export async function POST(
 
     return NextResponse.json(
       {
-        ok: false,
+        success: false,
         error: message,
       },
       { status: 500 },

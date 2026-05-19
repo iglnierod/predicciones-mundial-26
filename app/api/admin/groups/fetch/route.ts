@@ -18,6 +18,7 @@ export async function POST() {
   } catch (error) {
     return NextResponse.json(
       {
+        success: false,
         error:
           error instanceof Error
             ? error.message
