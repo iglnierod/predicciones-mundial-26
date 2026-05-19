@@ -57,33 +57,22 @@ export async function deleteSingleGroupPredictionPoints(
   supabase: SupabaseClient,
   groupId: number,
 ) {
-  const { data: affectedRows, error: selectError } = await supabase
-    .from("prediction_points")
-    .select("user_id")
-    .eq("prediction_type", "group")
-    .eq("group_id", groupId);
-
-  if (selectError) {
-    throw new Error(
-      `Error loading affected users for group ${groupId}: ${selectError.message}`,
-    );
-  }
-
-  const affectedUserIds = [
-    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
-  ];
-
-  const { error: deleteError } = await supabase
+  const { data: affectedRows, error: deleteError } = await supabase
     .from("prediction_points")
     .delete()
     .eq("prediction_type", "group")
-    .eq("group_id", groupId);
+    .eq("group_id", groupId)
+    .select("user_id");
 
   if (deleteError) {
     throw new Error(
       `Error deleting prediction points for group ${groupId}: ${deleteError.message}`,
     );
   }
+
+  const affectedUserIds = [
+    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
+  ];
 
   return {
     deletedPoints: affectedRows?.length ?? 0,
@@ -126,31 +115,21 @@ export async function upsertGroupPredictionPoint(
 }
 
 export async function deleteAllGroupPredictionPoints(supabase: SupabaseClient) {
-  const { data: affectedRows, error: selectError } = await supabase
-    .from("prediction_points")
-    .select("user_id")
-    .eq("prediction_type", "group");
-
-  if (selectError) {
-    throw new Error(
-      `Error loading affected users for group points: ${selectError.message}`,
-    );
-  }
-
-  const affectedUserIds = [
-    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
-  ];
-
-  const { error: deleteError } = await supabase
+  const { data: affectedRows, error: deleteError } = await supabase
     .from("prediction_points")
     .delete()
-    .eq("prediction_type", "group");
+    .eq("prediction_type", "group")
+    .select("user_id");
 
   if (deleteError) {
     throw new Error(
       `Error deleting group prediction points: ${deleteError.message}`,
     );
   }
+
+  const affectedUserIds = [
+    ...new Set((affectedRows ?? []).map((row) => row.user_id)),
+  ];
 
   return {
     deletedPoints: affectedRows?.length ?? 0,

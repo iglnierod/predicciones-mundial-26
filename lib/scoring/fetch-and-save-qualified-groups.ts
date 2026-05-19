@@ -7,9 +7,6 @@ export async function fetchAndSaveQualifiedGroups(supabase: SupabaseClient) {
 
   const result = await updateGroupsQualifiedTeams(supabase, qualifiedGroups);
 
-  console.log(qualifiedGroups.length);
-  console.log(result.updatedGroups);
-
   return {
     fetchedGroups: qualifiedGroups.length,
     updatedGroups: result.updatedGroups,

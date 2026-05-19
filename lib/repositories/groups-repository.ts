@@ -18,41 +18,32 @@ export async function updateGroupsQualifiedTeams(
   supabase: SupabaseClient,
   qualifiedGroups: QualifiedGroupFromApi[],
 ) {
-  let updatedGroups = 0;
+  if (qualifiedGroups.length === 0) {
+    return { updatedGroups: 0 };
+  }
 
-  for (const group of qualifiedGroups) {
-    const { data, error } = await supabase
-      .from("groups")
-      .update({
-        qualified_team_a_id: group.qualifiedTeamAApiId,
-        qualified_team_b_id: group.qualifiedTeamBApiId,
-      })
-      .eq("id", group.groupId)
-      .select("id, name, qualified_team_a_id, qualified_team_b_id");
+  const rows = qualifiedGroups.map((group) => ({
+    id: group.groupId,
+    name: group.groupName,
+    qualified_team_a_id: group.qualifiedTeamAApiId,
+    qualified_team_b_id: group.qualifiedTeamBApiId,
+  }));
 
-    console.log("GROUP UPDATE RESULT:", {
-      groupId: group.groupId,
-      groupName: group.groupName,
-      qualifiedTeamAId: group.qualifiedTeamAApiId,
-      qualifiedTeamBId: group.qualifiedTeamBApiId,
-      updatedRows: data?.length ?? 0,
-      data,
-      error,
-    });
+  const { data, error } = await supabase
+    .from("groups")
+    .upsert(rows, { onConflict: "id" })
+    .select("id, name, qualified_team_a_id, qualified_team_b_id");
 
-    if (error) {
-      throw new Error(
-        `Error actualizando grupo ${group.groupId} (${group.groupName}): ${error.message}`,
-      );
-    }
+  if (error) {
+    throw new Error(`Error actualizando grupos: ${error.message}`);
+  }
 
-    if (!data || data.length === 0) {
-      throw new Error(
-        `No se actualizó ningún grupo con id = ${group.groupId} (${group.groupName})`,
-      );
-    }
+  const updatedGroups = data?.length ?? 0;
 
-    updatedGroups += data.length;
+  if (updatedGroups !== qualifiedGroups.length) {
+    throw new Error(
+      `Se actualizaron ${updatedGroups} grupos de ${qualifiedGroups.length} esperados`,
+    );
   }
 
   return {
@@ -67,7 +58,7 @@ export async function resetGroupQualifiedTeams(supabase: SupabaseClient) {
       qualified_team_a_id: null,
       qualified_team_b_id: null,
     })
-    .not("id", "is", null)
+    .gt("id", 0)
     .select("id, name, qualified_team_a_id, qualified_team_b_id");
 
   if (error) {
