@@ -4,10 +4,10 @@ import { LeaderboardProfile } from "@/types";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import GlobalTab from "./tabs/GlobalTab";
-import GroupsTab from "./tabs/GroupsTab";
-import MatchesTab from "./tabs/MatchesTab";
-import CompareTab from "./tabs/CompareTab";
+import GlobalTab from "./tabs/global-tab";
+import GroupsTab from "./tabs/groups-tab";
+import MatchesTab from "./tabs/matches-tab";
+import CompareTab from "./tabs/compare-tab";
 
 type Props = {
   profile: LeaderboardProfile;

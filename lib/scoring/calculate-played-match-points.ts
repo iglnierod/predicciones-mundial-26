@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getCompletedUncalculatedMatches } from "../repositories/matches-repository";
-import { calculateMatchPoints } from "./calcultate-match-points";
+import { calculateMatchPoints } from "./calculate-match-points";
 
 export async function calculatePlayedMatchPoints(supabase: SupabaseClient) {
   const matches = await getCompletedUncalculatedMatches(supabase);

@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth/admin";
-import { calculateMatchPoints } from "@/lib/scoring/calcultate-match-points";
+import { calculateMatchPoints } from "@/lib/scoring/calculate-match-points";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 

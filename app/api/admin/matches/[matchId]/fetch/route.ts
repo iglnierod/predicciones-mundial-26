@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth/admin";
-import { syncSingleMatchFromApi } from "@/lib/scoring/fetch-and-save-matchecs";
+import { syncSingleMatchFromApi } from "@/lib/scoring/fetch-and-save-matches";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 

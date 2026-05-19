@@ -1,5 +1,5 @@
-import Footer from "@/components/footer";
-import Header from "@/components/header";
+import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import React from "react";

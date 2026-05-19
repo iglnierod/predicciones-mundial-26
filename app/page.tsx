@@ -1,7 +1,7 @@
-import GoogleLoginButton from "@/components/google-login-button";
+import GoogleLoginButton from "@/components/layout/google-login-button";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-// import AutoLoginToast from "@/components/auto-login-toast";
+// import AutoLoginToast from "@/components/layout/auto-login-toast";
 // import Swal from "sweetalert2";
 
 export default async function Home() {
