@@ -4,7 +4,7 @@ import { createClient } from "../supabase/server";
 export async function getGroupPredictions() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.from("groups_predictions").select("*");
+  const { data, error } = await supabase.from("group_predictions").select("*");
 
   if (error) {
     console.error(

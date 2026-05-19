@@ -49,6 +49,12 @@ function getRoundLabel(round: string) {
 export default function ViewPredictionsModalContent({ match }: Props) {
   const kickoffDateTime = formatKickoffDateTime(match.kickoff_at);
   const hasScore = match.home_score !== null && match.away_score !== null;
+  const homeTeamName = match.home_team_name ?? "Equipo local";
+  const homeTeamCode = match.home_team_code ?? "LOC";
+  const homeTeamFlagCode = match.home_team_flag_code ?? "un";
+  const awayTeamName = match.away_team_name ?? "Equipo visitante";
+  const awayTeamCode = match.away_team_code ?? "VIS";
+  const awayTeamFlagCode = match.away_team_flag_code ?? "un";
 
   return (
     <div className="text-left">
@@ -70,8 +76,8 @@ export default function ViewPredictionsModalContent({ match }: Props) {
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="overflow-hidden rounded-tr-xl rounded-bl-xl border border-black/5 bg-white shadow-sm">
               <Image
-                src={`https://flagcdn.com/w160/${match.home_team_flag_code}.png`}
-                alt={`Bandera de ${match.home_team_name}`}
+                src={`https://flagcdn.com/w160/${homeTeamFlagCode}.png`}
+                alt={`Bandera de ${homeTeamName}`}
                 width={72}
                 height={48}
                 className="h-12 w-18 object-cover"
@@ -79,10 +85,10 @@ export default function ViewPredictionsModalContent({ match }: Props) {
             </div>
 
             <p className="text-sm font-extrabold text-black">
-              {match.home_team_name}
+              {homeTeamName}
             </p>
 
-            <p className="text-xs text-black/60">{match.home_team_code}</p>
+            <p className="text-xs text-black/60">{homeTeamCode}</p>
           </div>
 
           <div className="flex flex-col items-center justify-center gap-2">
@@ -98,8 +104,8 @@ export default function ViewPredictionsModalContent({ match }: Props) {
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="overflow-hidden rounded-tl-xl rounded-br-xl border border-black/5 bg-white shadow-sm">
               <Image
-                src={`https://flagcdn.com/w160/${match.away_team_flag_code}.png`}
-                alt={`Bandera de ${match.away_team_name}`}
+                src={`https://flagcdn.com/w160/${awayTeamFlagCode}.png`}
+                alt={`Bandera de ${awayTeamName}`}
                 width={72}
                 height={48}
                 className="h-12 w-18 object-cover"
@@ -107,10 +113,10 @@ export default function ViewPredictionsModalContent({ match }: Props) {
             </div>
 
             <p className="text-sm font-extrabold text-black">
-              {match.away_team_name}
+              {awayTeamName}
             </p>
 
-            <p className="text-xs text-black/60">{match.away_team_code}</p>
+            <p className="text-xs text-black/60">{awayTeamCode}</p>
           </div>
         </div>
       </div>

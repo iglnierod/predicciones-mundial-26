@@ -38,8 +38,8 @@ export default async function AdminPage() {
       </div>
 
       <AdminContent
-        initialGroups={groups as GroupWithQualifiedTeams[]}
-        initialMatches={matches as MatchWithDetails[]}
+        initialGroups={(groups ?? []) as GroupWithQualifiedTeams[]}
+        initialMatches={(matches ?? []) as MatchWithDetails[]}
       />
     </section>
   );

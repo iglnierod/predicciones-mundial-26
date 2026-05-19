@@ -31,7 +31,7 @@ export interface GroupWithQualifiedTeams {
   scored_predictions_count: number;
 }
 
-export type GroupPredictionSelection = Record<string, number[]>;
+export type GroupPredictionSelection = Record<number, number[]>;
 
 export interface LeaderboardProfile {
   user_id: string;
@@ -43,7 +43,7 @@ export interface LeaderboardProfile {
   tournament_points: number;
   total_points: number;
   rank: number;
-  updated_at?: string; // Hace falta? Es el tipo de dato?
+  updated_at: string;
 }
 
 export type ApiMatch = {
@@ -116,14 +116,14 @@ export type MatchWithPrediction = {
   stadium_country: string | null;
   group_id: number | null;
   group_name: string | null;
-  home_team_id: number;
-  home_team_name: string;
-  home_team_code: string;
-  home_team_flag_code: string;
-  away_team_id: number;
-  away_team_name: string;
-  away_team_code: string;
-  away_team_flag_code: string;
+  home_team_id: number | null;
+  home_team_name: string | null;
+  home_team_code: string | null;
+  home_team_flag_code: string | null;
+  away_team_id: number | null;
+  away_team_name: string | null;
+  away_team_code: string | null;
+  away_team_flag_code: string | null;
 
   prediction_id: number | null;
   prediction_user_id: string | null;

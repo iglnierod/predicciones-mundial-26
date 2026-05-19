@@ -84,6 +84,12 @@ export default function MatchRow({
   const hasScore = match.home_score !== null && match.away_score !== null;
   const hasPrediction =
     match.predicted_home_score !== null && match.predicted_away_score !== null;
+  const homeTeamName = match.home_team_name ?? "Equipo local";
+  const homeTeamCode = match.home_team_code ?? "LOC";
+  const homeTeamFlagCode = match.home_team_flag_code ?? "un";
+  const awayTeamName = match.away_team_name ?? "Equipo visitante";
+  const awayTeamCode = match.away_team_code ?? "VIS";
+  const awayTeamFlagCode = match.away_team_flag_code ?? "un";
 
   const showClosedBadge =
     predictionClosed && match.status !== "completed" && match.status !== "live";
@@ -178,20 +184,20 @@ export default function MatchRow({
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="overflow-hidden rounded-tr-xl rounded-bl-xl border border-black/5 bg-white shadow-sm">
             <Image
-              src={`https://flagcdn.com/w160/${match.home_team_flag_code}.png`}
-              alt={`Bandera de ${match.home_team_name}`}
+              src={`https://flagcdn.com/w160/${homeTeamFlagCode}.png`}
+              alt={`Bandera de ${homeTeamName}`}
               width={72}
               height={48}
               className="h-12 w-18 object-cover"
-              title={match.home_team_name}
+              title={homeTeamName}
             />
           </div>
 
           <span
             className="text-lg font-extrabold tracking-wide text-black"
-            title={match.home_team_name}
+            title={homeTeamName}
           >
-            {match.home_team_code}
+            {homeTeamCode}
           </span>
         </div>
 
@@ -240,20 +246,20 @@ export default function MatchRow({
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="overflow-hidden rounded-tl-xl rounded-br-xl border border-black/5 bg-white shadow-sm">
             <Image
-              src={`https://flagcdn.com/w160/${match.away_team_flag_code}.png`}
-              alt={`Bandera de ${match.away_team_name}`}
+              src={`https://flagcdn.com/w160/${awayTeamFlagCode}.png`}
+              alt={`Bandera de ${awayTeamName}`}
               width={72}
               height={48}
               className="h-12 w-18 object-cover"
-              title={match.away_team_name}
+              title={awayTeamName}
             />
           </div>
 
           <span
             className="text-lg font-extrabold tracking-wide text-black"
-            title={match.away_team_name}
+            title={awayTeamName}
           >
-            {match.away_team_code}
+            {awayTeamCode}
           </span>
         </div>
       </div>
