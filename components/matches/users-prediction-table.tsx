@@ -29,6 +29,7 @@ export default function UsersPredictionTable({ matchId }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   function getRuleText(ruleKey: string): string {
+    if (ruleKey === "match_exact_score") return "Adivina resultado exacto";
     if (ruleKey === "match_winner_only") return "Adivina ganador";
     if (ruleKey === "match_winner_and_difference")
       return "Adivina ganador y diferencia de goles / empate";
