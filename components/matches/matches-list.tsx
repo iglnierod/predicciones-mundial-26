@@ -39,7 +39,7 @@ export default function MatchesList({
   const urlFilter = getFilterFromTab(searchParams.get("tab"));
 
   const [matches, setMatches] = useState<MatchWithPrediction[]>(initialMatches);
-  const [filter, setFilter] = useState<MatchFilter>(urlFilter);
+  const [filter, setFilter] = useState<MatchFilter>(initialFilter);
   const [loadingFilter, setLoadingFilter] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initialMatches.length === pageSize);

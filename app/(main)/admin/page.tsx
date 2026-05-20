@@ -2,7 +2,23 @@ import { createClient } from "@/lib/supabase/server";
 import AdminContent from "./admin-content";
 import { GroupWithQualifiedTeams, MatchWithDetails } from "@/types";
 
-export default async function AdminPage() {
+type AdminTab = "matches" | "groups" | "globals";
+
+type Props = {
+  searchParams: Promise<{
+    tab?: string;
+  }>;
+};
+
+function getInitialTab(tab: string | undefined): AdminTab {
+  if (tab === "groups") return "groups";
+  if (tab === "globals") return "globals";
+  return "matches";
+}
+
+export default async function AdminPage({ searchParams }: Props) {
+  const { tab } = await searchParams;
+  const initialTab = getInitialTab(tab);
   const supabase = await createClient();
 
   // Consulta grupos
@@ -40,6 +56,7 @@ export default async function AdminPage() {
       <AdminContent
         initialGroups={(groups ?? []) as GroupWithQualifiedTeams[]}
         initialMatches={(matches ?? []) as MatchWithDetails[]}
+        initialTab={initialTab}
       />
     </section>
   );

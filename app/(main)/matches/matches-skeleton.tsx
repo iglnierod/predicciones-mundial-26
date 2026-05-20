@@ -44,10 +44,17 @@ function MatchCardSkeleton() {
 
 export default function MatchesSkeleton() {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {Array.from({ length: 9 }).map((_, index) => (
-        <MatchCardSkeleton key={index} />
-      ))}
+    <div className="flex flex-col gap-6">
+      <div className="flex justify-center gap-3 sm:justify-start">
+        <div className="h-12 w-40 animate-pulse rounded-2xl border border-white/10 bg-white/10" />
+        <div className="h-12 w-32 animate-pulse rounded-2xl border border-white/10 bg-white/10" />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {Array.from({ length: 9 }).map((_, index) => (
+          <MatchCardSkeleton key={index} />
+        ))}
+      </div>
     </div>
   );
 }
