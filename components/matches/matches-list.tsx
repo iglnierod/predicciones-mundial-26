@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { MatchPrediction, MatchWithPrediction } from "@/types";
 import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import MatchRow from "./match-row";
 import MatchesSkeleton from "@/app/(main)/matches/matches-skeleton";
 import { CalendarClock, CheckCheck, LoaderCircle } from "lucide-react";
@@ -13,14 +14,27 @@ import { isPredictionClosed } from "@/lib/format/match";
 
 type Props = {
   initialMatches: MatchWithPrediction[];
+  initialFilter: MatchFilter;
   pageSize: number;
 };
 
 type MatchFilter = "scheduled" | "completed";
 
-export default function MatchesList({ initialMatches, pageSize }: Props) {
+function getTabFromFilter(filter: MatchFilter) {
+  return filter === "completed" ? "played" : "scheduled";
+}
+
+export default function MatchesList({
+  initialMatches,
+  initialFilter,
+  pageSize,
+}: Props) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [matches, setMatches] = useState<MatchWithPrediction[]>(initialMatches);
-  const [filter, setFilter] = useState<MatchFilter>("scheduled");
+  const [filter, setFilter] = useState<MatchFilter>(initialFilter);
   const [loadingFilter, setLoadingFilter] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initialMatches.length === pageSize);
@@ -66,6 +80,12 @@ export default function MatchesList({ initialMatches, pageSize }: Props) {
 
   async function handleFilterChange(selectedFilter: MatchFilter) {
     if (selectedFilter === filter || loadingFilter || loadingMore) return;
+
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    nextSearchParams.set("tab", getTabFromFilter(selectedFilter));
+    router.replace(`${pathname}?${nextSearchParams.toString()}`, {
+      scroll: false,
+    });
 
     setFilter(selectedFilter);
     setLoadingFilter(true);

@@ -2,7 +2,15 @@ import { Suspense } from "react";
 import MatchesContent from "./matches-content";
 import MatchesSkeleton from "./matches-skeleton";
 
-export default function MatchesPage() {
+type Props = {
+  searchParams: Promise<{
+    tab?: string;
+  }>;
+};
+
+export default async function MatchesPage({ searchParams }: Props) {
+  const { tab } = await searchParams;
+
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -12,8 +20,8 @@ export default function MatchesPage() {
         </p>
       </div>
 
-      <Suspense fallback={<MatchesSkeleton />}>
-        <MatchesContent />
+      <Suspense fallback={<MatchesSkeleton />} key={tab ?? "scheduled"}>
+        <MatchesContent initialTab={tab} />
       </Suspense>
     </section>
   );
