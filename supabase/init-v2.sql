@@ -1,6 +1,6 @@
 -- ============================================
--- MUNDIAL 2026 - BASE INICIAL
--- Perfiles + grupos + equipos
+-- MUNDIAL 2026 - SCHEMA COMPLETO
+-- Ejecutable en Supabase SQL Editor
 -- ============================================
 
 -- ============================================
@@ -119,6 +119,7 @@ execute function public.handle_new_user();
 -- ============================================
 -- 3) GROUPS
 -- ============================================
+
 create table if not exists public.groups (
   id integer primary key,
   name text not null unique,
@@ -130,6 +131,7 @@ create table if not exists public.groups (
 -- ============================================
 -- 4) TEAMS
 -- ============================================
+
 create table if not exists public.teams (
   id integer primary key,
   name text not null,
@@ -205,6 +207,28 @@ begin
     );
   end if;
 end $$;
+
+-- ============================================
+-- RLS PARA CATÁLOGOS PÚBLICOS
+-- ============================================
+
+alter table public.groups enable row level security;
+alter table public.teams enable row level security;
+
+drop policy if exists "Authenticated users can view groups" on public.groups;
+drop policy if exists "Authenticated users can view teams" on public.teams;
+
+create policy "Authenticated users can view groups"
+on public.groups
+for select
+to authenticated
+using (true);
+
+create policy "Authenticated users can view teams"
+on public.teams
+for select
+to authenticated
+using (true);
 
 -- ============================================
 -- 5) DATOS DE GRUPOS
@@ -293,6 +317,20 @@ on conflict (id) do update set
   code = excluded.code,
   flag_code = excluded.flag_code,
   group_id = excluded.group_id;
+
+update public.teams
+set is_top10_ranking_fifa = code in (
+  'ARG',
+  'FRA',
+  'ESP',
+  'ENG',
+  'BRA',
+  'POR',
+  'NED',
+  'BEL',
+  'GER',
+  'CRO'
+);
 
 -- ============================================
 -- GROUP PREDICTIONS
@@ -470,7 +508,21 @@ create index if not exists matches_home_team_id_idx
 create index if not exists matches_away_team_id_idx
   on public.matches (away_team_id);
 
-  -- ============================================
+-- ============================================
+-- RLS
+-- ============================================
+
+alter table public.matches enable row level security;
+
+drop policy if exists "Authenticated users can view matches" on public.matches;
+
+create policy "Authenticated users can view matches"
+on public.matches
+for select
+to authenticated
+using (true);
+
+-- ============================================
 -- MATCH PREDICTIONS
 -- ============================================
 
@@ -554,7 +606,7 @@ create index if not exists match_predictions_match_id_idx
 create index if not exists match_predictions_user_id_idx
   on public.match_predictions (user_id);
 
-  -- ============================================
+-- ============================================
 -- PREDICTION POINTS
 -- ============================================
 
@@ -603,25 +655,6 @@ for select
 to authenticated
 using ((select auth.uid()) = user_id);
 
-create policy "Users can insert their own prediction points"
-on public.prediction_points
-for insert
-to authenticated
-with check ((select auth.uid()) = user_id);
-
-create policy "Users can update their own prediction points"
-on public.prediction_points
-for update
-to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
-
-create policy "Users can delete their own prediction points"
-on public.prediction_points
-for delete
-to authenticated
-using ((select auth.uid()) = user_id);
-
 -- ============================================
 -- ÍNDICES ÚTILES
 -- ============================================
@@ -638,7 +671,7 @@ create index if not exists prediction_points_group_id_idx
 create index if not exists prediction_points_prediction_type_idx
   on public.prediction_points (prediction_type);
 
-  -- ============================================
+-- ============================================
 -- MATCH EXTRA PREDICTIONS
 -- Predicciones especiales/manuales por partido
 -- ============================================
@@ -727,7 +760,7 @@ create index if not exists match_extra_predictions_match_id_idx
 create index if not exists match_extra_predictions_user_id_idx
   on public.match_extra_predictions (user_id);
 
-  -- ============================================
+-- ============================================
 -- MATCH EXTRA RESULTS
 -- Resultado real/manual de las predicciones especiales
 -- ============================================
@@ -1034,25 +1067,6 @@ for select
 to authenticated
 using (true);
 
-create policy "Users can insert their own user points"
-on public.user_points
-for insert
-to authenticated
-with check ((select auth.uid()) = user_id);
-
-create policy "Users can update their own user points"
-on public.user_points
-for update
-to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
-
-create policy "Users can delete their own user points"
-on public.user_points
-for delete
-to authenticated
-using ((select auth.uid()) = user_id);
-
 -- ============================================
 -- ÍNDICE ÚTIL PARA LEADERBOARD
 -- ============================================
@@ -1148,7 +1162,7 @@ join public.user_points up
   on up.user_id = p.id;
 
 -- ============================================
--- VISTA PARA PARTIDOS Y PREDICCIÓN DEL PROPIO USUARIO 
+-- VISTA PARA PARTIDOS Y PREDICCIÓN DEL PROPIO USUARIO
 -- ============================================
 
 create or replace view public.matches_with_user_prediction as
@@ -1204,7 +1218,50 @@ left join match_predictions mp
 left join prediction_points pp
   on m.id = pp.match_id
   and mp.id = pp.prediction_id
-  and pp.prediction_type = 'match'
+  and pp.prediction_type = 'match';
+
+-- ============================================
+-- VISTA PARA ADMINISTRACIÓN DE PARTIDOS
+-- ============================================
+
+create or replace view public.matches_with_details as
+select
+  m.id,
+  m.api_match_id,
+  m.match_number,
+  m.round,
+  m.kickoff_at,
+  m.status,
+  m.home_score,
+  m.away_score,
+  m.stadium,
+  m.stadium_city,
+  m.stadium_country,
+  m.last_processed_key,
+  m.points_calculated_at,
+  m.created_at,
+  m.updated_at,
+
+  g.id as group_id,
+  g.name as group_name,
+
+  ht.id as home_team_id,
+  ht.name as home_team_name,
+  ht.code as home_team_code,
+  ht.flag_code as home_team_flag_code,
+
+  at.id as away_team_id,
+  at.name as away_team_name,
+  at.code as away_team_code,
+  at.flag_code as away_team_flag_code
+
+from public.matches m
+left join public.groups g
+  on g.id = m.group_id
+left join public.teams ht
+  on ht.id = m.home_team_id
+left join public.teams at
+  on at.id = m.away_team_id;
 
 -- ============================================
 -- VISTA PARA VER PREDICCIONES TODOS LOS USUARIOS DE UN PARTIDO
@@ -1222,7 +1279,7 @@ select
   pp.id as prediction_points_id,
   pp.points,
   pp.breakdown,
-  (pp.id is not null) as is_calculated,
+  (pp.id is not null) as is_calculated
 from public.match_predictions mp
 join public.profiles pr
   on pr.id = mp.user_id

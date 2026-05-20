@@ -1,5 +1,7 @@
 -- ============================================
--- Mundial 2026 - Esquema inicial
+-- LEGACY - Primera versión del schema
+-- No usar para crear una base nueva.
+-- Usar supabase/init-v2.sql como script actual completo.
 -- ============================================
 
 -- --------------------------------------------
