@@ -761,13 +761,13 @@ function TeamMini({ code, flagCode, align = "left" }: TeamMiniProps) {
       }`}
     >
       {flagCode && (
-        <div className="overflow-hidden rounded-tr-lg rounded-bl-lg border border-black/5 bg-white shadow-sm">
+        <div className="relative aspect-[8/5] w-8 overflow-hidden rounded-tr-lg rounded-bl-lg border border-black/5 bg-white shadow-sm">
           <Image
             src={`https://flagcdn.com/w80/${flagCode}.png`}
             alt={`Bandera de ${code}`}
-            width={32}
-            height={20}
-            className="h-auto w-8 object-cover"
+            fill
+            sizes="32px"
+            className="object-cover"
           />
         </div>
       )}

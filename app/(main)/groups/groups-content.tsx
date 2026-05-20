@@ -1,6 +1,10 @@
 import GroupComponent from "@/components/groups/group";
 import PredictGroupsButton from "@/components/groups/predict-groups-button";
 import { createClient } from "@/lib/supabase/server";
+import {
+  areTournamentPredictionsClosed,
+  getTournamentPredictionsCloseAt,
+} from "@/lib/predictions/tournament-deadline";
 import { GroupPredictionSelection } from "@/types";
 
 export default async function GroupsContent() {
@@ -11,6 +15,7 @@ export default async function GroupsContent() {
       data: { user },
     },
     { data: groups, error: groupsError },
+    closeAt,
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase
@@ -29,6 +34,7 @@ export default async function GroupsContent() {
         `,
       )
       .order("name"),
+    getTournamentPredictionsCloseAt(supabase),
   ]);
 
   if (groupsError) {
@@ -59,7 +65,11 @@ export default async function GroupsContent() {
   return (
     <>
       <div className="mb-6 flex justify-end">
-        <PredictGroupsButton groups={groups ?? []} />
+        <PredictGroupsButton
+          groups={groups ?? []}
+          isClosed={areTournamentPredictionsClosed(closeAt)}
+          closeAt={closeAt}
+        />
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">

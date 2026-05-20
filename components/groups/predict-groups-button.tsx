@@ -4,64 +4,96 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import type { Group } from "@/types";
 import PredictGroupsModalContent from "./predict-groups-modal-content";
-import { createClient } from "@/lib/supabase/client";
+import { saveGroupPredictions } from "@/app/(main)/groups/actions";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 const MySwal = withReactContent(Swal);
 
+function isCloseAtReached(closeAt: string | null) {
+  if (!closeAt) return false;
+
+  return Date.now() >= new Date(closeAt).getTime();
+}
+
 type Props = {
   groups: Group[];
+  isClosed: boolean;
+  closeAt: string | null;
 };
 
-export default function PredictGroupsButton({ groups }: Props) {
+export default function PredictGroupsButton({
+  groups,
+  isClosed,
+  closeAt,
+}: Props) {
   const router = useRouter();
+  const [predictionsClosed, setPredictionsClosed] = useState(
+    () => isClosed || isCloseAtReached(closeAt),
+  );
 
-  const BUTTON_DISABLED = false;
+  const closeAtText = useMemo(() => {
+    if (!closeAt) return null;
+
+    return new Intl.DateTimeFormat("es-ES", {
+      dateStyle: "long",
+      timeStyle: "short",
+    }).format(new Date(closeAt));
+  }, [closeAt]);
+
+  useEffect(() => {
+    if (!closeAt || predictionsClosed) return;
+
+    const delay = new Date(closeAt).getTime() - Date.now();
+    const timeoutId = window.setTimeout(
+      () => {
+        setPredictionsClosed(true);
+      },
+      Math.max(delay, 0),
+    );
+
+    return () => window.clearTimeout(timeoutId);
+  }, [closeAt, predictionsClosed]);
 
   const handleOpenModal = async () => {
+    if (predictionsClosed || isCloseAtReached(closeAt)) {
+      setPredictionsClosed(true);
+
+      await Swal.fire({
+        icon: "error",
+        title: "Predicciones cerradas",
+        text: "Las predicciones de grupos están cerradas.",
+        confirmButtonColor: "#2A398D",
+      });
+      return;
+    }
+
     await MySwal.fire({
       title: "Predicciones de grupos",
       html: (
         <PredictGroupsModalContent
           groups={groups}
           onSubmit={async (selection) => {
-            const supabase = createClient();
+            if (predictionsClosed || isCloseAtReached(closeAt)) {
+              setPredictionsClosed(true);
 
-            const {
-              data: { user },
-              error: userError,
-            } = await supabase.auth.getUser();
-
-            if (userError || !user) {
               await Swal.fire({
                 icon: "error",
-                title: "Sesión no válida",
-                text: "Debes iniciar sesión para guardar tus predicciones.",
+                title: "Predicciones cerradas",
+                text: "Las predicciones de grupos están cerradas.",
                 confirmButtonColor: "#2A398D",
               });
               return;
             }
 
-            const rows = Object.entries(selection).map(
-              ([groupId, teamIds]) => ({
-                user_id: user.id,
-                group_id: Number(groupId),
-                team_a_id: teamIds[0],
-                team_b_id: teamIds[1],
-              }),
-            );
+            const result = await saveGroupPredictions({ selection });
 
-            const { error } = await supabase
-              .from("group_predictions")
-              .upsert(rows, {
-                onConflict: "user_id,group_id",
-              });
-
-            if (error) {
+            if (!result.success) {
               await Swal.fire({
                 icon: "error",
                 title: "Error al guardar",
-                text: error.message,
+                text:
+                  result.error ?? "No se pudieron guardar las predicciones.",
                 confirmButtonColor: "#2A398D",
               });
               return;
@@ -94,13 +126,23 @@ export default function PredictGroupsButton({ groups }: Props) {
   };
 
   return (
-    <button
-      type="button"
-      className="h-18 rounded-tr-4xl rounded-bl-4xl bg-green-900 p-4 font-semibold text-white transition hover:bg-green-800 disabled:bg-gray-800"
-      onClick={handleOpenModal}
-      disabled={BUTTON_DISABLED}
-    >
-      HAZ TUS PREDICCIONES
-    </button>
+    <div className="flex flex-col items-end gap-2">
+      <button
+        type="button"
+        className="h-18 rounded-tr-4xl rounded-bl-4xl bg-green-900 p-4 font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:bg-gray-800"
+        onClick={handleOpenModal}
+        disabled={predictionsClosed}
+      >
+        {predictionsClosed ? "PREDICCIONES CERRADAS" : "HAZ TUS PREDICCIONES"}
+      </button>
+
+      <p className="max-w-xs text-right text-sm text-white/70">
+        {predictionsClosed
+          ? "Las predicciones de grupos están cerradas."
+          : closeAtText
+            ? `Cierre: ${closeAtText}`
+            : "El cierre se calculará cuando haya partidos cargados."}
+      </p>
+    </div>
   );
 }

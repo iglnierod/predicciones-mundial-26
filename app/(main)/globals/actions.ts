@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import {
+  areTournamentPredictionsClosed,
+  getTournamentPredictionsCloseAt,
+} from "@/lib/predictions/tournament-deadline";
 
 type SaveTournamentPredictionsInput = {
   userId: string;
@@ -48,6 +52,15 @@ export async function saveTournamentPredictions({
     return {
       success: false,
       error: "No autorizado.",
+    };
+  }
+
+  const closeAt = await getTournamentPredictionsCloseAt(supabase);
+
+  if (areTournamentPredictionsClosed(closeAt)) {
+    return {
+      success: false,
+      error: "Las predicciones globales están cerradas.",
     };
   }
 

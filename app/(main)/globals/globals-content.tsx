@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import GlobalsForm from "@/components/globals/globals-form";
 import { Team } from "@/types";
+import {
+  areTournamentPredictionsClosed,
+  getTournamentPredictionsCloseAt,
+} from "@/lib/predictions/tournament-deadline";
 
 export default async function GlobalsContent() {
   const supabase = await createClient();
@@ -12,6 +16,7 @@ export default async function GlobalsContent() {
     },
     { data: tournamentPrediction, error: tournamentPredictionError },
     { data: teams, error: teamsError },
+    closeAt,
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase.from("tournament_predictions").select("*").maybeSingle(),
@@ -19,6 +24,7 @@ export default async function GlobalsContent() {
       .from("teams")
       .select("id, name, code, flag_code, is_top10_ranking_fifa")
       .order("name"),
+    getTournamentPredictionsCloseAt(supabase),
   ]);
 
   if (userError || !user) {
@@ -38,6 +44,8 @@ export default async function GlobalsContent() {
       <GlobalsForm
         userId={user.id}
         initialPrediction={tournamentPrediction}
+        isClosed={areTournamentPredictionsClosed(closeAt)}
+        closeAt={closeAt}
         teams={(teams as Team[]) ?? []}
       />
     </section>

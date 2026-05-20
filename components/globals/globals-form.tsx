@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { LoaderCircle } from "lucide-react";
 import TextField from "./text-field";
 import TeamSelectField from "./team-select-field";
@@ -42,6 +42,8 @@ type Props = {
   userId: string;
   initialPrediction: TournamentPrediction | null;
   teams: Team[];
+  isClosed: boolean;
+  closeAt: string | null;
 };
 
 const FIELD_CONFIG: FieldConfig[] = [
@@ -177,10 +179,13 @@ export default function GlobalsForm({
   userId,
   initialPrediction,
   teams,
+  isClosed,
+  closeAt,
 }: Props) {
   const [formValues, setFormValues] = useState<TournamentPredictionFormValues>(
     getInitialValues(initialPrediction),
   );
+  const [formClosed, setFormClosed] = useState(isClosed);
   const [isPending, startTransition] = useTransition();
 
   const generalFields = useMemo(
@@ -192,6 +197,30 @@ export default function GlobalsForm({
     () => FIELD_CONFIG.filter((field) => field.section === "spain"),
     [],
   );
+
+  const closeAtText = useMemo(() => {
+    if (!closeAt) return null;
+
+    return new Intl.DateTimeFormat("es-ES", {
+      dateStyle: "long",
+      timeStyle: "short",
+    }).format(new Date(closeAt));
+  }, [closeAt]);
+
+  useEffect(() => {
+    if (!closeAt || formClosed) return;
+
+    const delay = new Date(closeAt).getTime() - Date.now();
+
+    const timeoutId = window.setTimeout(
+      () => {
+        setFormClosed(true);
+      },
+      Math.max(delay, 0),
+    );
+
+    return () => window.clearTimeout(timeoutId);
+  }, [closeAt, formClosed]);
 
   function getTeamsWithoutTop10(teams: Team[]): Team[] {
     return teams.filter((team) => team.is_top10_ranking_fifa === false);
@@ -217,6 +246,7 @@ export default function GlobalsForm({
           label={field.label}
           value={typeof value === "string" ? value : ""}
           placeholder={field.placeholder}
+          disabled={formClosed}
           onChange={(newValue) =>
             updateField(
               field.name,
@@ -235,6 +265,7 @@ export default function GlobalsForm({
           value={typeof value === "number" ? value : null}
           teams={field.top10 ? getTeamsWithoutTop10(teams) : teams}
           placeholder={field.placeholder}
+          disabled={formClosed}
           onChange={(newValue) =>
             updateField(
               field.name,
@@ -252,6 +283,7 @@ export default function GlobalsForm({
         value={typeof value === "string" ? value : ""}
         options={field.options}
         placeholder={field.placeholder}
+        disabled={formClosed}
         onChange={(newValue) =>
           updateField(
             field.name,
@@ -263,6 +295,21 @@ export default function GlobalsForm({
   }
 
   function handleSubmit() {
+    if (formClosed) {
+      void Swal.fire({
+        position: "bottom-right",
+        toast: true,
+        icon: "error",
+        text: "Las predicciones globales están cerradas.",
+        timer: 2500,
+        timerProgressBar: true,
+        showCloseButton: true,
+        showConfirmButton: false,
+        width: 500,
+      });
+      return;
+    }
+
     startTransition(async () => {
       const result = await saveTournamentPredictions({
         userId,
@@ -300,6 +347,32 @@ export default function GlobalsForm({
 
   return (
     <div className="flex flex-col gap-6">
+      <div
+        className={`rounded-3xl border p-4 shadow-sm ${
+          formClosed
+            ? "border-red-200 bg-red-50 text-red-700"
+            : "border-[#2A398D]/10 bg-white/85 text-black/70"
+        }`}
+      >
+        <p className="text-sm font-bold">
+          {formClosed
+            ? "Las predicciones globales están cerradas."
+            : "Las predicciones globales siguen abiertas."}
+        </p>
+
+        {closeAtText && (
+          <p className="mt-1 text-sm">
+            Cierre automático: {closeAtText}, 1 minuto antes del primer partido.
+          </p>
+        )}
+
+        {!closeAtText && (
+          <p className="mt-1 text-sm">
+            El cierre se calculará cuando haya partidos cargados.
+          </p>
+        )}
+      </div>
+
       <article className="rounded-3xl border border-black/5 bg-white/85 p-5 shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-white/30 backdrop-blur-sm transition hover:shadow-[0_14px_36px_rgba(0,0,0,0.18)] md:p-6">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
@@ -346,10 +419,12 @@ export default function GlobalsForm({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isPending}
+          disabled={isPending || formClosed}
           className="flex cursor-pointer items-center gap-2 rounded-xl bg-[#2A398D] px-6 py-4 text-sm font-bold text-white transition hover:bg-white/80 hover:text-[#2A398D] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isPending ? (
+          {formClosed ? (
+            "PREDICCIONES CERRADAS"
+          ) : isPending ? (
             <>
               <LoaderCircle className="h-5 w-5 animate-spin" />
               GUARDANDO...

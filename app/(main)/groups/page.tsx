@@ -13,7 +13,7 @@ export default function GroupsPage() {
             Haz tus predicciones de qué equipos pasarán de grupos
           </h2>
           <h3 className="text-xl text-white/90 underline">
-            Las predicciones se cierran el día 10/06/2026
+            Las predicciones se cierran 1 minuto antes del primer partido
           </h3>
         </div>
       </div>

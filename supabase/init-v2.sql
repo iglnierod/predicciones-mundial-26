@@ -407,20 +407,56 @@ create policy "Users can insert their own group predictions"
 on public.group_predictions
 for insert
 to authenticated
-with check ((select auth.uid()) = user_id);
+with check (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+);
 
 create policy "Users can update their own group predictions"
 on public.group_predictions
 for update
 to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+using (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+)
+with check (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+);
 
 create policy "Users can delete their own group predictions"
 on public.group_predictions
 for delete
 to authenticated
-using ((select auth.uid()) = user_id);
+using (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+);
 
 -- ============================================
 -- MATCHES
@@ -906,20 +942,56 @@ create policy "Users can insert their own tournament predictions"
 on public.tournament_predictions
 for insert
 to authenticated
-with check ((select auth.uid()) = user_id);
+with check (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+);
 
 create policy "Users can update their own tournament predictions"
 on public.tournament_predictions
 for update
 to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
+using (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+)
+with check (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+);
 
 create policy "Users can delete their own tournament predictions"
 on public.tournament_predictions
 for delete
 to authenticated
-using ((select auth.uid()) = user_id);
+using (
+  (select auth.uid()) = user_id
+  and now() < coalesce(
+    (
+      select min(kickoff_at) - interval '1 minute'
+      from public.matches
+    ),
+    'infinity'::timestamptz
+  )
+);
 
 -- ============================================
 -- TOURNAMENT RESULTS

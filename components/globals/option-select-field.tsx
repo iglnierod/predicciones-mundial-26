@@ -8,6 +8,7 @@ type Props = {
   value: string;
   options: Option[];
   placeholder?: string;
+  disabled?: boolean;
   onChange: (value: string) => void;
 };
 
@@ -16,6 +17,7 @@ export default function OptionSelectField({
   value,
   options,
   placeholder = "Selecciona una opción",
+  disabled = false,
   onChange,
 }: Props) {
   return (
@@ -26,8 +28,9 @@ export default function OptionSelectField({
 
       <select
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full cursor-pointer rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-medium text-black shadow-sm transition outline-none focus:border-[#2A398D]/40 focus:ring-2 focus:ring-[#2A398D]/10"
+        className="w-full cursor-pointer rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-medium text-black shadow-sm transition outline-none focus:border-[#2A398D]/40 focus:ring-2 focus:ring-[#2A398D]/10 disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-black/45"
       >
         <option value="">{placeholder}</option>
 

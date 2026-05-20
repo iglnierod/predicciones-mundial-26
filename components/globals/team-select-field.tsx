@@ -6,6 +6,7 @@ type Props = {
   value: number | null;
   teams: Team[];
   placeholder?: string;
+  disabled?: boolean;
   onChange: (value: number | null) => void;
 };
 
@@ -22,6 +23,7 @@ export default function TeamSelectField({
   value,
   teams,
   placeholder = "Selecciona un equipo",
+  disabled = false,
   onChange,
 }: Props) {
   const selectedTeam = teams.find((team) => team.id === value) ?? null;
@@ -38,11 +40,12 @@ export default function TeamSelectField({
       <div className="space-y-3">
         <select
           value={value ?? ""}
+          disabled={disabled}
           onChange={(event) => {
             const rawValue = event.target.value;
             onChange(rawValue === "" ? null : Number(rawValue));
           }}
-          className="w-full cursor-pointer rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-medium text-black shadow-sm transition outline-none focus:border-[#2A398D]/40 focus:ring-2 focus:ring-[#2A398D]/10"
+          className="w-full cursor-pointer rounded-lg border border-black/10 bg-white px-4 py-3 text-sm font-medium text-black shadow-sm transition outline-none focus:border-[#2A398D]/40 focus:ring-2 focus:ring-[#2A398D]/10 disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-black/45"
         >
           <option value="">{placeholder}</option>
 
