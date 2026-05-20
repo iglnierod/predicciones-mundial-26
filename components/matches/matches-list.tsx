@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { MatchPrediction, MatchWithPrediction } from "@/types";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import MatchRow from "./match-row";
 import MatchesSkeleton from "@/app/(main)/matches/matches-skeleton";
@@ -24,6 +24,10 @@ function getTabFromFilter(filter: MatchFilter) {
   return filter === "completed" ? "played" : "scheduled";
 }
 
+function getFilterFromTab(tab: string | null): MatchFilter {
+  return tab === "played" ? "completed" : "scheduled";
+}
+
 export default function MatchesList({
   initialMatches,
   initialFilter,
@@ -32,9 +36,10 @@ export default function MatchesList({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const urlFilter = getFilterFromTab(searchParams.get("tab"));
 
   const [matches, setMatches] = useState<MatchWithPrediction[]>(initialMatches);
-  const [filter, setFilter] = useState<MatchFilter>(initialFilter);
+  const [filter, setFilter] = useState<MatchFilter>(urlFilter);
   const [loadingFilter, setLoadingFilter] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(initialMatches.length === pageSize);
@@ -42,41 +47,66 @@ export default function MatchesList({
 
   const MySwal = withReactContent(Swal);
 
-  async function fetchMatches(
-    selectedFilter: MatchFilter,
-    from = 0,
-    reset = false,
-  ) {
-    const supabase = createClient();
-    const to = from + pageSize - 1;
+  const fetchMatches = useCallback(
+    async function fetchMatches(
+      selectedFilter: MatchFilter,
+      from = 0,
+      reset = false,
+    ) {
+      const supabase = createClient();
+      const to = from + pageSize - 1;
 
-    let query = supabase
-      .from("matches_with_user_prediction")
-      .select("*")
-      .order("kickoff_at", { ascending: selectedFilter === "scheduled" }); // asc: partidos por jugar, desc: partidos jugados
+      let query = supabase
+        .from("matches_with_user_prediction")
+        .select("*")
+        .order("kickoff_at", { ascending: selectedFilter === "scheduled" }); // asc: partidos por jugar, desc: partidos jugados
 
-    if (selectedFilter === "scheduled") {
-      query = query.in("status", ["scheduled", "live"]);
-    } else {
-      query = query.eq("status", "completed");
-    }
+      if (selectedFilter === "scheduled") {
+        query = query.in("status", ["scheduled", "live"]);
+      } else {
+        query = query.eq("status", "completed");
+      }
 
-    const { data, error } = await query.range(from, to);
+      const { data, error } = await query.range(from, to);
 
-    if (error) {
-      throw new Error("No se pudieron cargar los partidos");
-    }
+      if (error) {
+        throw new Error("No se pudieron cargar los partidos");
+      }
 
-    const newMatches = (data ?? []) as MatchWithPrediction[];
+      const newMatches = (data ?? []) as MatchWithPrediction[];
 
-    if (reset) {
-      setMatches(newMatches);
-    } else {
-      setMatches((prev) => [...prev, ...newMatches]);
-    }
+      if (reset) {
+        setMatches(newMatches);
+      } else {
+        setMatches((prev) => [...prev, ...newMatches]);
+      }
 
-    setHasMore(newMatches.length === pageSize);
-  }
+      setHasMore(newMatches.length === pageSize);
+    },
+    [pageSize],
+  );
+
+  useEffect(() => {
+    if (initialFilter === urlFilter) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setFilter(urlFilter);
+      setLoadingFilter(true);
+      setError(null);
+
+      void fetchMatches(urlFilter, 0, true)
+        .catch(() => {
+          setError("No se pudieron cargar los partidos");
+          setMatches([]);
+          setHasMore(false);
+        })
+        .finally(() => {
+          setLoadingFilter(false);
+        });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [fetchMatches, initialFilter, urlFilter]);
 
   async function handleFilterChange(selectedFilter: MatchFilter) {
     if (selectedFilter === filter || loadingFilter || loadingMore) return;
