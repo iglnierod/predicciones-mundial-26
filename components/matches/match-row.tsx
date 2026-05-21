@@ -120,9 +120,10 @@ export default function MatchRow({
         </div>
 
         <div className="flex items-center gap-2">
-          {match.prediction_points ? (
+          {match.prediction_points !== null ? (
             <p className="rounded-full bg-green-800/70 px-3 py-1 text-center text-[11px] tracking-wide">
-              +{match.prediction_points} pts
+              {match.prediction_points > 0 ? "+" : ""}
+              {match.prediction_points} pts
             </p>
           ) : match.status === "completed" || match.status === "live" ? (
             <p
