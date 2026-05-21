@@ -11,10 +11,31 @@ type Props = {
 
 export default function LeaderboardTable({ leaderboard, userId }: Props) {
   const getRankStyle = (rank: number) => {
-    if (rank === 1) return "bg-yellow-400/20 text-yellow-700";
-    if (rank === 2) return "bg-gray-700/60 text-gray-300";
-    if (rank === 3) return "bg-orange-300/30 text-orange-700";
-    return "bg-black/5 text-black/70";
+    if (rank === 1) return "text-yellow-700";
+    if (rank === 2) return "text-slate-600";
+    if (rank === 3) return "text-orange-700";
+    return "text-black/70";
+  };
+
+  const getMovement = (rankChange: number | null) => {
+    if (rankChange === null || rankChange === 0) {
+      return {
+        label: "-",
+        className: "text-yellow-700",
+      };
+    }
+
+    if (rankChange > 0) {
+      return {
+        label: `↑ ${rankChange}`,
+        className: "text-emerald-700",
+      };
+    }
+
+    return {
+      label: `↓ ${Math.abs(rankChange)}`,
+      className: "text-red-700",
+    };
   };
 
   return (
@@ -37,6 +58,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
         <tbody>
           {leaderboard?.map((user) => {
             const isCurrentUser = userId === user.user_id;
+            const movement = getMovement(user.rank_change);
 
             const trClass = isCurrentUser
               ? "cursor-pointer border-b border-black/5 bg-blue-900/15 transition last:border-b-0 hover:bg-blue-900/20"
@@ -54,13 +76,20 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
                 }
               >
                 <td className="px-4 py-4 sm:px-6">
-                  <span
-                    className={`inline-flex min-w-10 items-center justify-center rounded-full px-3 py-1 font-bold ${getRankStyle(
-                      user.rank,
-                    )}`}
-                  >
-                    #{user.rank}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`inline-flex min-w-12 items-center text-xl font-extrabold sm:text-2xl ${getRankStyle(
+                        user.rank,
+                      )}`}
+                    >
+                      #{user.rank}
+                    </span>
+                    <span
+                      className={`text-sm font-extrabold ${movement.className}`}
+                    >
+                      {movement.label}
+                    </span>
+                  </div>
                 </td>
 
                 <td className="px-4 py-4 sm:px-6">

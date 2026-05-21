@@ -15,7 +15,8 @@ export default async function LeaderboardContent() {
       .from("leaderboard")
       .select(
         `user_id, full_name, avatar_url, group_points, match_points,
-        extra_points, tournament_points, total_points, updated_at, rank`,
+        extra_points, tournament_points, total_points, updated_at, rank,
+        previous_rank, rank_change`,
       )
       .order("rank", { ascending: true }),
   ]);

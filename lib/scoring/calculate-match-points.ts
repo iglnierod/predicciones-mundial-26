@@ -14,6 +14,7 @@ import {
   insertPredictionPointsRow,
 } from "../repositories/predictions-repository";
 import { recalculateUserPoints } from "../repositories/user-points-repository";
+import { createLeaderboardSnapshot } from "../repositories/leaderboard-snapshots-repository";
 
 type CalculateMatchPointsOptions = {
   force?: boolean;
@@ -84,6 +85,11 @@ export async function calculateMatchPoints(
     await recalculateUserPoints(supabaseAdmin, userId);
   }
 
+  const leaderboardSnapshot = await createLeaderboardSnapshot(supabaseAdmin, {
+    sourceType: "match",
+    sourceId: matchId,
+  });
+
   await markMatchPointsCalculated(supabaseAdmin, matchId, processedKey);
 
   return {
@@ -93,5 +99,6 @@ export async function calculateMatchPoints(
     processedKey,
     predictionsProcessed: predictions.length,
     affectedUsers: affectedUserIds.length,
+    leaderboardSnapshot,
   };
 }

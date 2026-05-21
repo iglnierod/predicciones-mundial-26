@@ -43,6 +43,8 @@ export interface LeaderboardProfile {
   tournament_points: number;
   total_points: number;
   rank: number;
+  previous_rank: number | null;
+  rank_change: number | null;
   updated_at: string;
 }
 

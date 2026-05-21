@@ -6,6 +6,7 @@ import {
   recalculateUserPoints,
   upsertGroupPredictionPoint,
 } from "@/lib/repositories/user-points-repository";
+import { createLeaderboardSnapshot } from "@/lib/repositories/leaderboard-snapshots-repository";
 import { calculateSingleGroupPredictionPoints } from "@/lib/scoring/group-points";
 import { getScoringRulesMap } from "@/lib/scoring/rules";
 
@@ -56,6 +57,11 @@ export async function calculateSingleGroupPoints(
     await recalculateUserPoints(supabase, userId);
   }
 
+  const leaderboardSnapshot = await createLeaderboardSnapshot(supabase, {
+    sourceType: "group",
+    sourceId: groupId,
+  });
+
   return {
     groupId: group.id,
     groupName: group.name,
@@ -63,5 +69,6 @@ export async function calculateSingleGroupPoints(
     calculatedPredictions,
     totalAwardedPoints,
     recalculatedUsers: affectedUserIds.size,
+    leaderboardSnapshot,
   };
 }

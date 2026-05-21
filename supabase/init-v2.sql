@@ -1183,6 +1183,84 @@ create index if not exists user_points_total_points_idx
   on public.user_points (total_points desc);
 
 -- ============================================
+-- LEADERBOARD SNAPSHOTS
+-- Histórico de posiciones tras cada cálculo de puntos
+-- ============================================
+
+create table if not exists public.leaderboard_snapshots (
+  id bigint generated always as identity primary key,
+
+  source_type text not null,
+  source_id text,
+
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.leaderboard_snapshot_entries (
+  snapshot_id bigint not null references public.leaderboard_snapshots(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+
+  rank integer not null,
+  group_points integer not null default 0,
+  match_points integer not null default 0,
+  extra_points integer not null default 0,
+  tournament_points integer not null default 0,
+  total_points integer not null default 0,
+
+  primary key (snapshot_id, user_id),
+
+  constraint leaderboard_snapshot_entries_rank_positive
+    check (rank > 0),
+
+  constraint leaderboard_snapshot_entries_points_non_negative
+    check (
+      group_points >= 0
+      and match_points >= 0
+      and extra_points >= 0
+      and tournament_points >= 0
+      and total_points >= 0
+    )
+);
+
+-- ============================================
+-- RLS
+-- ============================================
+
+alter table public.leaderboard_snapshots enable row level security;
+alter table public.leaderboard_snapshot_entries enable row level security;
+
+drop policy if exists "Users can view leaderboard snapshots" on public.leaderboard_snapshots;
+drop policy if exists "Users can view leaderboard snapshot entries" on public.leaderboard_snapshot_entries;
+
+create policy "Users can view leaderboard snapshots"
+on public.leaderboard_snapshots
+for select
+to authenticated
+using (true);
+
+create policy "Users can view leaderboard snapshot entries"
+on public.leaderboard_snapshot_entries
+for select
+to authenticated
+using (true);
+
+-- ============================================
+-- ÍNDICES ÚTILES PARA HISTÓRICO DE LEADERBOARD
+-- ============================================
+
+create index if not exists leaderboard_snapshots_created_at_idx
+  on public.leaderboard_snapshots (created_at desc, id desc);
+
+create index if not exists leaderboard_snapshots_source_idx
+  on public.leaderboard_snapshots (source_type, source_id);
+
+create index if not exists leaderboard_snapshot_entries_rank_idx
+  on public.leaderboard_snapshot_entries (snapshot_id, rank);
+
+create index if not exists leaderboard_snapshot_entries_user_id_idx
+  on public.leaderboard_snapshot_entries (user_id);
+
+-- ============================================
 -- SCORING RULES
 -- Valores de puntuación de grupos y partidos
 -- ============================================
@@ -1250,24 +1328,69 @@ on conflict (key) do update set
 -- ============================================
 
 create or replace view public.leaderboard as
+with current_leaderboard as (
+  select
+    p.id as user_id,
+    p.full_name,
+    p.avatar_url,
+
+    up.group_points,
+    up.match_points,
+    up.extra_points,
+    up.tournament_points,
+    up.total_points,
+    up.updated_at,
+
+    row_number() over (
+      order by up.total_points desc, up.updated_at asc, p.full_name asc
+    ) as rank
+  from public.profiles p
+  join public.user_points up
+    on up.user_id = p.id
+),
+latest_snapshots as (
+  select
+    id,
+    row_number() over (order by created_at desc, id desc) as snapshot_order
+  from public.leaderboard_snapshots
+),
+latest_entries as (
+  select lse.*
+  from public.leaderboard_snapshot_entries lse
+  join latest_snapshots ls
+    on ls.id = lse.snapshot_id
+   and ls.snapshot_order = 1
+),
+previous_entries as (
+  select lse.*
+  from public.leaderboard_snapshot_entries lse
+  join latest_snapshots ls
+    on ls.id = lse.snapshot_id
+   and ls.snapshot_order = 2
+)
 select
-  p.id as user_id,
-  p.full_name,
-  p.avatar_url,
+  cl.user_id,
+  cl.full_name,
+  cl.avatar_url,
 
-  up.group_points,
-  up.match_points,
-  up.extra_points,
-  up.tournament_points,
-  up.total_points,
-  up.updated_at,
+  cl.group_points,
+  cl.match_points,
+  cl.extra_points,
+  cl.tournament_points,
+  cl.total_points,
+  cl.updated_at,
 
-  row_number() over (
-    order by up.total_points desc, up.updated_at asc, p.full_name asc
-  ) as rank
-from public.profiles p
-join public.user_points up
-  on up.user_id = p.id;
+  cl.rank,
+  pe.rank as previous_rank,
+  case
+    when le.rank is null or pe.rank is null then null
+    else pe.rank - le.rank
+  end as rank_change
+from current_leaderboard cl
+left join latest_entries le
+  on le.user_id = cl.user_id
+left join previous_entries pe
+  on pe.user_id = cl.user_id;
 
 -- ============================================
 -- VISTA PARA PARTIDOS Y PREDICCIÓN DEL PROPIO USUARIO
