@@ -190,7 +190,7 @@ export default function MatchesTab({ profile, viewerUserId }: Props) {
                 type="button"
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2 text-sm font-semibold text-[#2A398D] transition hover:bg-[#2A398D]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mb-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-[#2A398D]/15 bg-white px-4 py-2 text-sm font-semibold text-[#2A398D] transition hover:bg-[#2A398D]/15 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loadingMore ? (
                   <>
