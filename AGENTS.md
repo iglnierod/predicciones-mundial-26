@@ -27,6 +27,7 @@ The app uses Supabase for auth and data storage, with admin-only routes for sync
 - `types/`: shared TypeScript types.
 - `supabase/`: SQL initialization/migration files.
 - `public/`: static assets.
+- `.agents/skills/`: project skills with specialized guidance for framework, database, UI, and architecture tasks.
 
 ## Useful Commands
 
@@ -48,6 +49,7 @@ The app uses Supabase for auth and data storage, with admin-only routes for sync
 ## Notes For Agents
 
 - Be careful with existing uncommitted changes; do not revert user work unless explicitly asked.
+- Use the relevant skill from `.agents/skills/` when a task matches its domain, such as Next.js, React, Supabase/Postgres, Tailwind, frontend design, Node.js, TypeScript, or component composition.
 - Admin routes depend on `requireAdmin` and the Supabase admin client.
 - Supabase server code should use `lib/supabase/server.ts`; client components should use `lib/supabase/client.ts`.
 - If renaming files, update every import and preserve Next.js route file names such as `page.tsx`, `layout.tsx`, and `route.ts`.
