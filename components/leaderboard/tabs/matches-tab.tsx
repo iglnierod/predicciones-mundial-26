@@ -8,12 +8,11 @@ import {
   ChevronUp,
   LoaderCircle,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { loadLeaderboardMatchBreakdown } from "@/app/(main)/leaderboard/actions";
 import {
   LeaderboardProfile,
   MatchPrediction,
   MatchPredictionBreakdown,
-  MatchPredictionOverview,
   MatchWithTeam,
 } from "@/types";
 
@@ -23,33 +22,6 @@ type Props = {
 };
 
 const PAGE_SIZE = 4;
-
-type MatchQueryRelation<T> = T | T[] | null;
-
-type MatchRowQuery = {
-  id: number;
-  round: string;
-  kickoff_at: string;
-  status: string;
-  home_score: number | null;
-  away_score: number | null;
-  stadium: string | null;
-  stadium_city: string | null;
-  stadium_country: string | null;
-  groups: MatchQueryRelation<{
-    name: string | null;
-  }>;
-  home_team: MatchQueryRelation<{
-    name: string;
-    code: string;
-    flag_code: string;
-  }>;
-  away_team: MatchQueryRelation<{
-    name: string;
-    code: string;
-    flag_code: string;
-  }>;
-};
 
 type MatchPredictionWithMeta = MatchPrediction & {
   full_name: string;
@@ -83,10 +55,6 @@ export default function MatchesTab({ profile, viewerUserId }: Props) {
         return;
       }
 
-      const supabase = createClient();
-      const from = pageToLoad * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
       if (mode === "replace") {
         setLoadingInitial(true);
       } else {
@@ -96,139 +64,23 @@ export default function MatchesTab({ profile, viewerUserId }: Props) {
       setError(null);
 
       try {
-        const { data: matchesData, error: matchesError } = await supabase
-          .from("matches")
-          .select(
-            `
-              id,
-              round,
-              kickoff_at,
-              status,
-              home_score,
-              away_score,
-              stadium,
-              stadium_city,
-              stadium_country,
-              groups (
-                name
-              ),
-              home_team:teams!matches_home_team_id_fkey (
-                name,
-                code,
-                flag_code
-              ),
-              away_team:teams!matches_away_team_id_fkey (
-                name,
-                code,
-                flag_code
-              )
-            `,
-          )
-          .eq("status", "completed")
-          .order("kickoff_at", { ascending: false })
-          .range(from, to);
+        const result = await loadLeaderboardMatchBreakdown(
+          profile.user_id,
+          pageToLoad,
+          PAGE_SIZE,
+        );
 
-        if (matchesError) {
-          throw new Error("No se pudieron cargar los partidos");
+        if (!result.success) {
+          throw new Error(result.error ?? "No se pudieron cargar los partidos");
         }
 
-        const rawMatches = (matchesData ?? []) as MatchRowQuery[];
-
-        function getSingleRelation<T>(value: T | T[] | null): T | null {
-          if (!value) return null;
-          return Array.isArray(value) ? (value[0] ?? null) : value;
-        }
-
-        const parsedMatches: MatchWithTeam[] = rawMatches.map((match) => {
-          const group = getSingleRelation(match.groups);
-          const homeTeam = getSingleRelation(match.home_team);
-          const awayTeam = getSingleRelation(match.away_team);
-
-          return {
-            id: match.id,
-            round: match.round,
-            kickoff_at: match.kickoff_at,
-            status: match.status,
-            home_score: match.home_score,
-            away_score: match.away_score,
-            stadium: match.stadium,
-            stadium_city: match.stadium_city,
-            stadium_country: match.stadium_country,
-            group_name: group?.name ?? null,
-            home_team_name: homeTeam?.name ?? "",
-            home_team_code: homeTeam?.code ?? "",
-            home_team_flag_code: homeTeam?.flag_code ?? "",
-            away_team_name: awayTeam?.name ?? "",
-            away_team_code: awayTeam?.code ?? "",
-            away_team_flag_code: awayTeam?.flag_code ?? "",
-          };
-        });
-
-        const matchIds = parsedMatches.map((match) => match.id);
-        const userIds = isOwnProfile
-          ? [profile.user_id]
-          : [profile.user_id, viewerUserId];
-
-        let predictionMap = new Map<string, MatchPredictionWithMeta>();
-
-        if (matchIds.length > 0) {
-          const { data: predictionsData, error: predictionsError } =
-            await supabase
-              .from("match_predictions_result_overview")
-              .select(
-                `
-                  user_id,
-                  match_id,
-                  predicted_home_score,
-                  predicted_away_score,
-                  full_name,
-                  points,
-                  is_calculated,
-                  breakdown
-                `,
-              )
-              .in("match_id", matchIds)
-              .in("user_id", userIds)
-              .eq("is_calculated", true);
-
-          if (predictionsError) {
-            throw new Error("No se pudieron cargar las predicciones");
-          }
-
-          const typedPredictions = (predictionsData ??
-            []) as MatchPredictionOverview[];
-
-          predictionMap = new Map(
-            typedPredictions.map((row) => [
-              `${row.match_id}-${row.user_id}`,
-              {
-                user_id: row.user_id,
-                match_id: row.match_id,
-                predicted_home_score: row.predicted_home_score,
-                predicted_away_score: row.predicted_away_score,
-                full_name: row.full_name,
-                points: row.points,
-                is_calculated: row.is_calculated,
-                breakdown: row.breakdown,
-              },
-            ]),
-          );
-        }
-
-        const nextItems: MatchCompareItem[] = parsedMatches.map((match) => ({
-          match,
-          viewerPrediction: viewerUserId
-            ? (predictionMap.get(`${match.id}-${viewerUserId}`) ?? null)
-            : null,
-          profilePrediction:
-            predictionMap.get(`${match.id}-${profile.user_id}`) ?? null,
-        }));
+        const nextItems = result.items as MatchCompareItem[];
 
         if (mode === "replace") {
           setPage(0);
         }
 
-        setHasMore(parsedMatches.length === PAGE_SIZE);
+        setHasMore(result.hasMore);
 
         if (mode === "replace") {
           setItems(nextItems);
@@ -246,7 +98,7 @@ export default function MatchesTab({ profile, viewerUserId }: Props) {
         setLoadingMore(false);
       }
     },
-    [isOwnProfile, profile.user_id, viewerUserId],
+    [profile.user_id, viewerUserId],
   );
 
   useEffect(() => {

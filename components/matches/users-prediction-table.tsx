@@ -1,7 +1,6 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { loadMatchPredictions } from "@/app/(main)/matches/actions";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -24,7 +23,7 @@ type Props = {
 
 export default function UsersPredictionTable({ matchId }: Props) {
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const [viewerUserId, setViewerUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,46 +38,27 @@ export default function UsersPredictionTable({ matchId }: Props) {
 
   useEffect(() => {
     let ignore = false;
-    const supabase = createClient();
-
-    async function getUser() {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        setUser(null);
-        throw new Error("NO se pudo obtener el usuario autenticado");
-      }
-
-      setUser(user);
-    }
 
     async function loadPredictions() {
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .from("match_predictions_result_overview")
-        .select("*")
-        .eq("match_id", matchId)
-        .order("points", { ascending: false });
+      const result = await loadMatchPredictions(matchId);
 
       if (ignore) return;
 
-      if (error) {
-        console.error(error);
-        setError("No se pudieron cargar las predicciones");
+      setViewerUserId(result.viewerUserId);
+
+      if (!result.success) {
+        setError(result.error ?? "No se pudieron cargar las predicciones");
         setPredictions([]);
       } else {
-        setPredictions((data ?? []) as PredictionRow[]);
+        setPredictions((result.data ?? []) as PredictionRow[]);
       }
 
       setLoading(false);
     }
 
-    void getUser();
     void loadPredictions();
 
     return () => {
@@ -139,7 +119,9 @@ export default function UsersPredictionTable({ matchId }: Props) {
               <tr
                 key={prediction.id}
                 className={`border-t border-black/5 ${
-                  user && user.id === prediction.user_id ? "bg-blue-900/15" : ""
+                  viewerUserId && viewerUserId === prediction.user_id
+                    ? "bg-blue-900/15"
+                    : ""
                 }`}
               >
                 <td className="px-4 py-3">{prediction.full_name}</td>

@@ -1,7 +1,6 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
-import { MatchPrediction, MatchWithPrediction } from "@/types";
+import { MatchWithPrediction } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import MatchRow from "./match-row";
@@ -11,6 +10,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import ViewPredictionsModalContent from "./view-predictions-modal-content";
 import { isPredictionClosed } from "@/lib/format/match";
+import { loadMatches, saveMatchPrediction } from "@/app/(main)/matches/actions";
 
 type Props = {
   initialMatches: MatchWithPrediction[];
@@ -53,27 +53,17 @@ export default function MatchesList({
       from = 0,
       reset = false,
     ) {
-      const supabase = createClient();
-      const to = from + pageSize - 1;
+      const result = await loadMatches({
+        filter: selectedFilter,
+        from,
+        pageSize,
+      });
 
-      let query = supabase
-        .from("matches_with_user_prediction")
-        .select("*")
-        .order("kickoff_at", { ascending: selectedFilter === "scheduled" }); // asc: partidos por jugar, desc: partidos jugados
-
-      if (selectedFilter === "scheduled") {
-        query = query.in("status", ["scheduled", "live"]);
-      } else {
-        query = query.eq("status", "completed");
+      if (!result.success) {
+        throw new Error(result.error ?? "No se pudieron cargar los partidos");
       }
 
-      const { data, error } = await query.range(from, to);
-
-      if (error) {
-        throw new Error("No se pudieron cargar los partidos");
-      }
-
-      const newMatches = (data ?? []) as MatchWithPrediction[];
+      const newMatches = result.data;
 
       if (reset) {
         setMatches(newMatches);
@@ -178,34 +168,17 @@ export default function MatchesList({
       };
     }
 
-    const supabase = createClient();
+    const result = await saveMatchPrediction({
+      matchId,
+      predictedHomeScore,
+      predictedAwayScore,
+    });
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      throw new Error("Debes iniciar sesión para guardar tu predicción");
-    }
-
-    const matchPrediction: MatchPrediction = {
-      user_id: user.id,
-      match_id: matchId,
-      predicted_home_score: predictedHomeScore,
-      predicted_away_score: predictedAwayScore,
-    };
-
-    const { data, error } = await supabase
-      .from("match_predictions")
-      .upsert(matchPrediction, {
-        onConflict: "user_id,match_id",
-      })
-      .select()
-      .single();
-
-    if (error || !data) {
-      throw new Error("No se pudo guardar la predicción");
+    if (!result.success || !result.data) {
+      return {
+        saved: false,
+        errorMessage: result.error ?? "No se pudo guardar la predicción",
+      };
     }
 
     setMatches((prev) =>
@@ -213,8 +186,8 @@ export default function MatchesList({
         match.id === matchId
           ? {
               ...match,
-              predicted_home_score: data.predicted_home_score,
-              predicted_away_score: data.predicted_away_score,
+              predicted_home_score: result.data.predicted_home_score,
+              predicted_away_score: result.data.predicted_away_score,
             }
           : match,
       ),

@@ -9,17 +9,11 @@ import {
   CircleCheck,
   CircleX,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { loadLeaderboardGroupBreakdown } from "@/app/(main)/leaderboard/actions";
 import { Group, LeaderboardProfile } from "@/types";
 
 type Props = {
   profile: LeaderboardProfile;
-};
-
-type GroupPredictionRow = {
-  group_id: number;
-  team_a_id: number | null;
-  team_b_id: number | null;
 };
 
 type GroupPredictionSelection = Record<number, number[]>;
@@ -45,68 +39,18 @@ export default function GroupsTab({ profile }: Props) {
         setLoading(true);
         setError(null);
 
-        const supabase = createClient();
+        const result = await loadLeaderboardGroupBreakdown(profile.user_id);
 
-        const [
-          { data: groupsData, error: groupsError },
-          { data: predictions, error: predictionsError },
-        ] = await Promise.all([
-          supabase
-            .from("groups")
-            .select(
-              `
-                id,
-                name,
-                qualified_team_a_id,
-                qualified_team_b_id,
-                teams!teams_group_id_fkey (
-                  id,
-                  name,
-                  code,
-                  flag_code,
-                  group_id
-                )
-              `,
-            )
-            .order("name"),
-          supabase
-            .from("group_predictions")
-            .select("group_id, team_a_id, team_b_id")
-            .eq("user_id", profile.user_id),
-        ]);
-
-        if (groupsError) {
-          throw new Error("No se pudieron cargar los grupos");
+        if (!result.success) {
+          throw new Error(
+            result.error ?? "No se pudieron cargar las predicciones del usuario",
+          );
         }
-
-        if (predictionsError) {
-          throw new Error("No se pudieron cargar las predicciones del usuario");
-        }
-
-        const parsedGroups: Group[] = (groupsData ?? []).map((group) => ({
-          ...group,
-          teams: [...(group.teams ?? [])].sort((a, b) =>
-            a.name.localeCompare(b.name, "es"),
-          ),
-        }));
-
-        const parsedPredictionSelection = (
-          predictions ?? []
-        ).reduce<GroupPredictionSelection>(
-          (acc, prediction: GroupPredictionRow) => {
-            acc[prediction.group_id] = [
-              prediction.team_a_id,
-              prediction.team_b_id,
-            ].filter((value): value is number => value !== null);
-            return acc;
-          },
-          {},
-        );
 
         if (!isMounted) return;
 
-        setGroups(parsedGroups);
-        setPredictionSelection(parsedPredictionSelection);
+        setGroups(result.groups);
+        setPredictionSelection(result.predictionSelection);
       } catch (err) {
         if (!isMounted) return;
 
