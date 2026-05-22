@@ -2,9 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  ...(process.env.NODE_ENV === "development" && {
-    allowedDevOrigins: ["omen.local", "192.168.1.44"],
-  }),
   images: {
     remotePatterns: [
       {
