@@ -1,7 +1,8 @@
 import HomeDashboard from "@/components/home/home-dashboard";
 import {
   getHomePredictionStatus,
-  getLastPlayedHomeMatch,
+  getHomeTournamentTiming,
+  getLastPlayedHomeMatches,
   getLeaderboardEvolution,
   getUpcomingHomeMatches,
 } from "@/lib/repositories/home-repository";
@@ -21,21 +22,24 @@ export default async function HomeContent() {
 
   const [
     predictionStatus,
+    tournamentTiming,
     upcomingMatches,
-    lastPlayedMatch,
+    lastPlayedMatches,
     leaderboardSeries,
   ] = await Promise.all([
     getHomePredictionStatus(supabase, user.id),
+    getHomeTournamentTiming(supabase),
     getUpcomingHomeMatches(supabase),
-    getLastPlayedHomeMatch(supabase, user.id),
+    getLastPlayedHomeMatches(supabase, user.id),
     getLeaderboardEvolution(supabase, user.id),
   ]);
 
   return (
     <HomeDashboard
       predictionStatus={predictionStatus}
+      tournamentTiming={tournamentTiming}
       upcomingMatches={upcomingMatches}
-      lastPlayedMatch={lastPlayedMatch}
+      lastPlayedMatches={lastPlayedMatches}
       leaderboardSeries={leaderboardSeries}
     />
   );

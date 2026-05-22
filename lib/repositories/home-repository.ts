@@ -37,6 +37,11 @@ export type HomePredictionStatus = {
   };
 };
 
+export type HomeTournamentTiming = {
+  firstKickoffAt: string | null;
+  hasStarted: boolean;
+};
+
 export type HomeMatch = MatchWithPrediction & {
   last_processed_key: string | null;
   points_calculated_at: string | null;
@@ -186,60 +191,88 @@ export async function getUpcomingHomeMatches(
   return (data ?? []) as HomeMatch[];
 }
 
-export async function getLastPlayedHomeMatch(
+export async function getHomeTournamentTiming(
+  supabase: SupabaseClient,
+): Promise<HomeTournamentTiming> {
+  const { data, error } = await supabase
+    .from("matches")
+    .select("kickoff_at")
+    .order("kickoff_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `No se pudo cargar la fecha de inicio del torneo: ${error.message}`,
+    );
+  }
+
+  const firstKickoffAt =
+    (data as { kickoff_at: string } | null)?.kickoff_at ?? null;
+
+  return {
+    firstKickoffAt,
+    hasStarted: firstKickoffAt
+      ? new Date(firstKickoffAt).getTime() <= Date.now()
+      : false,
+  };
+}
+
+export async function getLastPlayedHomeMatches(
   supabase: SupabaseClient,
   userId: string,
-): Promise<LastPlayedMatch | null> {
-  const { data: match, error: matchError } = await supabase
+): Promise<LastPlayedMatch[]> {
+  const { data: matches, error: matchError } = await supabase
     .from("matches_with_user_prediction")
     .select("*")
     .eq("status", "completed")
     .order("kickoff_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(2);
 
   if (matchError) {
     throw new Error(
-      `No se pudo cargar el último partido jugado: ${matchError.message}`,
+      `No se pudieron cargar los últimos partidos jugados: ${matchError.message}`,
     );
   }
 
-  if (!match) return null;
+  const typedMatches = (matches ?? []) as HomeMatch[];
 
-  const typedMatch = match as HomeMatch;
+  return Promise.all(
+    typedMatches.map(async (match) => {
+      if (!match.prediction_id) {
+        return {
+          ...match,
+          user_breakdown: null,
+          user_points: null,
+          is_user_prediction_calculated: false,
+        };
+      }
 
-  if (!typedMatch.prediction_id) {
-    return {
-      ...typedMatch,
-      user_breakdown: null,
-      user_points: null,
-      is_user_prediction_calculated: false,
-    };
-  }
+      const { data: predictionResult, error: predictionError } = await supabase
+        .from("match_predictions_result_overview")
+        .select("points, is_calculated, breakdown")
+        .eq("match_id", match.id)
+        .eq("user_id", userId)
+        .maybeSingle();
 
-  const { data: predictionResult, error: predictionError } = await supabase
-    .from("match_predictions_result_overview")
-    .select("points, is_calculated, breakdown")
-    .eq("match_id", typedMatch.id)
-    .eq("user_id", userId)
-    .maybeSingle();
+      if (predictionError) {
+        throw new Error(
+          `No se pudo cargar el desglose del último partido: ${predictionError.message}`,
+        );
+      }
 
-  if (predictionError) {
-    throw new Error(
-      `No se pudo cargar el desglose del último partido: ${predictionError.message}`,
-    );
-  }
+      const typedPredictionResult =
+        predictionResult as MatchPredictionOverviewRow | null;
 
-  const typedPredictionResult =
-    predictionResult as MatchPredictionOverviewRow | null;
-
-  return {
-    ...typedMatch,
-    user_breakdown: typedPredictionResult?.breakdown ?? null,
-    user_points: typedPredictionResult?.points ?? null,
-    is_user_prediction_calculated:
-      typedPredictionResult?.is_calculated ?? false,
-  };
+      return {
+        ...match,
+        user_breakdown: typedPredictionResult?.breakdown ?? null,
+        user_points: typedPredictionResult?.points ?? null,
+        is_user_prediction_calculated:
+          typedPredictionResult?.is_calculated ?? false,
+      };
+    }),
+  );
 }
 
 export async function getLeaderboardEvolution(
