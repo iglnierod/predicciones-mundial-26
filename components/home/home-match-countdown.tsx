@@ -60,9 +60,10 @@ export default function HomeMatchCountdown({ kickoffAt }: Props) {
   }, [kickoffAt]);
 
   if (!parts) {
+    // Show 3 placeholders instead of 4 initially, as we don't know the days.
+    // It avoids a layout jump if days is 0. If days > 0, it expands to 4 cols.
     return (
-      <div aria-live="polite" className="grid grid-cols-4 gap-2">
-        <CountdownUnit label="DÍAS" value="--" />
+      <div aria-live="polite" className="grid grid-cols-3 gap-2">
         <CountdownUnit label="HORAS" value="--" />
         <CountdownUnit label="MIN" value="--" />
         <CountdownUnit label="SEG" value="--" />
@@ -79,8 +80,11 @@ export default function HomeMatchCountdown({ kickoffAt }: Props) {
   }
 
   return (
-    <div aria-live="polite" className="grid grid-cols-4 gap-2">
-      <CountdownUnit label="DÍAS" value={parts.days} />
+    <div
+      aria-live="polite"
+      className={`grid gap-2 ${parts.days > 0 ? "grid-cols-4" : "grid-cols-3"}`}
+    >
+      {parts.days > 0 && <CountdownUnit label="DÍAS" value={parts.days} />}
       <CountdownUnit label="HORAS" value={parts.hours} />
       <CountdownUnit label="MIN" value={parts.minutes} />
       <CountdownUnit label="SEG" value={parts.seconds} />
