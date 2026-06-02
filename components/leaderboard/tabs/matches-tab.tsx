@@ -10,6 +10,12 @@ import {
 } from "lucide-react";
 import { loadLeaderboardMatchBreakdown } from "@/app/(main)/leaderboard/actions";
 import {
+  formatNullablePredictionNumber,
+  formatPredictionResultLabel,
+  formatPredictionScore,
+  getMatchPredictionRuleText,
+} from "@/lib/format/prediction-breakdown";
+import {
   LeaderboardProfile,
   MatchPrediction,
   MatchPredictionBreakdown,
@@ -354,34 +360,40 @@ function PredictionBreakdown({
   return (
     <div className="space-y-2 text-sm text-black/70">
       <div className="grid gap-2 sm:grid-cols-2">
-        <BreakdownItem label="Regla" value={getRuleText(breakdown.ruleKey)} />
+        <BreakdownItem
+          label="Regla"
+          value={getMatchPredictionRuleText(breakdown.ruleKey)}
+        />
         <BreakdownItem label="Puntos" value={String(breakdown.points)} />
         <BreakdownItem
           label="Resultado real"
-          value={formatResultLabel(breakdown.realResult)}
+          value={formatPredictionResultLabel(breakdown.realResult)}
         />
         <BreakdownItem
           label="Resultado predicho"
-          value={formatResultLabel(breakdown.predictedResult)}
+          value={formatPredictionResultLabel(breakdown.predictedResult)}
         />
         <BreakdownItem
           label="Marcador real"
-          value={formatScore(breakdown.realHomeScore, breakdown.realAwayScore)}
+          value={formatPredictionScore(
+            breakdown.realHomeScore,
+            breakdown.realAwayScore,
+          )}
         />
         <BreakdownItem
           label="Marcador predicho"
-          value={formatScore(
+          value={formatPredictionScore(
             breakdown.predictedHomeScore,
             breakdown.predictedAwayScore,
           )}
         />
         <BreakdownItem
           label="Diferencia real"
-          value={formatNullableNumber(breakdown.realDifference)}
+          value={formatNullablePredictionNumber(breakdown.realDifference)}
         />
         <BreakdownItem
           label="Diferencia predicha"
-          value={formatNullableNumber(breakdown.predictedDifference)}
+          value={formatNullablePredictionNumber(breakdown.predictedDifference)}
         />
       </div>
     </div>
@@ -397,35 +409,6 @@ function BreakdownItem({ label, value }: { label: string; value: string }) {
       <p className="mt-1 font-semibold text-black">{value}</p>
     </div>
   );
-}
-
-function getRuleText(ruleKey: string | null | undefined): string {
-  if (ruleKey === "match_winner_only") return "Adivina ganador";
-  if (ruleKey === "match_winner_and_difference") {
-    return "Adivina ganador y diferencia";
-  }
-  if (ruleKey === "match_one_team_goals") return "Adivina goles de un equipo";
-  return "Regla estándar";
-}
-
-function formatResultLabel(result: string | null | undefined): string {
-  if (result === "home") return "Gana local";
-  if (result === "away") return "Gana visitante";
-  if (result === "draw") return "Empate";
-  return "—";
-}
-
-function formatScore(
-  home: number | null | undefined,
-  away: number | null | undefined,
-): string {
-  if (home == null || away == null) return "—";
-  return `${home} - ${away}`;
-}
-
-function formatNullableNumber(value: number | null | undefined): string {
-  if (value == null) return "—";
-  return String(value);
 }
 
 function MatchesTabSkeleton() {

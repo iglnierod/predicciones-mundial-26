@@ -21,6 +21,12 @@ import {
   getRoundLabel,
   parseUtcDate,
 } from "@/lib/format/match";
+import {
+  formatNullablePredictionNumber,
+  formatPredictionResultLabel,
+  formatPredictionScore,
+  getMatchPredictionRuleText,
+} from "@/lib/format/prediction-breakdown";
 import type { MatchPredictionBreakdown } from "@/types";
 
 type Props = {
@@ -826,7 +832,7 @@ function MatchPointsBreakdownModal({
                   )}
                 </td>
                 <td className="px-4 py-3 font-semibold text-black/70">
-                  {getRuleText(prediction.breakdown?.ruleKey)}
+                  {getMatchPredictionRuleText(prediction.breakdown?.ruleKey)}
                 </td>
                 <td className="px-4 py-3">
                   <BreakdownSummary breakdown={prediction.breakdown} />
@@ -864,15 +870,15 @@ function BreakdownSummary({
     <div className="grid gap-2 text-xs text-black/70 sm:grid-cols-2">
       <BreakdownPill
         label="Resultado"
-        value={`${formatResultLabel(breakdown.predictedResult)} / ${formatResultLabel(breakdown.realResult)}`}
+        value={`${formatPredictionResultLabel(breakdown.predictedResult)} / ${formatPredictionResultLabel(breakdown.realResult)}`}
       />
       <BreakdownPill
         label="Marcador"
-        value={`${formatScore(breakdown.predictedHomeScore, breakdown.predictedAwayScore)} / ${formatScore(breakdown.realHomeScore, breakdown.realAwayScore)}`}
+        value={`${formatPredictionScore(breakdown.predictedHomeScore, breakdown.predictedAwayScore)} / ${formatPredictionScore(breakdown.realHomeScore, breakdown.realAwayScore)}`}
       />
       <BreakdownPill
         label="Diferencia"
-        value={`${formatNullableNumber(breakdown.predictedDifference)} / ${formatNullableNumber(breakdown.realDifference)}`}
+        value={`${formatNullablePredictionNumber(breakdown.predictedDifference)} / ${formatNullablePredictionNumber(breakdown.realDifference)}`}
       />
     </div>
   );
@@ -885,36 +891,6 @@ function BreakdownPill({ label, value }: { label: string; value: string }) {
       <p className="mt-0.5 font-semibold text-black/75">{value}</p>
     </div>
   );
-}
-
-function getRuleText(ruleKey: string | null | undefined): string {
-  if (ruleKey === "match_exact_score") return "Adivina resultado exacto";
-  if (ruleKey === "match_winner_only") return "Adivina ganador";
-  if (ruleKey === "match_winner_and_difference") {
-    return "Adivina ganador y diferencia / empate";
-  }
-  if (ruleKey === "match_one_team_goals") return "Adivina goles de un equipo";
-  return "Sin desglose";
-}
-
-function formatResultLabel(result: string | null | undefined): string {
-  if (result === "home") return "Gana local";
-  if (result === "away") return "Gana visitante";
-  if (result === "draw") return "Empate";
-  return "—";
-}
-
-function formatScore(
-  home: number | null | undefined,
-  away: number | null | undefined,
-): string {
-  if (home == null || away == null) return "—";
-  return `${home} - ${away}`;
-}
-
-function formatNullableNumber(value: number | null | undefined): string {
-  if (value == null) return "—";
-  return String(value);
 }
 
 type SortButtonProps = {
