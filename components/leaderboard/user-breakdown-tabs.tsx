@@ -66,10 +66,6 @@ export default function UserBreakdownTabs({
                     #{profile.rank}
                   </span>
 
-                  <span className="rounded-full bg-black/5 px-3 py-1 text-[11px] font-bold tracking-wide text-black/70">
-                    {profile.total_points} puntos
-                  </span>
-
                   {isOwnProfile && (
                     <span className="rounded-full bg-green-100 px-3 py-1 text-[11px] font-bold tracking-wide text-green-700">
                       TU PERFIL
@@ -82,8 +78,11 @@ export default function UserBreakdownTabs({
                 </h2>
 
                 <p className="mt-1 text-sm text-black/55">
-                  Grupos: {profile.group_points} · Partidos:{" "}
-                  {profile.match_points} · Extras: {profile.extra_points}
+                  Total: <ScoreValue value={profile.total_points} /> · Globales:{" "}
+                  <ScoreValue value={profile.tournament_points} /> · Grupos:{" "}
+                  <ScoreValue value={profile.group_points} /> · Partidos:{" "}
+                  <ScoreValue value={profile.match_points} /> · Extras:{" "}
+                  <ScoreValue value={profile.extra_points} />
                 </p>
               </div>
             </div>
@@ -113,7 +112,9 @@ export default function UserBreakdownTabs({
         </div>
 
         <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5">
-          {activeTab === "global" && <GlobalTab profile={profile} />}
+          {activeTab === "global" && (
+            <GlobalTab profile={profile} viewerUserId={viewerUserId} />
+          )}
           {activeTab === "groups" && <GroupsTab profile={profile} />}
           {activeTab === "matches" && (
             <MatchesTab profile={profile} viewerUserId={viewerUserId} />
@@ -129,4 +130,8 @@ export default function UserBreakdownTabs({
       </div>
     </div>
   );
+}
+
+function ScoreValue({ value }: { value: number }) {
+  return <span className="font-extrabold text-[#2A398D]">{value}</span>;
 }
