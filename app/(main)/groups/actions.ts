@@ -1,20 +1,48 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { GroupPredictionSelection } from "@/types";
 import { createClient } from "@/lib/supabase/server";
 import {
   areTournamentPredictionsClosed,
   getTournamentPredictionsCloseAt,
 } from "@/lib/predictions/tournament-deadline";
 
-type SaveGroupPredictionsInput = {
-  selection: GroupPredictionSelection;
+type SaveGroupPredictionInput = {
+  groupId: number;
+  teamIds: number[];
 };
 
-export async function saveGroupPredictions({
-  selection,
-}: SaveGroupPredictionsInput) {
+export async function saveGroupPrediction({
+  groupId,
+  teamIds,
+}: SaveGroupPredictionInput) {
+  if (!Number.isInteger(groupId) || groupId <= 0) {
+    return {
+      success: false,
+      data: null,
+      error: "Grupo no válido.",
+    };
+  }
+
+  if (teamIds.length !== 0 && teamIds.length !== 2) {
+    return {
+      success: false,
+      data: null,
+      error: "Selecciona 2 equipos para guardar el grupo.",
+    };
+  }
+
+  if (
+    teamIds.some((teamId) => !Number.isInteger(teamId) || teamId <= 0) ||
+    new Set(teamIds).size !== teamIds.length
+  ) {
+    return {
+      success: false,
+      data: null,
+      error: "Selección de equipos no válida.",
+    };
+  }
+
   const supabase = await createClient();
 
   const {
@@ -25,6 +53,7 @@ export async function saveGroupPredictions({
   if (authError || !user) {
     return {
       success: false,
+      data: null,
       error: "Debes iniciar sesión para guardar tus predicciones.",
     };
   }
@@ -34,61 +63,74 @@ export async function saveGroupPredictions({
   if (areTournamentPredictionsClosed(closeAt)) {
     return {
       success: false,
+      data: null,
       error: "Las predicciones de grupos están cerradas.",
     };
   }
 
-  const { data: groups, error: groupsError } = await supabase
-    .from("groups")
-    .select("id");
+  if (teamIds.length === 0) {
+    const { error } = await supabase
+      .from("group_predictions")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("group_id", groupId);
 
-  if (groupsError) {
+    if (error) {
+      console.error("deleteGroupPrediction error:", error);
+
+      return {
+        success: false,
+        data: null,
+        error: "No se pudo eliminar la predicción del grupo.",
+      };
+    }
+
+    revalidatePath("/groups");
+
     return {
-      success: false,
-      error: "No se pudieron validar los grupos.",
+      success: true,
+      data: { group_id: groupId, team_a_id: null, team_b_id: null },
+      error: null,
     };
   }
 
-  const rows = Object.entries(selection).map(([groupId, teamIds]) => ({
-    user_id: user.id,
-    group_id: Number(groupId),
-    team_a_id: teamIds[0],
-    team_b_id: teamIds[1],
-  }));
+  const { data: teams, error: teamsError } = await supabase
+    .from("teams")
+    .select("id")
+    .eq("group_id", groupId)
+    .in("id", teamIds);
 
-  const expectedGroupIds = new Set((groups ?? []).map((group) => group.id));
-  const selectedGroupIds = new Set(rows.map((row) => row.group_id));
-
-  const hasInvalidSelection = rows.some(
-    (row) =>
-      !expectedGroupIds.has(row.group_id) ||
-      !row.team_a_id ||
-      !row.team_b_id ||
-      row.team_a_id === row.team_b_id,
-  );
-
-  const hasAllGroupsSelected =
-    expectedGroupIds.size > 0 &&
-    selectedGroupIds.size === expectedGroupIds.size &&
-    [...expectedGroupIds].every((groupId) => selectedGroupIds.has(groupId));
-
-  if (!hasAllGroupsSelected || hasInvalidSelection) {
+  if (teamsError || (teams ?? []).length !== 2) {
     return {
       success: false,
-      error: "Selecciona 2 equipos por cada grupo.",
+      data: null,
+      error: "Los equipos seleccionados no pertenecen a este grupo.",
     };
   }
 
-  const { error } = await supabase.from("group_predictions").upsert(rows, {
-    onConflict: "user_id,group_id",
-  });
+  const { data, error } = await supabase
+    .from("group_predictions")
+    .upsert(
+      {
+        user_id: user.id,
+        group_id: groupId,
+        team_a_id: teamIds[0],
+        team_b_id: teamIds[1],
+      },
+      {
+        onConflict: "user_id,group_id",
+      },
+    )
+    .select("group_id, team_a_id, team_b_id")
+    .single();
 
-  if (error) {
-    console.error("saveGroupPredictions error:", error);
+  if (error || !data) {
+    console.error("saveGroupPrediction error:", error);
 
     return {
       success: false,
-      error: "No se pudieron guardar las predicciones de grupos.",
+      data: null,
+      error: "No se pudo guardar la predicción del grupo.",
     };
   }
 
@@ -96,6 +138,7 @@ export async function saveGroupPredictions({
 
   return {
     success: true,
+    data,
     error: null,
   };
 }

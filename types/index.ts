@@ -33,6 +33,14 @@ export interface GroupWithQualifiedTeams {
 
 export type GroupPredictionSelection = Record<number, number[]>;
 
+export type GroupPredictionResult = {
+  points: number;
+  matchedTeamIds: number[];
+  maxPoints: number | null;
+};
+
+export type GroupPredictionResults = Record<number, GroupPredictionResult>;
+
 export interface LeaderboardProfile {
   user_id: string;
   full_name: string;

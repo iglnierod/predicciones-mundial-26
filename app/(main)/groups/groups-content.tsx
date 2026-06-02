@@ -1,11 +1,29 @@
-import GroupComponent from "@/components/groups/group";
-import PredictGroupsButton from "@/components/groups/predict-groups-button";
+import GroupsPredictionGrid from "@/components/groups/groups-prediction-grid";
 import { createClient } from "@/lib/supabase/server";
 import {
   areTournamentPredictionsClosed,
   getTournamentPredictionsCloseAt,
 } from "@/lib/predictions/tournament-deadline";
-import { GroupPredictionSelection } from "@/types";
+import { GroupPredictionResults, GroupPredictionSelection } from "@/types";
+
+type GroupPredictionPointRow = {
+  group_id: number | null;
+  points: number;
+  breakdown: {
+    matchedTeamIds?: unknown;
+    maxPoints?: unknown;
+  } | null;
+};
+
+function getNumberArray(value: unknown) {
+  if (!Array.isArray(value)) return [];
+
+  return value.filter((item): item is number => typeof item === "number");
+}
+
+function getNullableNumber(value: unknown) {
+  return typeof value === "number" ? value : null;
+}
 
 export default async function GroupsContent() {
   const supabase = await createClient();
@@ -24,6 +42,8 @@ export default async function GroupsContent() {
         `
           id,
           name,
+          qualified_team_a_id,
+          qualified_team_b_id,
           teams!teams_group_id_fkey (
             id,
             name,
@@ -42,15 +62,30 @@ export default async function GroupsContent() {
   }
 
   let predictionSelection: GroupPredictionSelection = {};
+  let predictionResults: GroupPredictionResults = {};
 
   if (user) {
-    const { data: predictions, error: predictionsError } = await supabase
-      .from("group_predictions")
-      .select("group_id, team_a_id, team_b_id")
-      .eq("user_id", user.id);
+    const [
+      { data: predictions, error: predictionsError },
+      { data: points, error: pointsError },
+    ] = await Promise.all([
+      supabase
+        .from("group_predictions")
+        .select("group_id, team_a_id, team_b_id")
+        .eq("user_id", user.id),
+      supabase
+        .from("prediction_points")
+        .select("group_id, points, breakdown")
+        .eq("user_id", user.id)
+        .eq("prediction_type", "group"),
+    ]);
 
     if (predictionsError) {
       throw new Error("No se pudieron cargar las predicciones del usuario");
+    }
+
+    if (pointsError) {
+      throw new Error("No se pudieron cargar los puntos de grupos del usuario");
     }
 
     predictionSelection = (predictions ?? []).reduce<GroupPredictionSelection>(
@@ -60,27 +95,30 @@ export default async function GroupsContent() {
       },
       {},
     );
+
+    predictionResults = ((points ?? []) as GroupPredictionPointRow[]).reduce(
+      (acc, point) => {
+        if (point.group_id === null) return acc;
+
+        acc[point.group_id] = {
+          points: point.points,
+          matchedTeamIds: getNumberArray(point.breakdown?.matchedTeamIds),
+          maxPoints: getNullableNumber(point.breakdown?.maxPoints),
+        };
+
+        return acc;
+      },
+      {} as GroupPredictionResults,
+    );
   }
 
   return (
-    <>
-      <div className="mb-6 flex justify-end">
-        <PredictGroupsButton
-          groups={groups ?? []}
-          isClosed={areTournamentPredictionsClosed(closeAt)}
-          closeAt={closeAt}
-        />
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-        {groups?.map((group) => (
-          <GroupComponent
-            key={group.id}
-            group={group}
-            selectedTeamIds={predictionSelection[group.id] ?? []}
-          />
-        ))}
-      </div>
-    </>
+    <GroupsPredictionGrid
+      groups={groups ?? []}
+      initialSelection={predictionSelection}
+      predictionResults={predictionResults}
+      isClosed={areTournamentPredictionsClosed(closeAt)}
+      closeAt={closeAt}
+    />
   );
 }
