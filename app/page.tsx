@@ -1,4 +1,6 @@
+import LandingLiveStats from "@/components/landing/landing-live-stats";
 import GoogleLoginButton from "@/components/layout/google-login-button";
+import { getLandingStats } from "@/lib/repositories/landing-stats-repository";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -109,7 +111,7 @@ const steps = [
   {
     title: "Suma puntos",
     description:
-      "Cada acierto se calcula según las reglas del proyecto y actualiza tu total.",
+      "Cada acierto se calcula según las reglas de puntuación y actualiza tu total.",
     Icon: CheckCircle2,
   },
   {
@@ -176,6 +178,8 @@ export default async function Home() {
     redirect("/matches");
   }
 
+  const landingStats = await getLandingStats();
+
   return (
     <>
       {/* Ejemplo de como usar un toast con sweetalert2 */}
@@ -223,9 +227,15 @@ export default async function Home() {
             </Link>
 
             <nav
-              aria-label="Navegación de la landing"
+              aria-label="Navegación principal"
               className="flex items-center gap-3"
             >
+              <a
+                href="#estadisticas"
+                className="hidden rounded-full px-3 py-2 text-sm font-bold text-white/75 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:inline-flex"
+              >
+                Estadísticas
+              </a>
               <a
                 href="#funcionalidades"
                 className="hidden rounded-full px-3 py-2 text-sm font-bold text-white/75 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:inline-flex"
@@ -237,6 +247,12 @@ export default async function Home() {
                 className="hidden rounded-full px-3 py-2 text-sm font-bold text-white/75 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:inline-flex"
               >
                 Cómo funciona
+              </a>
+              <a
+                href="#contacto"
+                className="hidden rounded-full px-3 py-2 text-sm font-bold text-white/75 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:inline-flex"
+              >
+                Contacto
               </a>
               <GoogleLoginButton label="Iniciar sesión" size="compact" />
             </nav>
@@ -380,6 +396,8 @@ export default async function Home() {
           </div>
         </section>
 
+        <LandingLiveStats stats={landingStats} />
+
         <section
           id="funcionalidades"
           aria-labelledby="funcionalidades-heading"
@@ -397,10 +415,9 @@ export default async function Home() {
                 Todo lo que necesitas para jugar tu quiniela del Mundial 2026.
               </h2>
               <p className="mt-5 text-lg leading-8 text-[#474A4A]">
-                La landing explica la web desde el primer vistazo: una
-                plataforma para hacer predicciones del Mundial 2026, seguir
-                partidos, elegir clasificados por grupos, completar pronósticos
-                globales y competir en una clasificación clara.
+                En una sola plataforma puedes hacer predicciones del Mundial
+                2026, seguir partidos, elegir clasificados por grupos, completar
+                pronósticos globales y competir en una clasificación clara.
               </p>
             </div>
 
