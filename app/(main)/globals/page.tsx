@@ -7,7 +7,9 @@ export default function GlobalsPage() {
     <section>
       <div className="mb-6 flex w-full flex-wrap items-center justify-between gap-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-semibold">PREDICCIONES GLOBALES</h1>
+          <h1 className="text-4xl font-semibold text-white">
+            PREDICCIONES GLOBALES
+          </h1>
           <h2 className="text-xl text-white/70">
             Haz tus predicciones generales sobre lo que pasará en el torneo
           </h2>

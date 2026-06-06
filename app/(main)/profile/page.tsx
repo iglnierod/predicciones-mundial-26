@@ -44,9 +44,7 @@ export default async function ProfilePage() {
   return (
     <section className="flex flex-col gap-7">
       <div className="flex flex-col gap-3">
-        <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
-          PERFIL
-        </h1>
+        <h1 className="text-4xl font-semibold text-white">PERFIL</h1>
         <p className="max-w-2xl text-lg text-white/70">
           Información básica de tu cuenta en la app.
         </p>
