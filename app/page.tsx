@@ -260,11 +260,7 @@ export default async function Home() {
 
           <div className="mx-auto grid max-w-7xl items-center gap-12 py-16 lg:grid-cols-[1.03fr_0.97fr] lg:py-24">
             <div>
-              <p className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black tracking-[0.22em] text-[#D1D4D1] uppercase shadow-lg backdrop-blur">
-                Predicciones Mundial 2026
-              </p>
-
-              <h1 className="mt-6 max-w-4xl text-5xl leading-[0.95] font-black tracking-tight text-balance text-white sm:text-6xl lg:text-7xl">
+              <h1 className="max-w-4xl text-5xl leading-[0.95] font-black tracking-tight text-balance text-white sm:text-6xl lg:text-7xl">
                 Tu quiniela del Mundial 2026, clara, rápida y competitiva.
               </h1>
 

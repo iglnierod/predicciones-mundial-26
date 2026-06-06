@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
+
 type Props = {
-  label: string;
+  label: ReactNode;
   value: string;
   placeholder?: string;
   disabled?: boolean;

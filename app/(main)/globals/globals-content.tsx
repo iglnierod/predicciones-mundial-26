@@ -5,6 +5,7 @@ import {
   areTournamentPredictionsClosed,
   getTournamentPredictionsCloseAt,
 } from "@/lib/predictions/tournament-deadline";
+import { getScoringRulesMap } from "@/lib/scoring/rules";
 
 export default async function GlobalsContent() {
   const supabase = await createClient();
@@ -17,6 +18,7 @@ export default async function GlobalsContent() {
     { data: tournamentPrediction, error: tournamentPredictionError },
     { data: teams, error: teamsError },
     closeAt,
+    scoringRules,
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase.from("tournament_predictions").select("*").maybeSingle(),
@@ -25,6 +27,7 @@ export default async function GlobalsContent() {
       .select("id, name, code, flag_code, is_top10_ranking_fifa")
       .order("name"),
     getTournamentPredictionsCloseAt(supabase),
+    getScoringRulesMap(supabase),
   ]);
 
   if (userError || !user) {
@@ -47,6 +50,7 @@ export default async function GlobalsContent() {
         isClosed={areTournamentPredictionsClosed(closeAt)}
         closeAt={closeAt}
         teams={(teams as Team[]) ?? []}
+        scoringRules={scoringRules}
       />
     </section>
   );

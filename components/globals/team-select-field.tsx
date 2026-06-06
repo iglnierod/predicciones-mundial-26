@@ -1,8 +1,9 @@
 import { Team } from "@/types";
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 type Props = {
-  label: string;
+  label: ReactNode;
   value: number | null;
   teams: Team[];
   placeholder?: string;

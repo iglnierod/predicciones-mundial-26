@@ -1262,7 +1262,7 @@ create index if not exists leaderboard_snapshot_entries_user_id_idx
 
 -- ============================================
 -- SCORING RULES
--- Valores de puntuación de grupos y partidos
+-- Valores de puntuación de grupos, partidos y predicciones globales
 -- ============================================
 
 create table if not exists public.scoring_rules (
@@ -1317,7 +1317,20 @@ insert into public.scoring_rules (key, points, description) values
 ('match_exact_score', 5, 'Puntos por acertar el resultado exacto'),
 ('match_winner_and_difference', 3, 'Puntos por acertar ganador y diferencia de goles, o empate sin resultado exacto'),
 ('match_winner_only', 2, 'Puntos por acertar solo el ganador'),
-('match_one_team_goals', 1, 'Puntos por acertar los goles exactos de uno de los dos equipos')
+('match_one_team_goals', 1, 'Puntos por acertar los goles exactos de uno de los dos equipos'),
+
+('tournament_world_cup_winner', 10, 'Puntos por acertar el campeón del Mundial'),
+('tournament_top_scorer', 7, 'Puntos por acertar el máximo goleador del Mundial'),
+('tournament_top_assist', 7, 'Puntos por acertar el máximo asistente del Mundial'),
+('tournament_hat_trick_player', 5, 'Puntos por acertar un jugador que hará un hat-trick'),
+('tournament_most_goals_in_a_match_team', 5, 'Puntos por acertar la selección con más goles en un partido'),
+('tournament_penalty_shootouts', 5, 'Puntos por acertar el rango de tandas de penaltis del Mundial'),
+('tournament_underdog_quarterfinal_team', 7, 'Puntos por acertar la selección sorpresa en cuartos fuera del top 10 FIFA'),
+('tournament_spain_top_scorer', 5, 'Puntos por acertar el máximo goleador de España'),
+('tournament_spain_top_assist', 5, 'Puntos por acertar el máximo asistente de España'),
+('tournament_spain_red_card_player', 4, 'Puntos por acertar un jugador de España expulsado'),
+('tournament_spain_round', 6, 'Puntos por acertar la ronda a la que llegará España'),
+('tournament_spain_total_goals', 4, 'Puntos por acertar el rango de goles totales de España')
 
 on conflict (key) do update set
   points = excluded.points,

@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
+
 type Option = {
   value: string;
   label: string;
 };
 
 type Props = {
-  label: string;
+  label: ReactNode;
   value: string;
   options: Option[];
   placeholder?: string;
