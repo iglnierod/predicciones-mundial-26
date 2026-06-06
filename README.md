@@ -9,16 +9,16 @@
 
   <p>
     <a href="https://predicciones-mundial-26.vercel.app/" target="_blank" rel="noreferrer">
-      <img src="https://img.shields.io/badge/Ver%20web%20desplegada-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Ver web desplegada en Vercel" />
+      <img src="https://img.shields.io/badge/Ver%20web%20desplegada-Vercel-000000?style=flat&logo=vercel&logoColor=white" alt="Ver web desplegada en Vercel" />
     </a>
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Next.js-16.2.2-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
-    <img src="https://img.shields.io/badge/React-19.2.4-61DAFB?style=for-the-badge&logo=react&logoColor=111111" alt="React" />
-    <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
-    <img src="https://img.shields.io/badge/Tailwind_CSS-4.3-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/Next.js-16.2.2-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js" />
+    <img src="https://img.shields.io/badge/React-19.2.4-61DAFB?style=flat&logo=react&logoColor=111111" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3FCF8E?style=flat&logo=supabase&logoColor=white" alt="Supabase" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-4.3-38B2AC?style=flat&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   </p>
 </div>
 
