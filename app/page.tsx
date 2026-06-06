@@ -1,4 +1,5 @@
 import LandingLiveStats from "@/components/landing/landing-live-stats";
+import SmoothScroll from "@/components/landing/smooth-scroll";
 import GoogleLoginButton from "@/components/layout/google-login-button";
 import { getLandingStats } from "@/lib/repositories/landing-stats-repository";
 import { createClient } from "@/lib/supabase/server";
@@ -182,6 +183,8 @@ export default async function Home() {
 
   return (
     <>
+      <SmoothScroll />
+
       {/* Ejemplo de como usar un toast con sweetalert2 */}
       {/* <AutoLoginToast
         shouldShow={!!user}
