@@ -19,6 +19,7 @@
     <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3FCF8E?style=flat&logo=supabase&logoColor=white" alt="Supabase" />
     <img src="https://img.shields.io/badge/Tailwind_CSS-4.3-38B2AC?style=flat&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/License-AGPL--3.0-blue?style=flat" alt="Licencia AGPL-3.0" />
   </p>
 </div>
 
