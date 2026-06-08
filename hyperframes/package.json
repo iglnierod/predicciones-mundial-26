@@ -1,0 +1,12 @@
+{
+  "name": "predicciones-mundial-2026-promo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "preview": "pnpm dlx hyperframes preview",
+    "render": "pnpm dlx hyperframes render --output predicciones-mundial-2026-promo.mp4",
+    "lint": "pnpm dlx hyperframes lint",
+    "validate": "pnpm dlx hyperframes validate",
+    "inspect": "pnpm dlx hyperframes inspect"
+  }
+}

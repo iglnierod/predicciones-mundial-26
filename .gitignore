@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# hyperframes
+hyperframes/.thumbnails/
+hyperframes/renders/
+hyperframes/*.mp4

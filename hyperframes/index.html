@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Predicciones Mundial 2026 Promo</title>
+    <style>
+      @font-face {
+        font-family: "Space Grotesk";
+        font-style: normal;
+        font-weight: 400 700;
+        font-display: swap;
+        src: url("https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2") format("woff2");
+      }
+
+      :root {
+        --paper: #f6f7f1;
+        --ink: #071136;
+        --navy: #2a398d;
+        --green: #3cac3b;
+        --red: #e61d25;
+        --charcoal: #474a4a;
+        --light-gray: #d1d4d1;
+        --line: rgba(7, 17, 54, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 15%, rgba(60, 172, 59, 0.32), rgba(60, 172, 59, 0) 25%),
+          radial-gradient(circle at 84% 20%, rgba(230, 29, 37, 0.24), rgba(230, 29, 37, 0) 24%),
+          radial-gradient(circle at 78% 82%, rgba(42, 57, 141, 0.18), rgba(42, 57, 141, 0) 30%),
+          linear-gradient(135deg, #ffffff 0%, #f6f7f1 46%, #d1d4d1 100%);
+        isolation: isolate;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background-color: #f6f7f1;
+      }
+
+      .scene-shell {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 86px 116px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 42px;
+        z-index: 2;
+      }
+
+      .scene::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(42, 57, 141, 0.08) 2px, transparent 2px),
+          linear-gradient(90deg, rgba(42, 57, 141, 0.08) 2px, transparent 2px);
+        background-size: 96px 96px;
+        mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.18));
+        opacity: 0.55;
+      }
+
+      .scene::after {
+        content: "MUNDIAL 2026";
+        position: absolute;
+        right: 34px;
+        bottom: -22px;
+        color: rgba(42, 57, 141, 0.08);
+        font-size: 178px;
+        font-weight: 900;
+        letter-spacing: -0.08em;
+        line-height: 0.9;
+        z-index: 0;
+      }
+
+      .topline,
+      .caption,
+      .mono {
+        font-family: monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: rgba(7, 17, 54, 0.66);
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .ball {
+        width: 48px;
+        height: 48px;
+        border: 4px solid var(--ink);
+        border-radius: 50%;
+        background:
+          linear-gradient(90deg, transparent 46%, var(--ink) 46% 54%, transparent 54%),
+          linear-gradient(0deg, transparent 46%, var(--ink) 46% 54%, transparent 54%),
+          radial-gradient(circle, #ffffff 0 34%, var(--green) 35% 48%, #ffffff 49%);
+        box-shadow: 0 18px 45px rgba(42, 57, 141, 0.2);
+      }
+
+      .rule {
+        width: 100%;
+        height: 3px;
+        transform-origin: left center;
+        background: var(--ink);
+      }
+
+      .caption {
+        display: inline-flex;
+        align-self: flex-start;
+        align-items: center;
+        gap: 16px;
+        max-width: 1180px;
+        border: 2px solid rgba(42, 57, 141, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 18px 28px;
+        color: var(--ink);
+        font-size: 27px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        box-shadow: 0 22px 60px rgba(7, 17, 54, 0.1);
+      }
+
+      .caption-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--green);
+        box-shadow: 0 0 0 9px rgba(60, 172, 59, 0.15);
+      }
+
+      .reveal,
+      .scene-shell,
+      .draw-dot,
+      .chart-label-group {
+        opacity: 0;
+        will-change: transform, opacity, filter;
+      }
+
+      .title-grid {
+        display: grid;
+        grid-template-columns: 1.05fr 0.62fr;
+        align-items: center;
+        gap: 70px;
+      }
+
+      #scene-title .scene-shell {
+        opacity: 1;
+      }
+
+      .title-copy {
+        width: 780px;
+      }
+
+      .hero-title {
+        margin: 0;
+        color: var(--ink);
+        font-size: 120px;
+        font-weight: 900;
+        letter-spacing: -0.075em;
+        line-height: 0.86;
+      }
+
+      .hero-title span {
+        display: block;
+        color: var(--navy);
+      }
+
+      .hero-title .title-main {
+        color: var(--ink);
+      }
+
+      .hero-title .title-year {
+        color: var(--navy);
+      }
+
+      .author {
+        margin: 34px 0 0;
+        color: rgba(7, 17, 54, 0.68);
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .app-icon-showcase {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 470px;
+        height: 470px;
+      }
+
+      .app-icon {
+        width: 350px;
+        height: 350px;
+        border-radius: 78px;
+        object-fit: cover;
+        box-shadow: 0 30px 85px rgba(7, 17, 54, 0.22);
+      }
+
+      .about-layout {
+        display: grid;
+        grid-template-columns: 0.85fr 1fr;
+        gap: 64px;
+        align-items: center;
+        min-height: 720px;
+      }
+
+      .statement {
+        margin: 0;
+        max-width: 780px;
+        font-size: 82px;
+        font-weight: 900;
+        letter-spacing: -0.07em;
+        line-height: 0.94;
+      }
+
+      .statement strong {
+        color: var(--navy);
+        text-shadow: 5px 5px 0 rgba(60, 172, 59, 0.24);
+      }
+
+      .subcopy {
+        margin: 30px 0 0;
+        max-width: 700px;
+        color: rgba(7, 17, 54, 0.68);
+        font-size: 34px;
+        font-weight: 650;
+        line-height: 1.15;
+        letter-spacing: -0.035em;
+      }
+
+      .dashboard-card {
+        position: relative;
+        border: 3px solid rgba(42, 57, 141, 0.13);
+        border-radius: 46px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 38px;
+        box-shadow: 0 34px 100px rgba(7, 17, 54, 0.14);
+        backdrop-filter: blur(18px);
+      }
+
+      .product-stack {
+        display: grid;
+        gap: 28px;
+      }
+
+      .prediction-card,
+      .stats-card {
+        border: 3px solid rgba(42, 57, 141, 0.13);
+        border-radius: 42px;
+        background: rgba(255, 255, 255, 0.88);
+        padding: 34px;
+        box-shadow: 0 28px 86px rgba(7, 17, 54, 0.12);
+        backdrop-filter: blur(16px);
+      }
+
+      .dashboard-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 26px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: 999px;
+        padding: 13px 20px;
+        background: rgba(42, 57, 141, 0.09);
+        color: var(--navy);
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      .live {
+        background: var(--green);
+        color: #ffffff;
+      }
+
+      .match-card {
+        display: grid;
+        grid-template-columns: 1fr 220px 1fr;
+        align-items: center;
+        gap: 24px;
+        border-radius: 34px;
+        border: 2px solid rgba(7, 17, 54, 0.08);
+        background: #ffffff;
+        padding: 28px;
+        box-shadow: 0 18px 48px rgba(7, 17, 54, 0.08);
+      }
+
+      .predict-button {
+        width: 100%;
+        margin-top: 22px;
+        border: 0;
+        border-radius: 24px;
+        background: var(--green);
+        color: #ffffff;
+        padding: 24px 30px;
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        box-shadow: 0 18px 42px rgba(60, 172, 59, 0.28);
+      }
+
+      .team {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 34px;
+        font-weight: 900;
+      }
+
+      .flag {
+        width: 78px;
+        height: 52px;
+        border-radius: 16px 4px 16px 4px;
+        border: 2px solid rgba(7, 17, 54, 0.12);
+        box-shadow: 0 10px 25px rgba(7, 17, 54, 0.12);
+      }
+
+      .flag.red {
+        background: linear-gradient(#c60b1e 0 25%, #ffc400 25% 75%, #c60b1e 75%);
+      }
+
+      .flag.blue {
+        background: linear-gradient(90deg, #002395 0 33%, #ffffff 33% 66%, #ed2939 66%);
+      }
+
+      .score {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        font-size: 46px;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .score span {
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 76px;
+        border-radius: 20px;
+        border: 4px solid var(--navy);
+        background: #ffffff;
+        color: var(--navy);
+      }
+
+      .mini-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      .mini-stat {
+        border-radius: 28px;
+        padding: 24px;
+        color: #ffffff;
+        min-height: 150px;
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22), 0 18px 44px rgba(7, 17, 54, 0.12);
+      }
+
+      .mini-stat b {
+        display: block;
+        font-size: 46px;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .mini-stat span {
+        display: block;
+        margin-top: 13px;
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .features-layout {
+        display: grid;
+        grid-template-columns: 0.72fr 1fr;
+        gap: 58px;
+        align-items: center;
+        min-height: 720px;
+      }
+
+      .section-title {
+        margin: 0;
+        max-width: 700px;
+        color: var(--ink);
+        font-size: 74px;
+        font-weight: 900;
+        letter-spacing: -0.07em;
+        line-height: 0.95;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .feature-card {
+        position: relative;
+        min-height: 248px;
+        overflow: hidden;
+        border-radius: 38px;
+        border: 3px solid rgba(7, 17, 54, 0.09);
+        background: #ffffff;
+        padding: 32px;
+        box-shadow: 0 24px 70px rgba(7, 17, 54, 0.09);
+      }
+
+      .feature-card::after {
+        content: "";
+        position: absolute;
+        right: -54px;
+        bottom: -70px;
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.14;
+      }
+
+      .feature-kicker {
+        display: inline-flex;
+        border-radius: 999px;
+        padding: 11px 15px;
+        background: rgba(42, 57, 141, 0.11);
+        color: var(--navy);
+        font-size: 19px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .feature-card h3 {
+        margin: 28px 0 10px;
+        color: var(--ink);
+        font-size: 38px;
+        font-weight: 900;
+        letter-spacing: -0.055em;
+        line-height: 0.98;
+      }
+
+      .feature-card p {
+        margin: 0;
+        color: rgba(7, 17, 54, 0.64);
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.16;
+      }
+
+      .feature-card.color-green .feature-kicker {
+        background: rgba(60, 172, 59, 0.18);
+        color: var(--ink);
+      }
+
+      .feature-card.color-red .feature-kicker {
+        background: rgba(230, 29, 37, 0.12);
+        color: var(--red);
+      }
+
+      .chart-layout {
+        display: grid;
+        grid-template-columns: 0.55fr 1fr;
+        gap: 56px;
+        align-items: center;
+        min-height: 720px;
+      }
+
+      .ranking-panel {
+        border-radius: 46px;
+        border: 3px solid rgba(42, 57, 141, 0.13);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 42px;
+        box-shadow: 0 34px 100px rgba(7, 17, 54, 0.14);
+      }
+
+      .leaderboard-panel {
+        border-radius: 46px;
+        border: 3px solid rgba(42, 57, 141, 0.13);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 40px;
+        box-shadow: 0 34px 100px rgba(7, 17, 54, 0.14);
+      }
+
+      .leaderboard-head {
+        display: grid;
+        grid-template-columns: 92px 1fr 190px 210px;
+        gap: 18px;
+        padding: 0 22px 18px;
+        color: rgba(7, 17, 54, 0.58);
+        font-family: monospace;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .leaderboard-board {
+        position: relative;
+        height: 392px;
+      }
+
+      .leader-row-live {
+        position: absolute;
+        left: 0;
+        right: 0;
+        opacity: 0;
+        display: grid;
+        grid-template-columns: 92px 1fr 190px 210px;
+        gap: 18px;
+        align-items: center;
+        border: 2px solid rgba(7, 17, 54, 0.08);
+        border-radius: 26px;
+        background: #ffffff;
+        padding: 22px;
+        color: var(--ink);
+        font-size: 28px;
+        font-weight: 900;
+        box-shadow: 0 14px 40px rgba(7, 17, 54, 0.08);
+        will-change: transform, opacity;
+      }
+
+      .leader-row-live:nth-child(1) {
+        top: 0;
+      }
+
+      .leader-row-live:nth-child(2) {
+        top: 96px;
+      }
+
+      .leader-row-live:nth-child(3) {
+        top: 192px;
+      }
+
+      .leader-row-live:nth-child(4) {
+        top: 288px;
+      }
+
+      .leader-row-live.promoted {
+        border-color: rgba(60, 172, 59, 0.44);
+        box-shadow: 0 20px 60px rgba(60, 172, 59, 0.2);
+      }
+
+      .leader-rank {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .leader-name {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .avatar-dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        background: var(--navy);
+      }
+
+      .avatar-dot.green {
+        background: var(--green);
+      }
+
+      .avatar-dot.red {
+        background: var(--red);
+      }
+
+      .points-bump {
+        display: inline-flex;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(60, 172, 59, 0.16);
+        color: var(--green);
+        padding: 9px 14px;
+        font-size: 20px;
+        font-weight: 900;
+      }
+
+      .points-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .movement-up,
+      .movement-down {
+        display: inline-flex;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 20px;
+        font-weight: 900;
+      }
+
+      .movement-up {
+        background: rgba(60, 172, 59, 0.16);
+        color: var(--green);
+      }
+
+      .movement-down {
+        background: rgba(230, 29, 37, 0.12);
+        color: var(--red);
+      }
+
+      .ranking-panel svg {
+        width: 100%;
+        height: 452px;
+        overflow: visible;
+      }
+
+      .axis-line {
+        stroke: rgba(71, 74, 74, 0.22);
+        stroke-width: 3;
+      }
+
+      .chart-gridline {
+        stroke: rgba(71, 74, 74, 0.1);
+        stroke-width: 2;
+      }
+
+      .chart-line {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 8;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+      }
+
+      .draw-dot {
+        stroke: #ffffff;
+        stroke-width: 7;
+      }
+
+      .chart-label {
+        font-family: monospace;
+        font-size: 22px;
+        font-weight: 900;
+        fill: var(--ink);
+      }
+
+      .chart-label-group {
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+
+      .chart-label-bg {
+        fill: #ffffff;
+        stroke: rgba(42, 57, 141, 0.16);
+        stroke-width: 2;
+        filter: drop-shadow(0 8px 16px rgba(7, 17, 54, 0.08));
+      }
+
+      .rank-list {
+        display: grid;
+        gap: 16px;
+        margin-top: 24px;
+      }
+
+      .rank-row {
+        display: grid;
+        grid-template-columns: 70px 1fr auto;
+        gap: 18px;
+        align-items: center;
+        border-radius: 24px;
+        background: #ffffff;
+        padding: 18px 22px;
+        color: var(--ink);
+        font-size: 26px;
+        font-weight: 900;
+        box-shadow: 0 12px 32px rgba(7, 17, 54, 0.07);
+      }
+
+      .tech-layout {
+        display: grid;
+        grid-template-columns: 0.72fr 1fr;
+        gap: 70px;
+        align-items: center;
+        min-height: 720px;
+      }
+
+      .tech-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 22px;
+        margin-top: 56px;
+      }
+
+      .tech-chip {
+        border: 2px solid rgba(71, 74, 74, 0.2);
+        border-radius: 999px;
+        background: #ffffff;
+        padding: 22px 30px;
+        color: var(--charcoal);
+        font-size: 32px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        box-shadow: 0 18px 52px rgba(7, 17, 54, 0.08);
+      }
+
+      .url-card {
+        border-radius: 44px;
+        background: linear-gradient(135deg, #2a398d 0%, #17256f 52%, #071136 100%);
+        color: #ffffff;
+        padding: 44px 48px;
+        border: 3px solid rgba(42, 57, 141, 0.16);
+        box-shadow: 0 34px 110px rgba(7, 17, 54, 0.28);
+      }
+
+      .url-card p {
+        margin: 0 0 24px;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .url-card strong {
+        display: block;
+        white-space: nowrap;
+        font-size: 40px;
+        line-height: 1;
+        letter-spacing: -0.045em;
+      }
+
+      .final-layout {
+        display: grid;
+        place-items: center;
+        min-height: 720px;
+        text-align: center;
+      }
+
+      .final-card {
+        position: relative;
+        width: 1240px;
+        border-radius: 64px;
+        border: 4px solid rgba(42, 57, 141, 0.18);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 80px 90px;
+        box-shadow: 0 38px 130px rgba(7, 17, 54, 0.18);
+      }
+
+      .final-icon {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 34px;
+        border-radius: 34px;
+        object-fit: cover;
+        box-shadow: 0 24px 70px rgba(7, 17, 54, 0.22);
+      }
+
+      .final-card h2 {
+        margin: 0;
+        color: var(--navy);
+        font-size: 92px;
+        font-weight: 900;
+        letter-spacing: -0.075em;
+        line-height: 0.92;
+      }
+
+      .final-card p {
+        margin: 32px 0 0;
+        color: rgba(7, 17, 54, 0.7);
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .final-url {
+        display: block;
+        margin-top: 28px;
+        color: var(--navy);
+        font-size: 34px;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+        text-decoration: none;
+      }
+
+      .accent-green {
+        color: var(--green);
+      }
+
+      .accent-red {
+        color: var(--red);
+      }
+
+      .bg-green {
+        background: var(--green);
+      }
+
+      .bg-navy {
+        background: var(--navy);
+      }
+
+      .bg-red {
+        background: var(--red);
+      }
+
+      .color-navy {
+        color: var(--navy);
+      }
+
+      .color-green {
+        color: var(--green);
+      }
+
+      .color-red {
+        color: var(--red);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="predicciones-promo" data-start="0" data-duration="18" data-width="1920" data-height="1080" data-track-index="0">
+      <section id="scene-title" class="clip scene" data-start="0" data-duration="2.25" data-track-index="1">
+        <div class="scene-shell">
+          <div class="topline reveal">
+            <span class="brand-mark">PREDICCIONES MUNDIAL 2026</span>
+          </div>
+          <div class="title-grid">
+            <div class="title-copy">
+              <h1 class="hero-title">
+                <span class="title-main">Predicciones</span>
+                <span>Mundial</span>
+                <span class="title-year">2026</span>
+              </h1>
+              <p class="author reveal">por Rodrigo Iglesias Nieto</p>
+            </div>
+            <div class="app-icon-showcase reveal">
+              <img class="app-icon" src="favicon.png?title" alt="Icono de Predicciones Mundial 2026">
+            </div>
+          </div>
+          <div class="caption reveal"><span class="caption-dot"></span> Una quiniela para vivir cada partido con más tensión.</div>
+        </div>
+      </section>
+
+      <section id="scene-about" class="clip scene" data-start="1.85" data-duration="4.35" data-track-index="2">
+        <div class="scene-shell">
+          <div class="topline reveal">
+            <span>Qué es</span>
+          </div>
+          <div class="about-layout">
+            <div>
+              <h2 class="statement reveal">Pronostica el torneo. <strong>Suma puntos.</strong> Escala el ranking.</h2>
+              <p class="subcopy reveal">Partidos, grupos y predicciones globales en una experiencia rápida, visual y lista para competir.</p>
+            </div>
+            <div class="product-stack reveal">
+              <div class="prediction-card reveal">
+                <div class="dashboard-head">
+                  <span class="pill">MUNDIAL 2026</span>
+                  <span class="pill live">Abierto</span>
+                </div>
+                <div class="match-card reveal">
+                  <div class="team"><span class="flag red"></span> ESP</div>
+                  <div class="score"><span>2</span><span>1</span></div>
+                  <div class="team"><span class="flag blue"></span> FRA</div>
+                </div>
+                <button class="predict-button reveal" type="button">HACER PREDICCION</button>
+              </div>
+              <div class="stats-card reveal">
+                <div class="mini-stats">
+                  <div class="mini-stat bg-navy reveal"><b>104</b><span>partidos</span></div>
+                  <div class="mini-stat bg-green reveal"><b>12</b><span>grupos</span></div>
+                  <div class="mini-stat bg-red reveal"><b>48</b><span>equipos</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="caption reveal"><span class="caption-dot"></span> Haz tu quiniela antes del cierre y sigue la competición jornada a jornada.</div>
+        </div>
+      </section>
+
+      <section id="scene-features" class="clip scene" data-start="5.85" data-duration="4.35" data-track-index="3">
+        <div class="scene-shell">
+          <div class="topline reveal">
+            <span>Funcionalidades clave</span>
+          </div>
+          <div class="features-layout">
+            <div>
+              <h2 class="section-title reveal">Todo el Mundial concentrado en cuatro decisiones.</h2>
+              <p class="subcopy reveal">Predice, compara y compite con una puntuación clara.</p>
+            </div>
+            <div class="feature-grid">
+              <article class="feature-card reveal color-navy">
+                <span class="feature-kicker">Partidos</span>
+                <h3>Marca resultados</h3>
+                <p>Pronostica cada marcador antes del inicio.</p>
+              </article>
+              <article class="feature-card reveal color-green">
+                <span class="feature-kicker">Grupos</span>
+                <h3>Elige clasificados</h3>
+                <p>Selecciona los equipos que pasan de fase.</p>
+              </article>
+              <article class="feature-card reveal color-red">
+                <span class="feature-kicker">Globales</span>
+                <h3>Campeón y estrellas</h3>
+                <p>Acierta ganador, goleador y grandes hitos.</p>
+              </article>
+              <article class="feature-card reveal color-navy">
+                <span class="feature-kicker">Ranking</span>
+                <h3>Compite y gana</h3>
+                <p>Compara puntos con otros usuarios.</p>
+              </article>
+            </div>
+          </div>
+          <div class="caption reveal"><span class="caption-dot"></span> Partidos, grupos, globales y clasificación: todo conectado por puntos.</div>
+        </div>
+      </section>
+
+      <section id="scene-chart" class="clip scene" data-start="9.85" data-duration="3.35" data-track-index="4">
+        <div class="scene-shell">
+          <div class="topline reveal">
+            <span>Clasificación viva</span>
+          </div>
+          <div class="chart-layout">
+            <div>
+              <h2 class="section-title reveal">Cada acierto cambia la tabla.</h2>
+              <p class="subcopy reveal">La evolución del ranking convierte cada jornada en una carrera.</p>
+            </div>
+            <div class="leaderboard-panel reveal">
+              <div class="leaderboard-head reveal">
+                <span>Rank</span><span>Usuario</span><span>Pts</span><span>Movimiento</span>
+              </div>
+              <div class="leaderboard-board">
+                <div class="leader-row-live promoted" id="leader-rodrigo">
+                  <span class="leader-rank">#1</span>
+                  <span class="leader-name"><span class="avatar-dot green"></span>Rodrigo</span>
+                  <span class="points-cell"><span>184</span><span class="points-bump">+24 pts</span></span>
+                  <span class="movement-up">+5 posiciones</span>
+                </div>
+                <div class="leader-row-live" id="leader-laura">
+                  <span class="leader-rank">#2</span>
+                  <span class="leader-name"><span class="avatar-dot"></span>Anna</span>
+                  <span>171</span>
+                  <span class="movement-down">-1</span>
+                </div>
+                <div class="leader-row-live" id="leader-miguel">
+                  <span class="leader-rank">#3</span>
+                  <span class="leader-name"><span class="avatar-dot red"></span>Javier</span>
+                  <span>152</span>
+                  <span class="movement-down">-1</span>
+                </div>
+                <div class="leader-row-live" id="leader-sofia">
+                  <span class="leader-rank">#4</span>
+                  <span class="leader-name"><span class="avatar-dot"></span>Iker</span>
+                  <span>139</span>
+                  <span class="movement-down">-1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-tech" class="clip scene" data-start="12.85" data-duration="3.35" data-track-index="5">
+        <div class="scene-shell">
+          <div class="topline reveal">
+            <span>Tecnología</span>
+          </div>
+          <div class="tech-layout">
+            <div>
+              <h2 class="section-title reveal">Construido con stack moderno. Desplegado en producción.</h2>
+              <div class="tech-cloud">
+                <span class="tech-chip reveal">Next.js</span>
+                <span class="tech-chip reveal">TypeScript</span>
+                <span class="tech-chip reveal">Supabase</span>
+                <span class="tech-chip reveal">SEO</span>
+                <span class="tech-chip reveal">Google OAuth</span>
+                <span class="tech-chip reveal">REST API</span>
+                <span class="tech-chip reveal">Tailwind CSS</span>
+                <span class="tech-chip reveal">Vercel</span>
+                <span class="tech-chip reveal">pnpm</span>
+              </div>
+            </div>
+            <div class="url-card reveal">
+              <p>Production URL</p>
+              <strong>https://predicciones-mundial-26.vercel.app/</strong>
+            </div>
+          </div>
+          <div class="caption reveal"><span class="caption-dot"></span> Next.js, Supabase y Vercel para una app rápida, privada y lista para torneo.</div>
+        </div>
+      </section>
+
+      <section id="scene-final" class="clip scene" data-start="15.85" data-duration="2.15" data-track-index="6">
+        <div class="scene-shell">
+          <div class="topline reveal">
+            <span>Final</span>
+          </div>
+            <div class="final-layout">
+              <div class="final-card reveal">
+                <img class="final-icon" src="favicon.png?final" alt="Icono de Predicciones Mundial 2026">
+                <h2>Predicciones Mundial 2026</h2>
+                <p>Compite. Acierta. Gana la porra.</p>
+                <span class="final-url">https://predicciones-mundial-26.vercel.app/</span>
+              </div>
+          </div>
+          <div class="caption reveal"><span class="caption-dot"></span> Entra, predice y demuestra quién sabe más de fútbol.</div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      const tl = gsap.timeline({ paused: true });
+
+      function inScene(selector, fromVars, toVars, at) {
+        tl.fromTo(
+          selector,
+          { opacity: 0, ...fromVars },
+          { opacity: 1, immediateRender: false, ...toVars },
+          at,
+        );
+      }
+
+      function drawPath(selector, at, duration) {
+        tl.to(
+          selector,
+          { strokeDashoffset: 0, duration, ease: "power2.inOut", immediateRender: false },
+          at,
+        );
+      }
+
+      function sceneShell(selector, at) {
+        inScene(selector, { y: 70, filter: "blur(18px)", scale: 0.985 }, { y: 0, filter: "blur(0px)", scale: 1, duration: 0.46, ease: "power3.out" }, at);
+      }
+
+      inScene("#scene-title .topline", { y: -24 }, { y: 0, duration: 0.36, ease: "expo.out" }, 0.2);
+      inScene("#scene-title .author", { y: 32 }, { y: 0, duration: 0.44, ease: "back.out(1.5)" }, 0.72);
+      inScene("#scene-title .app-icon-showcase", { rotation: -7, scale: 0.82 }, { rotation: 0, scale: 1, duration: 0.76, ease: "elastic.out(1, 0.7)" }, 0.44);
+      inScene("#scene-title .caption", { y: 34, scale: 0.96 }, { y: 0, scale: 1, duration: 0.42, ease: "power2.out" }, 1.18);
+      tl.to("#scene-title .app-icon-showcase", { y: -12, duration: 0.42, ease: "sine.inOut", yoyo: true, repeat: 1 }, 1.28);
+
+      sceneShell("#scene-about .scene-shell", 1.86);
+      inScene("#scene-about .topline", { x: -40 }, { x: 0, duration: 0.36, ease: "expo.out" }, 2.04);
+      inScene("#scene-about .statement", { y: 52, scale: 0.98 }, { y: 0, scale: 1, duration: 0.58, ease: "power4.out" }, 2.16);
+      inScene("#scene-about .subcopy", { x: -42 }, { x: 0, duration: 0.5, ease: "circ.out" }, 2.48);
+      inScene("#scene-about .product-stack", { x: 78, rotation: 2 }, { x: 0, rotation: 0, duration: 0.68, ease: "back.out(1.25)" }, 2.28);
+      inScene("#scene-about .prediction-card", { y: 36, scale: 0.96 }, { y: 0, scale: 1, duration: 0.44, ease: "expo.out" }, 2.7);
+      inScene("#scene-about .match-card", { y: 38, scale: 0.95 }, { y: 0, scale: 1, duration: 0.42, ease: "circ.out" }, 2.9);
+      inScene("#scene-about .predict-button", { y: 24, scale: 0.96 }, { y: 0, scale: 1, duration: 0.32, ease: "back.out(1.8)" }, 3.14);
+      inScene("#scene-about .stats-card", { y: 42, scale: 0.96 }, { y: 0, scale: 1, duration: 0.42, ease: "power3.out" }, 3.28);
+      inScene("#scene-about .mini-stat", { y: 40, rotation: -2 }, { y: 0, rotation: 0, duration: 0.42, ease: "power3.out", stagger: 0.11 }, 3.44);
+      inScene("#scene-about .caption", { x: -52, scale: 0.98 }, { x: 0, scale: 1, duration: 0.48, ease: "power2.out" }, 4.62);
+      tl.to("#scene-about .product-stack", { y: -12, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: 1 }, 3.58);
+
+      sceneShell("#scene-features .scene-shell", 5.86);
+      inScene("#scene-features .topline", { y: -22 }, { y: 0, duration: 0.28, ease: "power4.out" }, 6.04);
+      inScene("#scene-features .section-title", { x: -56, scale: 0.98 }, { x: 0, scale: 1, duration: 0.5, ease: "expo.out" }, 6.12);
+      inScene("#scene-features .subcopy", { y: 42 }, { y: 0, duration: 0.42, ease: "circ.out" }, 6.38);
+      inScene("#scene-features .feature-card", { y: 68, rotation: -2, scale: 0.94 }, { y: 0, rotation: 0, scale: 1, duration: 0.54, ease: "back.out(1.35)", stagger: { amount: 0.38, from: "start" } }, 6.18);
+      inScene("#scene-features .caption", { x: 44, scale: 0.97 }, { x: 0, scale: 1, duration: 0.42, ease: "power2.out" }, 8.02);
+      tl.to("#scene-features .feature-card", { y: -10, duration: 1.55, ease: "sine.inOut", yoyo: true, repeat: 1, stagger: { amount: 0.18, from: "center" } }, 7.18);
+
+      sceneShell("#scene-chart .scene-shell", 9.86);
+      inScene("#scene-chart .topline", { x: -32 }, { x: 0, duration: 0.28, ease: "expo.out" }, 10.04);
+      inScene("#scene-chart .section-title", { y: 52 }, { y: 0, duration: 0.44, ease: "power4.out" }, 10.1);
+      inScene("#scene-chart .subcopy", { x: -38 }, { x: 0, duration: 0.35, ease: "circ.out" }, 10.36);
+      inScene("#scene-chart .leaderboard-panel", { x: 80, rotation: 1.6 }, { x: 0, rotation: 0, duration: 0.48, ease: "back.out(1.2)" }, 10.04);
+      inScene("#scene-chart .leaderboard-head", { y: -20 }, { y: 0, duration: 0.28, ease: "expo.out" }, 10.28);
+      inScene("#leader-rodrigo", { y: 192, scale: 0.98 }, { y: 0, scale: 1, duration: 0.74, ease: "power3.inOut" }, 10.72);
+      inScene("#leader-laura", { y: -96 }, { y: 0, duration: 0.74, ease: "power3.inOut" }, 10.72);
+      inScene("#leader-miguel", { y: -96 }, { y: 0, duration: 0.74, ease: "power3.inOut" }, 10.72);
+      inScene("#leader-sofia", { y: 32, scale: 0.98 }, { y: 0, scale: 1, duration: 0.42, ease: "circ.out" }, 10.44);
+      tl.fromTo("#leader-rodrigo .points-bump", { scale: 0.72 }, { scale: 1.14, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out", immediateRender: false }, 11.42);
+
+      inScene("#scene-tech .scene-shell", { y: 10, filter: "blur(18px)", scale: 0.985 }, { y: 0, filter: "blur(0px)", scale: 1, duration: 0.46, ease: "power3.out" }, 12.86);
+      inScene("#scene-tech .topline", { y: -24 }, { y: 0, duration: 0.32, ease: "expo.out" }, 13.04);
+      inScene("#scene-tech .section-title", { x: -52, scale: 0.98 }, { x: 0, scale: 1, duration: 0.5, ease: "power4.out" }, 13.14);
+      inScene("#scene-tech .tech-chip", { y: 42, scale: 0.9 }, { y: 0, scale: 1, duration: 0.38, ease: "back.out(1.6)", stagger: { amount: 0.42, from: "start" } }, 13.52);
+      inScene("#scene-tech .url-card", { x: 76, rotation: 2 }, { x: 0, rotation: 0, duration: 0.54, ease: "circ.out" }, 13.44);
+      inScene("#scene-tech .caption", { y: 34, scale: 0.98 }, { y: 0, scale: 1, duration: 0.4, ease: "power2.out" }, 14.06);
+      tl.to("#scene-tech .url-card", { y: -14, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 1 }, 14.06);
+
+      sceneShell("#scene-final .scene-shell", 15.86);
+      inScene("#scene-final .topline", { y: -22 }, { y: 0, duration: 0.24, ease: "power4.out" }, 16.0);
+      inScene("#scene-final .final-card", { y: 64, scale: 0.92, filter: "blur(14px)" }, { y: 0, scale: 1, filter: "blur(0px)", duration: 0.46, ease: "expo.out" }, 16.08);
+      inScene("#scene-final .caption", { y: 30, scale: 0.96 }, { y: 0, scale: 1, duration: 0.28, ease: "power2.out" }, 16.42);
+      window.__timelines["predicciones-promo"] = tl;
+    </script>
+  </body>
+</html>
