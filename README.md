@@ -31,6 +31,12 @@
 
 El proyecto combina frontend moderno, lógica de negocio, persistencia en base de datos, autenticación, rutas protegidas, panel de administración e integración con una API externa de datos del Mundial.
 
+## Video Promocional
+
+GIF promocional creado con HyperFrames para presentar el proyecto:
+
+![Video promocional de Predicciones Mundial 2026](docs/images/Predicciones-Mundial-2026-Promo-Video.gif)
+
 ## Funcionalidades
 
 - Autenticación con Google mediante Supabase Auth.
@@ -58,6 +64,7 @@ El proyecto combina frontend moderno, lógica de negocio, persistencia en base d
 | Base de datos  | Supabase Postgres                                             |
 | Autenticación  | Supabase Auth con SSR                                         |
 | Datos externos | API WC26 integrada desde `lib/external`                       |
+| Video          | HyperFrames                                                   |
 | Gráficas       | Recharts                                                      |
 | Calidad        | ESLint, Prettier y Prettier Plugin Tailwind CSS               |
 | Paquetes       | pnpm                                                          |
@@ -81,6 +88,14 @@ components/
 ├── leaderboard/         # Tabla, comparativas y desglose
 └── matches/             # Lista, filas y modales de partidos
 
+docs/
+└── images/              # Capturas y recursos visuales usados en la documentación
+
+hyperframes/
+├── index.html           # Composición HTML del video promocional
+├── package.json         # Dependencias y scripts específicos de HyperFrames
+└── renders/             # Videos y metadatos generados por HyperFrames
+
 lib/
 ├── auth/                # Validación de permisos de administrador
 ├── external/            # Cliente para la API del Mundial 2026
@@ -88,8 +103,14 @@ lib/
 ├── scoring/             # Reglas, cálculo y reseteo de puntuaciones
 └── supabase/            # Clientes browser, server y admin
 
+public/
+└── favicon.png          # Recursos estáticos públicos de la aplicación
+
 supabase/
 └── init-v2.sql          # Esquema SQL principal de la base de datos
+
+types/
+└── *.ts                 # Tipos TypeScript compartidos entre capas
 ```
 
 ## Puntuación
