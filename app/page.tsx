@@ -155,6 +155,8 @@ const legalLinks = [
   { label: "Cookies", href: "/cookies" },
 ];
 
+const kofiUrl = "https://ko-fi.com/iglnierod";
+
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -595,25 +597,36 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 border-t border-[#2A398D]/10 pt-6 text-sm text-[#474A4A] sm:flex-row sm:items-center sm:justify-between">
-              <p>
-                Usamos cookies técnicas de sesión y analítica agregada para
-                mejorar la app.
-              </p>
-              <nav
-                aria-label="Enlaces legales"
-                className="flex flex-wrap gap-x-4 gap-y-2 font-black text-[#2A398D]"
+            <div className="mt-8 flex flex-col gap-5 border-t border-[#2A398D]/10 pt-6 text-sm text-[#474A4A] lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-3">
+                <p>
+                  Usamos cookies técnicas de sesión y analítica agregada para
+                  mejorar la app.
+                </p>
+                <nav
+                  aria-label="Enlaces legales"
+                  className="flex flex-wrap gap-x-4 gap-y-2 font-black text-[#2A398D]"
+                >
+                  {legalLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="transition hover:text-[#E61D25]"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+
+              <Link
+                href={kofiUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-fit items-center gap-2 rounded-full bg-[#ff5f5f] px-5 py-3 text-sm font-black text-white shadow-[0_14px_34px_rgba(255,95,95,0.24)] transition hover:-translate-y-0.5 hover:bg-[#ff4f4f] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#3CAC3B]"
               >
-                {legalLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="transition hover:text-[#E61D25]"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
+                Apoyar en Ko-fi
+              </Link>
             </div>
           </div>
         </section>

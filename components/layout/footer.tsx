@@ -6,6 +6,8 @@ const legalLinks = [
   { label: "Cookies", href: "/cookies" },
 ];
 
+const kofiUrl = "https://ko-fi.com/iglnierod";
+
 export default function Footer() {
   return (
     <footer className="mt-10 mb-6 w-full px-4 sm:px-6 lg:px-8">
@@ -35,7 +37,17 @@ export default function Footer() {
               </nav>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={kofiUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#ff5f5f] px-4 py-2 text-sm font-black text-white shadow-[0_10px_28px_rgba(255,95,95,0.24)] transition hover:-translate-y-0.5 hover:bg-[#ff4f4f]"
+                title="Apoyar el proyecto en Ko-fi"
+              >
+                Apoyar en Ko-fi
+              </Link>
+
               <Link
                 href="https://github.com/iglnierod/predicciones-mundial-26"
                 target="_blank"
