@@ -150,6 +150,11 @@ const contactLinks = [
   },
 ];
 
+const legalLinks = [
+  { label: "Privacidad", href: "/privacy" },
+  { label: "Cookies", href: "/cookies" },
+];
+
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -588,6 +593,27 @@ export default async function Home() {
                   </Link>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 border-t border-[#2A398D]/10 pt-6 text-sm text-[#474A4A] sm:flex-row sm:items-center sm:justify-between">
+              <p>
+                Usamos cookies técnicas de sesión y analítica agregada para
+                mejorar la app.
+              </p>
+              <nav
+                aria-label="Enlaces legales"
+                className="flex flex-wrap gap-x-4 gap-y-2 font-black text-[#2A398D]"
+              >
+                {legalLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="transition hover:text-[#E61D25]"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
           </div>
         </section>

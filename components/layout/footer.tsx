@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
+const legalLinks = [
+  { label: "Privacidad", href: "/privacy" },
+  { label: "Cookies", href: "/cookies" },
+];
+
 export default function Footer() {
   return (
     <footer className="mt-10 mb-6 w-full px-4 sm:px-6 lg:px-8">
@@ -14,6 +19,20 @@ export default function Footer() {
               <p className="mt-1 text-sm text-white/60">
                 Predicciones Mundial 2026
               </p>
+              <nav
+                aria-label="Enlaces legales"
+                className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-white/60"
+              >
+                {legalLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="transition hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </div>
 
             <div className="flex items-center gap-3">
