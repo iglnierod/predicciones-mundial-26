@@ -10,7 +10,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "supabase": "pnpm exec supabase",
-    "backup:db": "bash supabase/backup-supabase-bd.sh"
+    "backup:db": "bash supabase/backup-supabase-db.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
