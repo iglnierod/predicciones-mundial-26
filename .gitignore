@@ -47,3 +47,7 @@ next-env.d.ts
 hyperframes/.thumbnails/
 hyperframes/renders/
 hyperframes/*.mp4
+
+# supabase
+supabase/.temp/
+supabase/backups/

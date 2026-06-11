@@ -8,7 +8,9 @@
     "start": "next start -p 3001",
     "lint": "eslint",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "supabase": "pnpm exec supabase",
+    "backup:db": "bash supabase/backup-supabase-bd.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
@@ -31,6 +33,7 @@
     "eslint-config-next": "16.2.2",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.4",
+    "supabase": "^2.105.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3"
   }
