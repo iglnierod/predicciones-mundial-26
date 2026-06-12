@@ -533,7 +533,7 @@ function LeaderboardEvolutionCard({
       <SectionHeader
         eyebrow="HISTÓRICO"
         title="Evolución de la clasificación"
-        description="Posición por snapshot. La línea azul marca tu evolución."
+        description="Posición por snapshot para todos los usuarios. La línea azul marca tu evolución."
       />
 
       <div className="flex flex-wrap gap-2">
