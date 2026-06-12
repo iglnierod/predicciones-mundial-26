@@ -2,29 +2,29 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Politica de cookies | Predicciones Mundial 2026",
+  title: "Política de cookies | Predicciones Mundial 2026",
   description:
-    "Informacion sobre cookies tecnicas, sesiones de usuario y analitica en Predicciones Mundial 2026.",
+    "Información sobre cookies técnicas, sesiones de usuario y analítica en Predicciones Mundial 2026.",
 };
 
 const cookieTypes = [
   {
-    title: "Cookies tecnicas de sesion",
+    title: "Cookies técnicas de sesión",
     description:
-      "Permiten mantener tu sesion iniciada, comprobar que eres un usuario autenticado y proteger las zonas privadas de la app.",
+      "Permiten mantener tu sesión iniciada, comprobar que eres un usuario autenticado y proteger las zonas privadas de la app.",
     required: "Necesarias",
   },
   {
-    title: "Autenticacion con Supabase",
+    title: "Autenticación con Supabase",
     description:
-      "Supabase puede crear cookies con prefijo sb- para conservar la sesion y renovar el acceso de forma segura.",
+      "Supabase puede crear cookies con prefijo sb- para conservar la sesión y renovar el acceso de forma segura.",
     required: "Necesarias",
   },
   {
-    title: "Analitica agregada de Vercel",
+    title: "Analítica agregada de Vercel",
     description:
-      "Vercel Analytics permite ver metricas generales de uso sin utilizar cookies publicitarias ni perfiles comerciales.",
-    required: "Medicion agregada",
+      "Vercel Analytics permite ver métricas generales de uso sin utilizar cookies publicitarias ni perfiles comerciales.",
+    required: "Medición agregada",
   },
 ];
 
@@ -53,17 +53,17 @@ export default function CookiesPage() {
 
         <article className="rounded-[2.5rem] border border-white/15 bg-white/10 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-md md:p-10">
           <p className="text-sm font-black tracking-[0.18em] text-[#D1D4D1] uppercase">
-            Informacion legal
+            Información legal
           </p>
           <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight text-balance text-white md:text-6xl">
-            Politica de cookies
+            Política de cookies
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/75">
-            Esta pagina explica que cookies y tecnologias similares pueden
+            Esta página explica qué cookies y tecnologías similares pueden
             usarse en Predicciones Mundial 2026.
           </p>
           <p className="mt-4 text-sm font-semibold text-white/55">
-            Ultima actualizacion: 8 de junio de 2026
+            Última actualización: 8 de junio de 2026
           </p>
 
           <div className="mt-10 space-y-10 text-sm leading-7 text-white/76 sm:text-base">
@@ -73,13 +73,13 @@ export default function CookiesPage() {
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
-                  La app usa cookies tecnicas necesarias para iniciar sesion y
+                  La app usa cookies técnicas necesarias para iniciar sesión y
                   mantener la cuenta activa. Sin ellas, no se puede garantizar
                   el acceso a las zonas privadas ni guardar predicciones
                   correctamente.
                 </p>
                 <p>
-                  No se usan cookies publicitarias, pixels de marketing ni
+                  No se usan cookies publicitarias, píxeles de marketing ni
                   seguimiento comercial entre sitios.
                 </p>
               </div>
@@ -87,7 +87,7 @@ export default function CookiesPage() {
 
             <section className="border-t border-white/12 pt-8">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                Tipos de cookies y tecnologias utilizadas
+                Tipos de cookies y tecnologías utilizadas
               </h2>
               <div className="mt-5 grid gap-5 md:grid-cols-3">
                 {cookieTypes.map((item) => (
@@ -111,13 +111,13 @@ export default function CookiesPage() {
 
             <section className="border-t border-white/12 pt-8">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                Cookies de autenticacion
+                Cookies de autenticación
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
-                  El inicio de sesion se realiza con Google OAuth y Supabase.
-                  Durante ese proceso se almacenan datos tecnicos de sesion para
-                  recordar que has iniciado sesion y permitir que la app
+                  El inicio de sesión se realiza con Google OAuth y Supabase.
+                  Durante ese proceso se almacenan datos técnicos de sesión para
+                  recordar que has iniciado sesión y permitir que la app
                   consulte tus datos de forma segura.
                 </p>
                 <p>
@@ -134,36 +134,36 @@ export default function CookiesPage() {
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
-                  La app incluye Vercel Analytics para conocer estadisticas
-                  agregadas, como visitas por pagina, paises, navegadores o
-                  dispositivos. Esta informacion ayuda a mejorar la aplicacion y
+                  La app incluye Vercel Analytics para conocer estadísticas
+                  agregadas, como visitas por página, países, navegadores o
+                  dispositivos. Esta información ayuda a mejorar la aplicación y
                   detectar errores de uso.
                 </p>
                 <p>
                   No se utiliza para mostrar publicidad personalizada ni para
-                  vender informacion de usuarios.
+                  vender información de usuarios.
                 </p>
               </div>
             </section>
 
             <section className="border-t border-white/12 pt-8">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                Como bloquear o eliminar cookies
+                Cómo bloquear o eliminar cookies
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
                   Puedes configurar tu navegador para bloquear o eliminar
-                  cookies. Si bloqueas las cookies tecnicas de sesion, es
-                  posible que no puedas iniciar sesion, mantener tu cuenta
+                  cookies. Si bloqueas las cookies técnicas de sesión, es
+                  posible que no puedas iniciar sesión, mantener tu cuenta
                   abierta o guardar tus predicciones.
                 </p>
                 <p>
-                  Para mas informacion sobre datos personales, consulta la{" "}
+                  Para más información sobre datos personales, consulta la{" "}
                   <Link
                     href="/privacy"
                     className="font-black text-white underline decoration-[#3CAC3B] decoration-2 underline-offset-4 transition hover:text-[#D1D4D1]"
                   >
-                    politica de privacidad
+                    política de privacidad
                   </Link>
                   .
                 </p>

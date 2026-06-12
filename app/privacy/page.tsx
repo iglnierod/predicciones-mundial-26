@@ -2,34 +2,34 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Politica de privacidad | Predicciones Mundial 2026",
+  title: "Política de privacidad | Predicciones Mundial 2026",
   description:
-    "Informacion sobre el tratamiento de datos personales en Predicciones Mundial 2026.",
+    "Información sobre el tratamiento de datos personales en Predicciones Mundial 2026.",
 };
 
 const dataItems = [
-  "Datos de autenticacion de Google, como email, nombre y avatar.",
+  "Datos de autenticación de Google, como email, nombre y avatar.",
   "Identificador interno de usuario necesario para asociar tus predicciones.",
-  "Predicciones de partidos, grupos y pronosticos globales que guardes en la app.",
-  "Puntos, posicion en la clasificacion y datos derivados del funcionamiento de la porra.",
-  "Fechas tecnicas vinculadas a la cuenta, como alta o ultimo acceso cuando estan disponibles.",
+  "Predicciones de partidos, grupos y pronósticos globales que guardes en la app.",
+  "Puntos, posición en la clasificación y datos derivados del funcionamiento de la porra.",
+  "Fechas técnicas vinculadas a la cuenta, como alta o último acceso cuando están disponibles.",
 ];
 
 const providers = [
   {
     name: "Supabase",
     description:
-      "Gestiona la autenticacion, las sesiones y la base de datos de la aplicacion.",
+      "Gestiona la autenticación, las sesiones y la base de datos de la aplicación.",
   },
   {
     name: "Google OAuth",
     description:
-      "Permite iniciar sesion con tu cuenta de Google y compartir los datos basicos necesarios para crear la cuenta en la app.",
+      "Permite iniciar sesión con tu cuenta de Google y compartir los datos básicos necesarios para crear la cuenta en la app.",
   },
   {
     name: "Vercel",
     description:
-      "Aloja la aplicacion y proporciona analitica agregada para entender el uso general del sitio.",
+      "Aloja la aplicación y proporciona analítica agregada para entender el uso general del sitio.",
   },
 ];
 
@@ -58,17 +58,17 @@ export default function PrivacyPage() {
 
         <article className="rounded-[2.5rem] border border-white/15 bg-white/10 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-md md:p-10">
           <p className="text-sm font-black tracking-[0.18em] text-[#D1D4D1] uppercase">
-            Informacion legal
+            Información legal
           </p>
           <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight text-balance text-white md:text-6xl">
-            Politica de privacidad
+            Política de privacidad
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/75">
-            Esta pagina explica que datos se tratan en Predicciones Mundial
-            2026, para que se usan y como puedes gestionar tu cuenta.
+            Esta página explica qué datos se tratan en Predicciones Mundial
+            2026, para qué se usan y cómo puedes gestionar tu cuenta.
           </p>
           <p className="mt-4 text-sm font-semibold text-white/55">
-            Ultima actualizacion: 8 de junio de 2026
+            Última actualización: 8 de junio de 2026
           </p>
 
           <div className="mt-10 space-y-10 text-sm leading-7 text-white/76 sm:text-base">
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
                 Responsable y contacto
               </h2>
               <p className="mt-4">
-                El responsable de esta aplicacion es Rodrigo Iglesias Nieto.
+                El responsable de esta aplicación es Rodrigo Iglesias Nieto.
                 Para cualquier consulta sobre privacidad puedes escribir a{" "}
                 <a
                   href="mailto:iglnierod@gmail.com"
@@ -105,17 +105,17 @@ export default function PrivacyPage() {
 
             <section className="border-t border-white/12 pt-8">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                Para que se usan los datos
+                Para qué se usan los datos
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
-                  Los datos se usan para permitir el inicio de sesion, guardar
-                  tus predicciones, calcular puntos, mostrar la clasificacion y
+                  Los datos se usan para permitir el inicio de sesión, guardar
+                  tus predicciones, calcular puntos, mostrar la clasificación y
                   mantener el funcionamiento normal de la porra.
                 </p>
                 <p>
                   No se venden datos personales ni se usan para publicidad
-                  personalizada dentro de esta aplicacion.
+                  personalizada dentro de esta aplicación.
                 </p>
               </div>
             </section>
@@ -141,17 +141,17 @@ export default function PrivacyPage() {
 
             <section className="border-t border-white/12 pt-8">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                Analitica
+                Analítica
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
-                  La app utiliza Vercel Analytics para consultar metricas
-                  agregadas de uso, como paginas visitadas, paises, dispositivos
-                  o navegadores. Esta informacion ayuda a detectar que partes de
-                  la app se usan mas y a mejorar el proyecto.
+                  La app utiliza Vercel Analytics para consultar métricas
+                  agregadas de uso, como páginas visitadas, países, dispositivos
+                  o navegadores. Esta información ayuda a detectar qué partes de
+                  la app se usan más y a mejorar el proyecto.
                 </p>
                 <p>
-                  Esta analitica no esta pensada para identificarte
+                  Esta analítica no está pensada para identificarte
                   personalmente ni para crear perfiles publicitarios.
                 </p>
               </div>
@@ -159,17 +159,17 @@ export default function PrivacyPage() {
 
             <section className="border-t border-white/12 pt-8">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                Conservacion y eliminacion
+                Conservación y eliminación
               </h2>
               <div className="mt-4 space-y-4">
                 <p>
                   Los datos se conservan mientras mantengas tu cuenta activa o
                   mientras sean necesarios para el funcionamiento de la
-                  competicion.
+                  competición.
                 </p>
                 <p>
-                  Si tienes sesion iniciada, puedes ir a tu perfil y eliminar tu
-                  cuenta. Esa accion borra tu perfil, predicciones y puntos de
+                  Si tienes sesión iniciada, puedes ir a tu perfil y eliminar tu
+                  cuenta. Esa acción borra tu perfil, predicciones y puntos de
                   forma permanente.
                 </p>
               </div>
@@ -180,9 +180,9 @@ export default function PrivacyPage() {
                 Tus derechos
               </h2>
               <p className="mt-4">
-                Puedes solicitar informacion sobre tus datos, pedir su
-                correccion o pedir su eliminacion escribiendo al email de
-                contacto indicado en esta pagina.
+                Puedes solicitar información sobre tus datos, pedir su
+                corrección o pedir su eliminación escribiendo al email de
+                contacto indicado en esta página.
               </p>
             </section>
           </div>
