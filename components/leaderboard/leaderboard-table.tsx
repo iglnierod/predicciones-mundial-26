@@ -9,6 +9,18 @@ type Props = {
   userId?: string;
 };
 
+const USER_NAME_MAX_LENGTH = 20;
+
+function truncateName(name: string) {
+  const characters = Array.from(name);
+
+  if (characters.length <= USER_NAME_MAX_LENGTH) {
+    return name;
+  }
+
+  return `${characters.slice(0, USER_NAME_MAX_LENGTH - 3).join("")}...`;
+}
+
 export default function LeaderboardTable({ leaderboard, userId }: Props) {
   const getRankStyle = (rank: number) => {
     if (rank === 1) return "text-yellow-700";
@@ -59,6 +71,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
           {leaderboard?.map((user) => {
             const isCurrentUser = userId === user.user_id;
             const movement = getMovement(user.rank_change);
+            const displayName = user.full_name ?? "Usuario sin nombre";
 
             const trClass = isCurrentUser
               ? "cursor-pointer border-b border-black/5 bg-blue-900/15 transition last:border-b-0 hover:bg-blue-900/20"
@@ -98,7 +111,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
                       {user.avatar_url ? (
                         <Image
                           src={user.avatar_url}
-                          alt={user.full_name ?? "Usuario"}
+                          alt={displayName}
                           width={44}
                           height={44}
                           className="h-11 w-11 object-cover"
@@ -111,8 +124,14 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
                     </div>
 
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-black sm:text-base">
-                        {user.full_name ?? "Usuario sin nombre"}
+                      <p
+                        className="whitespace-nowrap text-sm font-semibold text-black sm:text-base"
+                        title={displayName}
+                      >
+                        <span className="sm:hidden">
+                          {truncateName(displayName)}
+                        </span>
+                        <span className="hidden sm:inline">{displayName}</span>
                       </p>
                       <p className="text-xs text-black/50">
                         Grupos: {user.group_points} · Partidos:{" "}
