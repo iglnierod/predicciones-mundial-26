@@ -140,7 +140,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
                         </span>
                         <span className="hidden sm:inline">{displayName}</span>
                       </p>
-                      <p className="text-xs text-black/50">
+                      <p className="hidden text-xs text-black/50">
                         {pointBreakdown.join(" · ")}
                       </p>
                     </div>
