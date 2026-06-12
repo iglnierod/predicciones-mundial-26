@@ -431,7 +431,7 @@ function CompletedMatchSummary({ match }: { match: LastPlayedMatch }) {
           </span>
         </div>
 
-        <div className="flex min-w-[4rem] items-center justify-center rounded-xl bg-[#2A398D] px-3 py-1.5 text-lg font-black text-white shadow-sm">
+        <div className="flex min-w-16 items-center justify-center rounded-xl bg-[#2A398D] px-3 py-1.5 text-lg font-black text-white shadow-sm">
           {match.home_score} - {match.away_score}
         </div>
 
@@ -582,14 +582,14 @@ export default function HomeDashboard({
   return (
     <div className="space-y-5">
       {showPendingCard && (
-        <div className="relative overflow-hidden rounded-[2rem] border border-black/5 bg-white/85 p-4 text-black shadow-[0_16px_42px_rgba(0,0,0,0.16)] ring-1 ring-white/30 backdrop-blur-sm md:p-5">
-          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+        <div className="relative overflow-hidden rounded-4xl border border-black/5 bg-white/85 p-4 text-black shadow-[0_16px_42px_rgba(0,0,0,0.16)] ring-1 ring-white/30 backdrop-blur-sm md:p-5">
+          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-white to-transparent" />
           <PendingCard predictionStatus={predictionStatus} />
         </div>
       )}
 
-      <div className="relative overflow-hidden rounded-[2rem] border border-black/5 bg-white/85 p-4 text-black shadow-[0_16px_42px_rgba(0,0,0,0.16)] ring-1 ring-white/30 backdrop-blur-sm md:p-5">
-        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+      <div className="relative overflow-hidden rounded-4xl border border-black/5 bg-white/85 p-4 text-black shadow-[0_16px_42px_rgba(0,0,0,0.16)] ring-1 ring-white/30 backdrop-blur-sm md:p-5">
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-white to-transparent" />
 
         <div className="mb-5 flex flex-col gap-4 border-b border-black/5 pb-5 md:flex-row md:items-end md:justify-between">
           <div>
