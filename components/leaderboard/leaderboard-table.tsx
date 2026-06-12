@@ -72,6 +72,13 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
             const isCurrentUser = userId === user.user_id;
             const movement = getMovement(user.rank_change);
             const displayName = user.full_name ?? "Usuario sin nombre";
+            const pointBreakdown = [
+              ...(user.tournament_points > 0
+                ? [`Globales: ${user.tournament_points}`]
+                : []),
+              ...(user.group_points > 0 ? [`Grupos: ${user.group_points}`] : []),
+              `Partidos: ${user.match_points}`,
+            ];
 
             const trClass = isCurrentUser
               ? "cursor-pointer border-b border-black/5 bg-blue-900/15 transition last:border-b-0 hover:bg-blue-900/20"
@@ -134,8 +141,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
                         <span className="hidden sm:inline">{displayName}</span>
                       </p>
                       <p className="text-xs text-black/50">
-                        Grupos: {user.group_points} · Partidos:{" "}
-                        {user.match_points} · Extras: {user.extra_points}
+                        {pointBreakdown.join(" · ")}
                       </p>
                     </div>
                   </div>
