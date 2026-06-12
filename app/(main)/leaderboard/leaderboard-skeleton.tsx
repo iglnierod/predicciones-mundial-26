@@ -1,7 +1,7 @@
 export default function LeaderboardTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
-      <table className="w-full border-collapse text-white">
+    <div className="overflow-x-auto rounded-3xl border border-white/10 bg-black/40 shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
+      <table className="w-full min-w-[520px] border-collapse text-white">
         <thead>
           <tr className="border-b border-white/10 bg-white/5 text-sm tracking-wide text-white/60 uppercase">
             <th className="px-4 py-4 text-left font-semibold sm:px-6">

@@ -51,7 +51,7 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
   };
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-black/5 bg-white/85 shadow-[0_12px_40px_rgba(0,0,0,0.22)] ring-1 ring-white/30 backdrop-blur-sm">
+    <div className="overflow-x-auto rounded-3xl border border-black/5 bg-white/85 shadow-[0_12px_40px_rgba(0,0,0,0.22)] ring-1 ring-white/30 backdrop-blur-sm">
       <table className="w-full border-collapse text-black">
         <thead>
           <tr className="border-b border-black/10 bg-black/5 text-sm tracking-wide text-black/60 uppercase">
