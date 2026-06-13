@@ -282,8 +282,7 @@ export async function getLeaderboardEvolution(
   const { data: leaderboard, error: leaderboardError } = await supabase
     .from("leaderboard")
     .select("user_id, full_name, rank")
-    .order("rank", { ascending: true })
-    .limit(3);
+    .order("rank", { ascending: true });
 
   if (leaderboardError) {
     throw new Error(
@@ -291,25 +290,7 @@ export async function getLeaderboardEvolution(
     );
   }
 
-  const { data: currentUserRow, error: currentUserError } = await supabase
-    .from("leaderboard")
-    .select("user_id, full_name, rank")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (currentUserError) {
-    throw new Error(
-      `No se pudo cargar tu posición actual: ${currentUserError.message}`,
-    );
-  }
-
-  const profileRows = [
-    ...(currentUserRow ? [currentUserRow as LeaderboardRow] : []),
-    ...((leaderboard ?? []) as LeaderboardRow[]),
-  ];
-  const uniqueProfiles = Array.from(
-    new Map(profileRows.map((row) => [row.user_id, row])).values(),
-  ).slice(0, 4);
+  const uniqueProfiles = (leaderboard ?? []) as LeaderboardRow[];
 
   if (uniqueProfiles.length === 0) return [];
 
@@ -354,31 +335,66 @@ export async function getLeaderboardEvolution(
       entry,
     ]),
   );
-  const colors = ["#2A398D", "#16A34A", "#F59E0B", "#DC2626"];
+  const colors = [
+    "#16A34A",
+    "#F59E0B",
+    "#DC2626",
+    "#7C3AED",
+    "#0891B2",
+    "#DB2777",
+    "#65A30D",
+    "#EA580C",
+    "#475569",
+    "#0D9488",
+    "#9333EA",
+    "#BE123C",
+    "#2563EB",
+    "#A16207",
+    "#0284C7",
+    "#C026D3",
+    "#4D7C0F",
+    "#B45309",
+    "#4338CA",
+    "#0F766E",
+    "#E11D48",
+    "#6D28D9",
+    "#0369A1",
+    "#854D0E",
+  ];
+  const currentUserColor = "#2A398D";
+  let colorIndex = 0;
 
-  return uniqueProfiles.map((profile, index) => ({
-    userId: profile.user_id,
-    name: profile.user_id === userId ? "Tú" : (profile.full_name ?? "Usuario"),
-    color: colors[index] ?? "#64748B",
-    isCurrentUser: profile.user_id === userId,
-    points: orderedSnapshots
-      .map((snapshot) => {
-        const entry = entriesByUserAndSnapshot.get(
-          `${profile.user_id}-${snapshot.id}`,
-        );
+  return uniqueProfiles.map((profile) => {
+    const isCurrentUser = profile.user_id === userId;
+    const color = isCurrentUser
+      ? currentUserColor
+      : colors[colorIndex++ % colors.length];
 
-        if (!entry) return null;
+    return {
+      userId: profile.user_id,
+      name: isCurrentUser ? "Tú" : (profile.full_name ?? "Usuario"),
+      color,
+      isCurrentUser,
+      points: orderedSnapshots
+        .map((snapshot) => {
+          const entry = entriesByUserAndSnapshot.get(
+            `${profile.user_id}-${snapshot.id}`,
+          );
 
-        return {
-          snapshotId: snapshot.id,
-          createdAt: snapshot.created_at,
-          label: formatSnapshotLabel(snapshot.created_at),
-          rank: entry.rank,
-          totalPoints: entry.total_points,
-        };
-      })
-      .filter((point): point is LeaderboardEvolutionSeries["points"][number] =>
-        Boolean(point),
-      ),
-  }));
+          if (!entry) return null;
+
+          return {
+            snapshotId: snapshot.id,
+            createdAt: snapshot.created_at,
+            label: formatSnapshotLabel(snapshot.created_at),
+            rank: entry.rank,
+            totalPoints: entry.total_points,
+          };
+        })
+        .filter(
+          (point): point is LeaderboardEvolutionSeries["points"][number] =>
+            Boolean(point),
+        ),
+    };
+  });
 }

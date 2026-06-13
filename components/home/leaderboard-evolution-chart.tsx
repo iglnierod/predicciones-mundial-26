@@ -40,12 +40,12 @@ type TooltipProps = {
   }>;
 };
 
-function getRankKey(index: number) {
-  return `rank${index}`;
-}
-
 function getPointsKey(index: number) {
   return `points${index}`;
+}
+
+function getRankKey(index: number) {
+  return `rank${index}`;
 }
 
 function buildChartData(series: LeaderboardEvolutionSeries[]) {
@@ -93,10 +93,6 @@ function buildChartData(series: LeaderboardEvolutionSeries[]) {
     );
 }
 
-function getRankTicks(maxRank: number) {
-  return Array.from({ length: Math.max(maxRank, 3) }, (_, index) => index + 1);
-}
-
 function EvolutionTooltip({ active, payload }: TooltipProps) {
   if (!active || !payload?.length) return null;
 
@@ -128,12 +124,23 @@ function EvolutionTooltip({ active, payload }: TooltipProps) {
 
 export default function LeaderboardEvolutionChart({ series }: Props) {
   const chartData = useMemo(() => buildChartData(series), [series]);
-  const ranks = useMemo(
-    () => series.flatMap((item) => item.points.map((point) => point.rank)),
+  const chartLines = series
+    .map((item, index) => ({ item, rankKey: getRankKey(index) }))
+    .sort(
+      (a, b) => Number(a.item.isCurrentUser) - Number(b.item.isCurrentUser),
+    );
+  const maxRank = useMemo(
+    () =>
+      series.reduce(
+        (max, item) =>
+          item.points.reduce(
+            (seriesMax, point) => Math.max(seriesMax, point.rank),
+            max,
+          ),
+        1,
+      ),
     [series],
   );
-  const maxRank = Math.max(...ranks, 1);
-  const rankTicks = getRankTicks(maxRank);
 
   if (chartData.length < 2 || series.every((item) => item.points.length < 2)) {
     return (
@@ -152,11 +159,11 @@ export default function LeaderboardEvolutionChart({ series }: Props) {
   }
 
   return (
-    <div className="h-72 w-full rounded-3xl border border-black/5 bg-white px-1 pt-3 shadow-sm">
+    <div className="h-96 w-full rounded-3xl border border-black/5 bg-white px-1 pt-3 shadow-sm">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}
-          margin={{ top: 12, right: 16, left: 0, bottom: 0 }}
+          margin={{ top: 12, right: 16, left: 4, bottom: 0 }}
         >
           <CartesianGrid stroke="rgba(0,0,0,0.08)" vertical={false} />
           <XAxis
@@ -174,18 +181,17 @@ export default function LeaderboardEvolutionChart({ series }: Props) {
             allowDecimals={false}
             width={42}
             domain={[1, Math.max(maxRank, 3)]}
-            ticks={rankTicks}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `#${Math.trunc(Number(value))}`}
             tick={{ fill: "rgba(0,0,0,0.55)", fontSize: 12, fontWeight: 700 }}
           />
           <Tooltip content={<EvolutionTooltip />} />
-          {series.map((item, index) => (
+          {chartLines.map(({ item, rankKey }) => (
             <Line
               key={item.userId}
               type="monotone"
-              dataKey={getRankKey(index)}
+              dataKey={rankKey}
               name={item.name}
               stroke={item.color}
               strokeWidth={item.isCurrentUser ? 4 : 2}
