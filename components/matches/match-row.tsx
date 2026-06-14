@@ -5,11 +5,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { Clock, LoaderCircle } from "lucide-react";
 import Swal from "sweetalert2";
-import {
-  formatKickoffDateTime,
-  getRoundLabel,
-  isPredictionClosed,
-} from "@/lib/format/match";
+import { getRoundLabel, isPredictionClosed } from "@/lib/format/match";
+import LocalKickoffDateTime from "./local-kickoff-date-time";
 
 type MatchRowProps = {
   match: MatchWithPrediction;
@@ -38,7 +35,6 @@ export default function MatchRow({
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const kickoffDateTime = formatKickoffDateTime(match.kickoff_at);
   const predictionClosed = isPredictionClosed(match.kickoff_at);
   const hasScore = match.home_score !== null && match.away_score !== null;
   const hasPrediction =
@@ -136,7 +132,10 @@ export default function MatchRow({
           ) : (
             <></>
           )}
-          <p className="text-sm font-bold text-black">{kickoffDateTime}</p>
+          <LocalKickoffDateTime
+            dateString={match.kickoff_at}
+            className="text-sm font-bold text-black"
+          />
         </div>
       </div>
 

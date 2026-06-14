@@ -1,5 +1,16 @@
 export function parseUtcDate(dateString: string) {
-  return new Date(dateString.replace(" ", "T"));
+  const normalizedDateString = dateString
+    .trim()
+    .replace(" ", "T")
+    .replace(/([+-]\d{2})(\d{2})$/, "$1:$2")
+    .replace(/([+-]\d{2})$/, "$1:00");
+  const date = new Date(normalizedDateString);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Fecha no válida: ${dateString}`);
+  }
+
+  return date;
 }
 
 export function formatKickoffDateTime(

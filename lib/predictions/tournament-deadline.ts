@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { parseUtcDate } from "@/lib/format/match";
 
 const PREDICTION_CLOSE_OFFSET_MS = 60 * 1000;
 
@@ -21,7 +22,7 @@ export async function getTournamentPredictionsCloseAt(
   if (!data?.kickoff_at) return null;
 
   return new Date(
-    new Date(data.kickoff_at).getTime() - PREDICTION_CLOSE_OFFSET_MS,
+    parseUtcDate(data.kickoff_at).getTime() - PREDICTION_CLOSE_OFFSET_MS,
   ).toISOString();
 }
 

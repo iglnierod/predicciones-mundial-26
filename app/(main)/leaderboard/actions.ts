@@ -4,6 +4,7 @@ import {
   areTournamentPredictionsClosed,
   getTournamentPredictionsCloseAt,
 } from "@/lib/predictions/tournament-deadline";
+import { parseUtcDate } from "@/lib/format/match";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -231,7 +232,7 @@ async function getTournamentHasStarted(supabase: SupabaseClient) {
   }
 
   return data?.kickoff_at
-    ? new Date(data.kickoff_at).getTime() <= Date.now()
+    ? parseUtcDate(data.kickoff_at).getTime() <= Date.now()
     : false;
 }
 

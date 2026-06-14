@@ -1,4 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { parseUtcDate } from "@/lib/format/match";
 import type { MatchPredictionBreakdown, MatchWithPrediction } from "@/types";
 
 const TOURNAMENT_PREDICTION_FIELDS = [
@@ -213,7 +214,7 @@ export async function getHomeTournamentTiming(
   return {
     firstKickoffAt,
     hasStarted: firstKickoffAt
-      ? new Date(firstKickoffAt).getTime() <= Date.now()
+      ? parseUtcDate(firstKickoffAt).getTime() <= Date.now()
       : false,
   };
 }

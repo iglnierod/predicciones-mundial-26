@@ -7,7 +7,8 @@ import {
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
-import { formatKickoffDateTime, getRoundLabel } from "@/lib/format/match";
+import LocalKickoffDateTime from "@/components/matches/local-kickoff-date-time";
+import { getRoundLabel } from "@/lib/format/match";
 import type {
   HomeMatch,
   HomePredictionStatus,
@@ -251,9 +252,11 @@ function FeaturedUpcomingMatch({ match }: { match: HomeMatch }) {
             {match.group_name ? ` · ${match.group_name}` : ""}
           </p>
         </div>
-        <span className="rounded-full bg-white px-3 py-1 text-[11px] font-black tracking-wide text-[#2A398D]">
-          {formatKickoffDateTime(match.kickoff_at, { year: "numeric" })}
-        </span>
+        <LocalKickoffDateTime
+          dateString={match.kickoff_at}
+          options={{ year: "numeric" }}
+          className="rounded-full bg-white px-3 py-1 text-[11px] font-black tracking-wide text-[#2A398D]"
+        />
       </div>
 
       <div className="relative mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-6">
@@ -313,9 +316,10 @@ function SecondaryUpcomingMatch({ match }: { match: HomeMatch }) {
   return (
     <article className="rounded-2xl border border-black/5 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-        <span className="rounded-full bg-black/5 px-3 py-1 text-[11px] font-bold tracking-wide text-black/55">
-          {formatKickoffDateTime(match.kickoff_at)}
-        </span>
+        <LocalKickoffDateTime
+          dateString={match.kickoff_at}
+          className="rounded-full bg-black/5 px-3 py-1 text-[11px] font-bold tracking-wide text-black/55"
+        />
         <span
           className={`rounded-full px-3 py-1 text-[11px] font-bold tracking-wide ${
             hasPrediction
@@ -408,7 +412,10 @@ function CompletedMatchSummary({ match }: { match: LastPlayedMatch }) {
           </span>
         </div>
         <div className="flex flex-1 justify-center text-center text-[11px] font-bold tracking-wide text-black/45">
-          {formatKickoffDateTime(match.kickoff_at, { year: "numeric" })}
+          <LocalKickoffDateTime
+            dateString={match.kickoff_at}
+            options={{ year: "numeric" }}
+          />
         </div>
         <div className="flex flex-1 justify-end">
           <span

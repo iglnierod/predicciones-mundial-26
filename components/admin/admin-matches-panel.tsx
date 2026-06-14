@@ -15,8 +15,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import LocalKickoffDateTime from "@/components/matches/local-kickoff-date-time";
 import {
-  formatKickoffDateTime,
   getMatchStatusLabel,
   getRoundLabel,
   parseUtcDate,
@@ -633,9 +633,10 @@ export default function AdminMatchesPanel({ initialMatches }: Props) {
                   </td>
 
                   <td className="px-5 py-4 text-center text-sm font-bold text-black">
-                    {formatKickoffDateTime(match.kickoff_at, {
-                      year: "numeric",
-                    })}
+                    <LocalKickoffDateTime
+                      dateString={match.kickoff_at}
+                      options={{ year: "numeric" }}
+                    />
                   </td>
 
                   <td className="px-5 py-4">

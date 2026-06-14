@@ -3,16 +3,14 @@
 import Image from "next/image";
 import { MatchWithPrediction } from "@/types";
 import UsersPredictionTable from "./users-prediction-table";
-import { formatKickoffDateTime, getRoundLabel } from "@/lib/format/match";
+import { getRoundLabel } from "@/lib/format/match";
+import LocalKickoffDateTime from "./local-kickoff-date-time";
 
 type Props = {
   match: MatchWithPrediction;
 };
 
 export default function ViewPredictionsModalContent({ match }: Props) {
-  const kickoffDateTime = formatKickoffDateTime(match.kickoff_at, {
-    year: "numeric",
-  });
   const hasScore = match.home_score !== null && match.away_score !== null;
   const homeTeamName = match.home_team_name ?? "Equipo local";
   const homeTeamCode = match.home_team_code ?? "LOC";
@@ -33,7 +31,10 @@ export default function ViewPredictionsModalContent({ match }: Props) {
           </span>
 
           <span className="rounded-full bg-black/5 px-3 py-1 text-[11px] font-bold tracking-wide text-black/70">
-            {kickoffDateTime}
+            <LocalKickoffDateTime
+              dateString={match.kickoff_at}
+              options={{ year: "numeric" }}
+            />
           </span>
         </div>
 
