@@ -73,11 +73,18 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
             const movement = getMovement(user.rank_change);
             const displayName = user.full_name ?? "Usuario sin nombre";
             const pointBreakdown = [
-              ...(user.tournament_points > 0
-                ? [`Globales: ${user.tournament_points}`]
+              ...(user.match_points > 0
+                ? [{ label: "Partidos", points: user.match_points }]
                 : []),
-              ...(user.group_points > 0 ? [`Grupos: ${user.group_points}`] : []),
-              `Partidos: ${user.match_points}`,
+              ...(user.group_points > 0
+                ? [{ label: "Grupos", points: user.group_points }]
+                : []),
+              ...(user.tournament_points > 0
+                ? [{ label: "Globales", points: user.tournament_points }]
+                : []),
+              ...(user.extra_points > 0
+                ? [{ label: "Extra", points: user.extra_points }]
+                : []),
             ];
 
             const trClass = isCurrentUser
@@ -140,9 +147,19 @@ export default function LeaderboardTable({ leaderboard, userId }: Props) {
                         </span>
                         <span className="hidden sm:inline">{displayName}</span>
                       </p>
-                      <p className="hidden text-xs text-black/50">
-                        {pointBreakdown.join(" · ")}
-                      </p>
+                      {pointBreakdown.length > 0 ? (
+                        <p className="mt-1 text-xs leading-5 text-black/50">
+                          {pointBreakdown.map((pointType, index) => (
+                            <span key={pointType.label}>
+                              {index > 0 ? " · " : null}
+                              {pointType.label}:{" "}
+                              <span className="font-semibold text-[#536DA8]">
+                                {pointType.points}
+                              </span>
+                            </span>
+                          ))}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                 </td>
