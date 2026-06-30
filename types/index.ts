@@ -175,6 +175,36 @@ export type TournamentPrediction = {
   spain_total_goals: string | null;
 };
 
+export type TournamentResult = Omit<TournamentPrediction, "id" | "user_id"> & {
+  id: number;
+  updated_at: string;
+};
+
+export type TournamentPredictionFieldBreakdown = {
+  label: string;
+  ruleKey: string;
+  points: number;
+  maxPoints: number;
+  predictedValue: string | number | null;
+  resultValue: string | number | null;
+  isAnswered: boolean;
+  isResolved: boolean;
+  isCorrect: boolean;
+};
+
+export type TournamentPredictionPointsBreakdown = {
+  points: number;
+  maxPoints: number;
+  processedKey: string;
+  resolvedFields: number;
+  fields: Partial<
+    Record<
+      keyof TournamentPredictionFormValues,
+      TournamentPredictionFieldBreakdown
+    >
+  >;
+};
+
 export type TournamentPredictionFormValues = {
   world_cup_winner_team_id: number | null;
   top_scorer: string;

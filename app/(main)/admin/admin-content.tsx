@@ -4,12 +4,16 @@ import { GroupWithQualifiedTeams, MatchWithDetails } from "@/types";
 import AdminMatchesPanel from "@/components/admin/admin-matches-panel";
 import AdminGroupsPanel from "@/components/admin/admin-groups-panel";
 import AdminGlobalPredictionsPanel from "@/components/admin/admin-global-predictions-panel";
+import type { AdminGlobalPredictionsData } from "@/lib/repositories/tournament-predictions-repository";
+import type { ScoringRulesMap } from "@/lib/scoring/types";
 
 type AdminTab = "matches" | "groups" | "globals";
 
 type Props = {
   initialGroups: GroupWithQualifiedTeams[];
   initialMatches: MatchWithDetails[];
+  initialGlobalData: AdminGlobalPredictionsData;
+  scoringRules: ScoringRulesMap;
   initialTab: AdminTab;
 };
 
@@ -38,6 +42,8 @@ const tabs: {
 export default function AdminContent({
   initialGroups,
   initialMatches,
+  initialGlobalData,
+  scoringRules,
   initialTab,
 }: Props) {
   return (
@@ -74,7 +80,13 @@ export default function AdminContent({
         <AdminGroupsPanel initialGroups={initialGroups} />
       )}
 
-      {initialTab === "globals" && <AdminGlobalPredictionsPanel />}
+      {initialTab === "globals" && (
+        <AdminGlobalPredictionsPanel
+          key={initialGlobalData.result?.updated_at ?? "empty-global-result"}
+          initialData={initialGlobalData}
+          scoringRules={scoringRules}
+        />
+      )}
     </div>
   );
 }

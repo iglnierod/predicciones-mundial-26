@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import AdminContent from "./admin-content";
 import { GroupWithQualifiedTeams, MatchWithDetails } from "@/types";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  getAdminGlobalPredictionsData,
+  type AdminGlobalPredictionsData,
+} from "@/lib/repositories/tournament-predictions-repository";
+import { getScoringRulesMap } from "@/lib/scoring/rules";
+import type { ScoringRulesMap } from "@/lib/scoring/types";
 
 type AdminTab = "matches" | "groups" | "globals";
 
@@ -43,6 +50,22 @@ export default async function AdminPage({ searchParams }: Props) {
     );
   }
 
+  let initialGlobalData: AdminGlobalPredictionsData = {
+    result: null,
+    teams: [],
+    predictions: [],
+  };
+  let scoringRules: ScoringRulesMap = {};
+
+  if (initialTab === "globals") {
+    const supabaseAdmin = createSupabaseAdminClient();
+
+    [initialGlobalData, scoringRules] = await Promise.all([
+      getAdminGlobalPredictionsData(supabaseAdmin),
+      getScoringRulesMap(supabaseAdmin),
+    ]);
+  }
+
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -56,6 +79,8 @@ export default async function AdminPage({ searchParams }: Props) {
       <AdminContent
         initialGroups={(groups ?? []) as GroupWithQualifiedTeams[]}
         initialMatches={(matches ?? []) as MatchWithDetails[]}
+        initialGlobalData={initialGlobalData}
+        scoringRules={scoringRules}
         initialTab={initialTab}
       />
     </section>
