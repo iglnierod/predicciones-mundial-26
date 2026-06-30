@@ -51,3 +51,6 @@ hyperframes/*.mp4
 # supabase
 supabase/.temp/
 supabase/backups/
+
+# agent tooling
+skills-lock.json
