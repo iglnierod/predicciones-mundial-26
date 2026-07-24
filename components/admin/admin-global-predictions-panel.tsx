@@ -599,6 +599,12 @@ export default function AdminGlobalPredictionsPanel({
             ))}
           </select>
         )}
+
+        {field.allowMultipleResults ? (
+          <p className="text-xs font-semibold text-black/45">
+            Si hay varios correctos, sepáralos con punto y coma (;).
+          </p>
+        ) : null}
       </label>
     );
   }

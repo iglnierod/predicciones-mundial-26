@@ -10,6 +10,8 @@ import type {
 
 type TournamentScoringRow = TournamentPrediction | TournamentResult;
 
+const MULTIPLE_RESULT_SEPARATOR_REGEX = /[;/|]/;
+
 function getRequiredRulePoints(
   rulesMap: ScoringRulesMap,
   ruleKey: string,
@@ -42,6 +44,58 @@ function getComparableValue(value: string | number | null) {
   return null;
 }
 
+function getComparableResultValue(
+  value: string | number | null,
+  allowMultipleResults: boolean | undefined,
+) {
+  if (!allowMultipleResults || typeof value !== "string") {
+    return getComparableValue(value);
+  }
+
+  const values = value
+    .split(MULTIPLE_RESULT_SEPARATOR_REGEX)
+    .map(normalizeTextValue)
+    .filter(Boolean);
+
+  return [...new Set(values)].sort();
+}
+
+function isResultResolved(
+  value: string | number | null,
+  allowMultipleResults: boolean | undefined,
+) {
+  if (isEmptyValue(value)) return false;
+
+  const comparableValue = getComparableResultValue(value, allowMultipleResults);
+
+  return Array.isArray(comparableValue) ? comparableValue.length > 0 : true;
+}
+
+function isPredictionCorrect({
+  predictedValue,
+  resultValue,
+  allowMultipleResults,
+}: {
+  predictedValue: string | number | null;
+  resultValue: string | number | null;
+  allowMultipleResults: boolean | undefined;
+}) {
+  const comparablePrediction = getComparableValue(predictedValue);
+  const comparableResult = getComparableResultValue(
+    resultValue,
+    allowMultipleResults,
+  );
+
+  if (Array.isArray(comparableResult)) {
+    return (
+      typeof comparablePrediction === "string" &&
+      comparableResult.includes(comparablePrediction)
+    );
+  }
+
+  return comparablePrediction === comparableResult;
+}
+
 function getFieldValue(
   row: TournamentScoringRow,
   fieldName: keyof TournamentPredictionFormValues,
@@ -56,7 +110,10 @@ export function buildTournamentProcessedKey(result: TournamentResult | null) {
     Object.fromEntries(
       TOURNAMENT_PREDICTION_FIELDS.map((field) => [
         field.name,
-        getComparableValue(getFieldValue(result, field.name)),
+        getComparableResultValue(
+          getFieldValue(result, field.name),
+          field.allowMultipleResults,
+        ),
       ]),
     ),
   );
@@ -65,8 +122,11 @@ export function buildTournamentProcessedKey(result: TournamentResult | null) {
 export function countResolvedTournamentFields(result: TournamentResult | null) {
   if (!result) return 0;
 
-  return TOURNAMENT_PREDICTION_FIELDS.filter(
-    (field) => !isEmptyValue(getFieldValue(result, field.name)),
+  return TOURNAMENT_PREDICTION_FIELDS.filter((field) =>
+    isResultResolved(
+      getFieldValue(result, field.name),
+      field.allowMultipleResults,
+    ),
   ).length;
 }
 
@@ -90,13 +150,19 @@ export function calculateTournamentPredictionPoints({
     const predictedValue = getFieldValue(prediction, field.name);
     const resultValue = getFieldValue(result, field.name);
     const isAnswered = !isEmptyValue(predictedValue);
-    const isResolved = !isEmptyValue(resultValue);
+    const isResolved = isResultResolved(
+      resultValue,
+      field.allowMultipleResults,
+    );
 
     let isCorrect = false;
 
     if (isAnswered && isResolved) {
-      isCorrect =
-        getComparableValue(predictedValue) === getComparableValue(resultValue);
+      isCorrect = isPredictionCorrect({
+        predictedValue,
+        resultValue,
+        allowMultipleResults: field.allowMultipleResults,
+      });
     }
 
     const points = isCorrect ? maxPoints : 0;

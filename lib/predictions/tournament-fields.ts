@@ -7,6 +7,7 @@ type FieldConfigBase = {
   section: "general" | "spain";
   points: number;
   scoringRuleKey: string;
+  allowMultipleResults?: boolean;
 };
 
 export type TournamentPredictionFieldConfig = FieldConfigBase &
@@ -112,6 +113,7 @@ export const TOURNAMENT_PREDICTION_FIELDS: TournamentPredictionFieldConfig[] = [
     placeholder: "Ej. Lamine Yamal",
     points: 5,
     scoringRuleKey: "tournament_spain_top_assist",
+    allowMultipleResults: true,
   },
   {
     name: "spain_red_card_player",
